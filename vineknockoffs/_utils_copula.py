@@ -139,4 +139,4 @@ class Copula(ABC):
     def sim(self, theta, n_obs=100):
         u = np.random.uniform(size=(n_obs, 2))
         u[:, 0] = self.inv_h_fun(theta, u[:, 0], u[:, 1])
-        return
+        return u
