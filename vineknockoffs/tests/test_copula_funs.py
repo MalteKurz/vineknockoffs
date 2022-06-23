@@ -13,7 +13,8 @@ np.random.seed(1111)
 
 
 @pytest.fixture(scope='module',
-                params=['cdf', 'pdf', 'hfun', 'vfun'])
+                params=['cdf', 'pdf', 'hfun', 'vfun',
+                        'd_hfun_d_theta', 'd_vfun_d_theta', 'd_hfun_d_v', 'd_vfun_d_u'])
 def fun_type(request):
     return request.param
 
