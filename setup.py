@@ -23,6 +23,7 @@ setup(
         'pandas',
         'scipy',
         'statsmodels',
+        'sympy',
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

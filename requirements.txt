@@ -2,4 +2,5 @@ numpy
 pandas
 scipy
 statsmodels
+sympy
 
