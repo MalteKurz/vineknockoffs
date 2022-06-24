@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from vineknockoffs._utils_copula_families import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
+from vineknockoffs.copulas import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
 
 from _utils_py_vs_r_vinecopula import py_copula_funs_eval, r_copula_funs_eval
 
