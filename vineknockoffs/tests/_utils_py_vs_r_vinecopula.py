@@ -4,24 +4,24 @@ rpy2 = pytest.importorskip("rpy2")
 from rpy2 import robjects
 
 
-def py_copula_funs_eval(data, cop_obj, cop_par, fun_type):
+def py_copula_funs_eval(data, cop_obj, fun_type):
     if fun_type == 'cdf':
-        res = cop_obj.cdf(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.cdf(data[:, 0], data[:, 1])
     elif fun_type == 'pdf':
-        res = cop_obj.pdf(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.pdf(data[:, 0], data[:, 1])
     elif fun_type == 'hfun':
-        res = cop_obj.hfun(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.hfun(data[:, 0], data[:, 1])
     elif fun_type == 'vfun':
-        res = cop_obj.vfun(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.vfun(data[:, 0], data[:, 1])
     elif fun_type == 'd_hfun_d_theta':
-        res = cop_obj.d_hfun_d_theta(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.d_hfun_d_theta(data[:, 0], data[:, 1])
     elif fun_type == 'd_vfun_d_theta':
-        res = cop_obj.d_vfun_d_theta(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.d_vfun_d_theta(data[:, 0], data[:, 1])
     elif fun_type == 'd_hfun_d_v':
-        res = cop_obj.d_hfun_d_v(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.d_hfun_d_v(data[:, 0], data[:, 1])
     else:
         assert fun_type == 'd_vfun_d_u'
-        res = cop_obj.d_vfun_d_u(cop_par, data[:, 0], data[:, 1])
+        res = cop_obj.d_vfun_d_u(data[:, 0], data[:, 1])
 
     return res
 

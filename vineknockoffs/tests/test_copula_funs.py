@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from vineknockoffs._utils_copula_families import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula
+from vineknockoffs._utils_copula_families import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
 
 from _utils_py_vs_r_vinecopula import py_copula_funs_eval, r_copula_funs_eval
 
@@ -45,11 +45,11 @@ def gumbel_cop_par(request):
 
 
 def test_clayton_deriv_py_vs_r(clayton_cop_par, fun_type):
-    cop_obj = ClaytonCopula()
+    cop_obj = ClaytonCopula(clayton_cop_par)
     n_obs = 231
-    data = cop_obj.sim(clayton_cop_par, n_obs)
+    data = cop_obj.sim(n_obs)
 
-    res_py = py_copula_funs_eval(data, cop_obj, clayton_cop_par, fun_type)
+    res_py = py_copula_funs_eval(data, cop_obj, fun_type)
 
     res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
                                3, clayton_cop_par,
@@ -60,11 +60,11 @@ def test_clayton_deriv_py_vs_r(clayton_cop_par, fun_type):
 
 
 def test_frank_deriv_py_vs_r(frank_cop_par, fun_type):
-    cop_obj = FrankCopula()
+    cop_obj = FrankCopula(frank_cop_par)
     n_obs = 231
-    data = cop_obj.sim(frank_cop_par, n_obs)
+    data = cop_obj.sim(n_obs)
 
-    res_py = py_copula_funs_eval(data, cop_obj, frank_cop_par, fun_type)
+    res_py = py_copula_funs_eval(data, cop_obj, fun_type)
 
     res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
                                5, frank_cop_par,
@@ -75,11 +75,11 @@ def test_frank_deriv_py_vs_r(frank_cop_par, fun_type):
 
 
 def test_gaussian_deriv_py_vs_r(gaussian_cop_par, fun_type):
-    cop_obj = GaussianCopula()
+    cop_obj = GaussianCopula(gaussian_cop_par)
     n_obs = 231
-    data = cop_obj.sim(gaussian_cop_par, n_obs)
+    data = cop_obj.sim(n_obs)
 
-    res_py = py_copula_funs_eval(data, cop_obj, gaussian_cop_par, fun_type)
+    res_py = py_copula_funs_eval(data, cop_obj, fun_type)
 
     res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
                                1, gaussian_cop_par,
@@ -90,14 +90,30 @@ def test_gaussian_deriv_py_vs_r(gaussian_cop_par, fun_type):
 
 
 def test_gumbel_deriv_py_vs_r(gumbel_cop_par, fun_type):
-    cop_obj = GumbelCopula()
+    cop_obj = GumbelCopula(gumbel_cop_par)
     n_obs = 231
-    data = cop_obj.sim(gumbel_cop_par, n_obs)
+    data = cop_obj.sim(n_obs)
 
-    res_py = py_copula_funs_eval(data, cop_obj, gumbel_cop_par, fun_type)
+    res_py = py_copula_funs_eval(data, cop_obj, fun_type)
 
     res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
                                4, gumbel_cop_par,
+                               fun_type)
+    assert np.allclose(res_py,
+                       res_r,
+                       rtol=1e-9, atol=1e-4)
+
+
+def test_indep_deriv_py_vs_r(fun_type):
+    cop_obj = IndepCopula()
+    n_obs = 231
+    data = cop_obj.sim(n_obs)
+
+    res_py = py_copula_funs_eval(data, cop_obj, fun_type)
+
+    cop_par = 0  # ignored
+    res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
+                               0, cop_par,
                                fun_type)
     assert np.allclose(res_py,
                        res_r,

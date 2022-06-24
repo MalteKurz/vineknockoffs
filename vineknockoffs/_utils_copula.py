@@ -65,78 +65,84 @@ def copula_derivs_one_par(cdf_sym, u_sym, v_sym, theta_sym):
 class Copula(ABC):
     _theta_bounds = None
 
-    def __init__(self, cop_funs):
+    def __init__(self, par, cop_funs):
+        self._par = par
         self._cop_funs = cop_funs
+
+    @property
+    def par(self):
+        return self._par
 
     def mle_est(self, u, v):
         tau, _ = kendalltau(u, v)
         theta_0 = self.tau2par(tau)
-        theta_hat, _, _ = fmin_l_bfgs_b(self.neg_ll,
+        theta_hat, _, _ = fmin_l_bfgs_b(self._neg_ll,
                                         theta_0,
-                                        self.neg_ll_deriv_theta,
+                                        self._neg_ll_deriv_theta,
                                         (u, v),
                                         bounds=self._theta_bounds)
-        return theta_hat
+        self._par = theta_hat
+        return
 
     @staticmethod
     @abstractmethod
     def tau2par(tau):
         pass
 
-    def cdf(self, theta, u, v):
-        return self._cop_funs['cdf'](theta, u, v)
+    def cdf(self, u, v):
+        return self._cop_funs['cdf'](self.par, u, v)
 
-    def pdf(self, theta, u, v):
-        return self._cop_funs['pdf'](theta, u, v)
+    def pdf(self, u, v):
+        return self._cop_funs['pdf'](self.par, u, v)
 
-    def ll(self, theta, u, v):
-        return self._cop_funs['ll'](theta, u, v)
+    def ll(self, u, v):
+        return self._cop_funs['ll'](self.par, u, v)
 
-    def neg_ll(self, theta, u, v):
+    def _neg_ll(self, theta, u, v):
         return -np.sum(self.ll(theta, u, v))
 
-    def neg_ll_deriv_theta(self, theta, u, v):
+    def _neg_ll_deriv_theta(self, theta, u, v):
         return -np.sum(self._cop_funs['d_ll_d_theta'](theta, u, v))
 
-    def hfun(self, theta, u, v):
-        res = self._cop_funs['hfun'](theta, u, v)
+    def hfun(self, u, v):
+        res = self._cop_funs['hfun'](self.par, u, v)
         return res
 
-    def vfun(self, theta, u, v):
-        res = self._cop_funs['vfun'](theta, u, v)
+    def vfun(self, u, v):
+        res = self._cop_funs['vfun'](self.par, u, v)
         return res
 
-    def d_hfun_d_theta(self, theta, u, v):
-        res = self._cop_funs['d_hfun_d_theta'](theta, u, v)
+    def d_hfun_d_theta(self, u, v):
+        res = self._cop_funs['d_hfun_d_theta'](self.par, u, v)
         return res
 
-    def d_vfun_d_theta(self, theta, u, v):
-        res = self._cop_funs['d_vfun_d_theta'](theta, u, v)
+    def d_vfun_d_theta(self, u, v):
+        res = self._cop_funs['d_vfun_d_theta'](self.par, u, v)
         return res
 
-    def d_hfun_d_v(self, theta, u, v):
-        res = self._cop_funs['d_hfun_d_v'](theta, u, v)
+    def d_hfun_d_v(self, u, v):
+        res = self._cop_funs['d_hfun_d_v'](self.par, u, v)
         return res
 
-    def d_vfun_d_u(self, theta, u, v):
-        res = self._cop_funs['d_vfun_d_u'](theta, u, v)
+    def d_vfun_d_u(self, u, v):
+        res = self._cop_funs['d_vfun_d_u'](self.par, u, v)
         return res
 
-    def inv_h_fun(self, theta, u, v):
-        res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](theta, xx, v[i]) - u[i],
+    def inv_h_fun(self, u, v):
+        res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, v[i]) - u[i],
                                     bracket=[1e-12, 1-1e-12],
                                     method='brentq',
                                     xtol=1e-12, rtol=1e-12).root for i in range(len(u))])
         return res
 
-    def inv_v_fun(self, theta, u, v):
-        res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](theta, xx, u[i]) - v[i],
+    def inv_v_fun(self, u, v):
+        res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, u[i]) - v[i],
                                     bracket=[1e-12, 1-1e-12],
                                     method='brentq',
                                     xtol=1e-12, rtol=1e-12).root for i in range(len(v))])
         return res
 
-    def sim(self, theta, n_obs=100):
+    def sim(self, n_obs=100):
         u = np.random.uniform(size=(n_obs, 2))
-        u[:, 0] = self.inv_h_fun(theta, u[:, 0], u[:, 1])
+        u[:, 0] = self.inv_h_fun(u[:, 0], u[:, 1])
         return u
