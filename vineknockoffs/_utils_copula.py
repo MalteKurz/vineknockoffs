@@ -64,6 +64,7 @@ def copula_derivs_one_par(cdf_sym, u_sym, v_sym, theta_sym):
 
 class Copula(ABC):
     _theta_bounds = None
+    n_par = np.nan
 
     def __init__(self, par, cop_funs):
         self._par = par
@@ -99,10 +100,14 @@ class Copula(ABC):
         return self._cop_funs['ll'](self.par, u, v)
 
     def _neg_ll(self, theta, u, v):
-        return -np.sum(self.ll(theta, u, v))
+        return -np.sum(self._cop_funs['ll'](theta, u, v))
 
     def _neg_ll_deriv_theta(self, theta, u, v):
         return -np.sum(self._cop_funs['d_ll_d_theta'](theta, u, v))
+
+    def aic(self, u, v):
+        res = 2 * self.n_par + 2 * self._neg_ll(self.par, u, v)
+        return res
 
     def hfun(self, u, v):
         res = self._cop_funs['hfun'](self.par, u, v)

@@ -4,7 +4,7 @@ from sympy import symbols, diff, log, exp, sqrt
 
 import scipy.integrate as integrate
 from scipy.optimize import root_scalar
-from scipy.stats import norm, multivariate_normal, kendalltau
+from scipy.stats import norm, kendalltau
 
 from ._utils_copula import Copula, copula_derivs_one_par, opt_and_lambdify
 from ._utils_gaussian_copula import gaussian_cop_funs
@@ -138,7 +138,7 @@ def cop_select(u, v, families='all', indep_test=True):
     indep_cop = False
     if indep_test:
         n_obs = len(u)
-        tau = kendalltau(u, v)
+        tau, _ = kendalltau(u, v)
         test_stat = np.sqrt(9*n_obs*(n_obs-1)/2/(2*n_obs+5)) * np.abs(tau)
         indep_cop = (test_stat <= norm.ppf(0.975))
 
@@ -146,5 +146,10 @@ def cop_select(u, v, families='all', indep_test=True):
         cop_sel = IndepCopula()
     else:
         aics = np.full(len(copulas), np.nan)
-        for this_cop in copulas:
-            par_hat = this_cop.mle_est(u, v)
+        for ind, this_cop in enumerate(copulas):
+            this_cop.mle_est(u, v)
+            aics[ind] = this_cop.aic(u, v)
+        best_ind = np.argmin(aics)
+        cop_sel = copulas[best_ind]
+
+    return cop_sel
