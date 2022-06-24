@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from vineknockoffs._utils_copula_families import ClaytonCopula, FrankCopula, GumbelCopula
+from vineknockoffs._utils_copula_families import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula
 
 from _utils_py_vs_r_vinecopula import py_copula_funs_eval, r_copula_funs_eval
 
@@ -29,6 +29,12 @@ def clayton_cop_par(request):
                 params=[2, 4, 5, 10,
                         -2, -4, -5, -10])
 def frank_cop_par(request):
+    return request.param
+
+
+@pytest.fixture(scope='module',
+                params=[-0.2, 0.2, 0.5, 0.75])
+def gaussian_cop_par(request):
     return request.param
 
 
@@ -62,6 +68,21 @@ def test_frank_deriv_py_vs_r(frank_cop_par, fun_type):
 
     res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
                                5, frank_cop_par,
+                               fun_type)
+    assert np.allclose(res_py,
+                       res_r,
+                       rtol=1e-9, atol=1e-4)
+
+
+def test_gaussian_deriv_py_vs_r(gaussian_cop_par, fun_type):
+    cop_obj = GaussianCopula()
+    n_obs = 231
+    data = cop_obj.sim(gaussian_cop_par, n_obs)
+
+    res_py = py_copula_funs_eval(data, cop_obj, gaussian_cop_par, fun_type)
+
+    res_r = r_copula_funs_eval(data[:, 0], data[:, 1],
+                               1, gaussian_cop_par,
                                fun_type)
     assert np.allclose(res_py,
                        res_r,

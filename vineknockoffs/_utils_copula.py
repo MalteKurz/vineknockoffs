@@ -93,7 +93,7 @@ class Copula(ABC):
         return self._cop_funs['ll'](theta, u, v)
 
     def neg_ll(self, theta, u, v):
-        return -np.sum(self._cop_funs['ll'](theta, u, v))
+        return -np.sum(self.ll(theta, u, v))
 
     def neg_ll_deriv_theta(self, theta, u, v):
         return -np.sum(self._cop_funs['d_ll_d_theta'](theta, u, v))
