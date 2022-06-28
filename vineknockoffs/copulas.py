@@ -66,12 +66,12 @@ class GaussianCopula(Copula):
     def tau2par(tau):
         return np.sin(np.pi * tau / 2)
 
-    def inv_h_fun(self, u, v):
-        res = self._cop_funs['inv_h_fun'](self.par, u, v)
+    def inv_hfun(self, u, v):
+        res = self._cop_funs['inv_hfun'](self.par, u, v)
         return res
 
-    def inv_v_fun(self, u, v):
-        res = self._cop_funs['inv_v_fun'](self.par, u, v)
+    def inv_vfun(self, u, v):
+        res = self._cop_funs['inv_vfun'](self.par, u, v)
         return res
 
 
@@ -92,6 +92,9 @@ class IndepCopula(Copula):
 
     def __init__(self):
         super().__init__(None, indep_cop_funs)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
 
     @staticmethod
     def tau2par(tau):

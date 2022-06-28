@@ -117,14 +117,14 @@ def gaussian_d_vfun_d_u(theta, u, v):
     return res
 
 
-def gaussian_inv_h_fun(theta, u, v):
+def gaussian_inv_hfun(theta, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
     res = norm.cdf(x * np.sqrt(1 - theta ** 2) + theta * y)
     return res
 
 
-def gaussian_inv_v_fun(theta, u, v):
+def gaussian_inv_vfun(theta, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
     res = norm.cdf(y * np.sqrt(1 - theta ** 2) + theta * x)
@@ -141,6 +141,6 @@ gaussian_cop_funs = {'cdf': gaussian_cdf,
                      'd_vfun_d_theta': gaussian_d_vfun_d_theta,
                      'd_hfun_d_v': gaussian_d_hfun_d_v,
                      'd_vfun_d_u': gaussian_d_vfun_d_u,
-                     'inv_h_fun': gaussian_inv_h_fun,
-                     'inv_v_fun': gaussian_inv_v_fun,
+                     'inv_hfun': gaussian_inv_hfun,
+                     'inv_vfun': gaussian_inv_vfun,
                      }

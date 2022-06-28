@@ -39,18 +39,18 @@ class DVineCopula:
         #         cop = j
         #         b[:, j] = self.copulas[tree][cop].hfun(b[:, j], a[:, j+1])
 
-        for i in np.arange(1, self.dim):
-            a[:, 0] = w[:, i]
-            for j in np.arange(i-1, -1, -1):
+        for i in np.arange(2, self.dim+1):
+            a[:, 0] = w[:, i-1]
+            for j in np.arange(i-1, 0, -1):
                 tree = j
-                cop = i-j-1
-                a[:, i-j] = self.copulas[tree][cop].vfun(b[:, i-j-1], a[:, i-j-1])
-            u[:, i] = a[:, i]
-            b[:, i] = a[:, i]
-            for j in np.arange(0, i):
+                cop = i-j
+                a[:, i-j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, i-j-1], a[:, i-j-1])
+            u[:, i-1] = a[:, i-1]
+            b[:, i-1] = a[:, i-1]
+            for j in np.arange(1, i):
                 tree = j
-                cop = i-j-1
-                b[:, i-j-1] = self.copulas[tree][cop].hfun(b[:, i-j-1], a[:, i-j])
+                cop = i-j
+                b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
         return u
 
     @classmethod
@@ -62,21 +62,21 @@ class DVineCopula:
         b = np.full_like(u, np.nan)
         xx = None
 
-        for i in np.arange(0, dim-1):
-            a[:, i+1] = u[:, i+1]
-            b[:, i] = u[:, i]
+        for i in np.arange(1, dim):
+            a[:, i] = u[:, i]
+            b[:, i-1] = u[:, i-1]
 
-        for j in np.arange(0, dim-1):
+        for j in np.arange(1, dim):
             tree = j
-            for i in np.arange(0, dim-j-1):
+            for i in np.arange(1, dim-j+1):
                 cop = i
-                copulas[tree][cop] = cop_select(b[:, i], a[:, i+j+1],
-                                                families=families, indep_test=indep_test)
-                if i < dim-j-1:
-                    xx = copulas[tree][cop].hfun(b[:, i], a[:, i+j+1])
-                if i > 0:
-                    a[:, i + j+1] = copulas[tree][cop].vfun(b[:, i], a[:, i+j+1])
-                if i < dim-j-1:
-                    b[:, i] = xx
+                copulas[tree-1][cop-1] = cop_select(b[:, i-1], a[:, i+j-1],
+                                                    families=families, indep_test=indep_test)
+                if i < dim-j:
+                    xx = copulas[tree-1][cop-1].hfun(b[:, i-1], a[:, i+j-1])
+                if i > 1:
+                    a[:, i+j-1] = copulas[tree-1][cop-1].vfun(b[:, i-1], a[:, i+j-1])
+                if i < dim-j:
+                    b[:, i-1] = xx
 
         return cls(copulas)

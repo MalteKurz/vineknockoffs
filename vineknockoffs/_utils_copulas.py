@@ -71,6 +71,9 @@ class Copula(ABC):
         self._par = par
         self._cop_funs = cop_funs
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}(par={self.par})'
+
     @property
     def par(self):
         return self._par
@@ -139,7 +142,7 @@ class Copula(ABC):
         res = self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(u), self._trim_obs(v))
         return res
 
-    def inv_h_fun(self, u, v):
+    def inv_hfun(self, u, v):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, v[i]) - u[i],
@@ -148,7 +151,7 @@ class Copula(ABC):
                                     xtol=1e-12, rtol=1e-12).root for i in range(len(u))])
         return self._trim_obs(res)
 
-    def inv_v_fun(self, u, v):
+    def inv_vfun(self, u, v):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, u[i]) - v[i],
@@ -159,5 +162,5 @@ class Copula(ABC):
 
     def sim(self, n_obs=100):
         u = np.random.uniform(size=(n_obs, 2))
-        u[:, 0] = self.inv_h_fun(u[:, 0], u[:, 1])
+        u[:, 0] = self.inv_hfun(u[:, 0], u[:, 1])
         return u
