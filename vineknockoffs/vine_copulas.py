@@ -15,8 +15,9 @@ class DVineCopula:
     def dim(self):
         return len(self.copulas) + 1
 
-    def sim(self, n_obs=100):
-        w = np.random.uniform(size=(n_obs, self.dim))
+    def sim(self, n_obs=100, w=None):
+        if w is None:
+            w = np.random.uniform(size=(n_obs, self.dim))
 
         a = np.full_like(w, np.nan)
         b = np.full_like(w, np.nan)
@@ -46,16 +47,41 @@ class DVineCopula:
                 cop = i-j
                 a[:, i-j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, i-j-1], a[:, i-j-1])
             u[:, i-1] = a[:, i-1]
-            b[:, i-1] = a[:, i-1]
+            if i < self.dim:
+                b[:, i-1] = a[:, i-1]
+                for j in np.arange(1, i):
+                    tree = j
+                    cop = i-j
+                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+        return u
+
+    def compute_pits(self, u):
+        a = np.full_like(u, np.nan)
+        b = np.full_like(u, np.nan)
+        w = np.full_like(u, np.nan)
+
+        w[:, 0] = u[:, 0]
+        a[:, 0] = u[:, 0]
+        b[:, 0] = u[:, 0]
+
+        for i in np.arange(2, self.dim+1):
+            a[:, i-1] = u[:, i-1]
             for j in np.arange(1, i):
                 tree = j
                 cop = i-j
-                b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
-        return u
+                a[:, i-j-1] = self.copulas[tree-1][cop-1].vfun(b[:, i-j-1], a[:, i-j])
+            w[:, i-1] = a[:, 0]
+            if i < self.dim:
+                b[:, i-1] = a[:, i-1]
+                for j in np.arange(1, i):
+                    tree = j
+                    cop = i-j
+                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+        return w
 
     @classmethod
     def cop_select(cls, u, families='all', indep_test=True):
-        dim = np.shape(u)[1]
+        dim = u.shape[1]
         copulas = [[IndepCopula()] * j for j in np.arange(dim - 1, 0, -1)]
 
         a = np.full_like(u, np.nan)
