@@ -154,7 +154,7 @@ class Copula(ABC):
     def inv_vfun(self, u, v):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
-        res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, u[i]) - v[i],
+        res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, u[i], xx) - v[i],
                                     bracket=[1e-12, 1-1e-12],
                                     method='brentq',
                                     xtol=1e-12, rtol=1e-12).root for i in range(len(v))])
