@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.stats import kendalltau
+from python_tsp.exact import solve_tsp_dynamic_programming
 
 
 def dvine_pcorr(corr_mat):
@@ -11,3 +13,20 @@ def dvine_pcorr(corr_mat):
             p = np.linalg.inv(corr_mat[i-1:i+j, i-1:i+j])
             pcorrs[tree-1][cop-1] = - p[0, tree] / np.sqrt(p[0, 0] * p[tree, tree])
     return pcorrs
+
+
+def kendall_tau_mat(x):
+    n_vars = x.shape[1]
+    tau_mat = np.full((n_vars, n_vars), np.nan)
+    np.fill_diagonal(tau_mat, 1.)
+    for i_var in np.arange(0, n_vars):
+        for j_var in np.arange(i_var+1, n_vars):
+            tau_mat[i_var, j_var] = kendalltau(x[:, i_var], x[:, j_var])[0]
+            tau_mat[j_var, i_var] = tau_mat[i_var, j_var]
+    return tau_mat
+
+
+def d_vine_structure_select(u):
+    tau_mat = 1. - np.abs(kendall_tau_mat(u))
+    permutation, _ = solve_tsp_dynamic_programming(tau_mat)
+    return permutation

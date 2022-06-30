@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import norm
 
-from vine_copulas import DVineCopula
+from .vine_copulas import DVineCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_vine_copulas import dvine_pcorr
 from .copulas import GaussianCopula
