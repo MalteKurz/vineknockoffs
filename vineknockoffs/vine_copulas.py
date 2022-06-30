@@ -1,16 +1,11 @@
 import numpy as np
 from scipy.stats import norm
-import statsmodels.api as sm
 
 from .copulas import cop_select, IndepCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_vine_copulas import dvine_pcorr
 from .copulas import GaussianCopula
-
-
-class KDE(sm.nonparametric.KDEUnivariate):
-    def ppf(self, x):
-        return self.i_cdf(x)
+from ._utils_kde import KDEMultivariateWithInvCdf
 
 
 class DVineCopula:
@@ -147,7 +142,32 @@ class VineKnockoffs:
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
         return x_knockoffs
 
-    # ToDo Implement Gaussian copula knockoffs
+    def fit_gaussian_copula_knockoffs(self, x_train, algo='sdp'):
+        n_vars = x_train.shape[1]
+        self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
+                           for i_var in range(n_vars)]
+        u_train = np.full_like(x_train, np.nan)
+        x_gaussian_train = np.full_like(x_train, np.nan)
+        for i_var in range(n_vars):
+            u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
+            x_gaussian_train[:, i_var] = norm.ppf(u_train[:, i_var])
+
+        corr_mat = np.corrcoef(x_gaussian_train.transpose())
+
+        if algo == 'sdp':
+            s_vec = sdp_solver(corr_mat)
+        else:
+            assert algo == 'ecorr'
+            s_vec = ecorr_solver(corr_mat)
+
+        g_mat = np.vstack((np.hstack((corr_mat, corr_mat - np.diag(s_vec))),
+                           np.hstack((corr_mat - np.diag(s_vec), corr_mat))))
+        pcorrs = dvine_pcorr(g_mat)
+        copulas = [[GaussianCopula(rho) for rho in xx] for xx in pcorrs]
+        self._dvine = DVineCopula(copulas)
+
+        return self
+
     def fit_gaussian_knockoffs(self, x_train, algo='sdp'):
         n_vars = x_train.shape[1]
         mus = np.mean(x_train, axis=0)
