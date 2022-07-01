@@ -4,7 +4,7 @@ from scipy.stats import norm
 from .vine_copulas import DVineCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_vine_copulas import dvine_pcorr
-from .copulas import GaussianCopula
+from .copulas import cop_select, GaussianCopula
 from ._utils_kde import KDEMultivariateWithInvCdf
 
 
@@ -35,6 +35,55 @@ class VineKnockoffs:
         for i_var in range(n_vars):
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
         return x_knockoffs
+
+    def fit_vine_copula_knockoffs(self, x_train, families='all', indep_test=True):
+        # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
+        self.fit_gaussian_copula_knockoffs(x_train, algo='sdp')
+
+        # select copula families via AIC / MLE
+        n_vars = x_train.shape[1]
+        n_vars_x2 = n_vars * 2
+        u_train = np.full_like(x_train, np.nan)
+        for i_var in range(n_vars):
+            u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
+        uu = np.hstack((u_train, u_train))
+
+        a = np.full_like(uu, np.nan)
+        b = np.full_like(uu, np.nan)
+        xx = None
+
+        for i in np.arange(1, n_vars_x2):
+            a[:, i] = uu[:, i]
+            b[:, i - 1] = uu[:, i - 1]
+
+        for j in np.arange(1, n_vars_x2):
+            tree = j
+            for i in np.arange(1, n_vars_x2 - j + 1):
+                cop = i
+                if tree < n_vars:
+                    # lower trees
+                    if cop <= n_vars:
+                        self._dvine.copulas[tree - 1][cop - 1] = cop_select(b[:, i - 1], a[:, i + j - 1],
+                                                                            families=families, indep_test=indep_test)
+                    else:
+                        self._dvine.copulas[tree - 1][cop - 1] = self._dvine.copulas[tree - 1][cop - 1 - n_vars]
+                elif tree == n_vars:
+                    # decorrelation tree (do nothing; take Gaussian copula determined via fit_gaussian_copula_knockoffs)
+                    assert isinstance(self._dvine.copulas[tree - 1][cop - 1], GaussianCopula)
+                else:
+                    assert tree > n_vars
+                    # upper trees (standard selection but deactivate the independence test)
+                    self._dvine.copulas[tree - 1][cop - 1] = cop_select(b[:, i - 1], a[:, i + j - 1],
+                                                                        families=families, indep_test=False)
+
+                if i < n_vars_x2 - j:
+                    xx = self._dvine.copulas[tree - 1][cop - 1].hfun(b[:, i - 1], a[:, i + j - 1])
+                if i > 1:
+                    a[:, i + j - 1] = self._dvine.copulas[tree - 1][cop - 1].vfun(b[:, i - 1], a[:, i + j - 1])
+                if i < n_vars_x2 - j:
+                    b[:, i - 1] = xx
+
+        return self
 
     def fit_gaussian_copula_knockoffs(self, x_train, algo='sdp'):
         # ToDo May add alternative methods for the marginals (like parameteric distributions)
