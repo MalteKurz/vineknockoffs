@@ -67,9 +67,10 @@ class Copula(ABC):
     n_par = np.nan
     trim_thres = 1e-12
 
-    def __init__(self, par, cop_funs):
+    def __init__(self, par, cop_funs, rotation=0):
         self._par = par
         self._cop_funs = cop_funs
+        self._rotation = rotation
 
     def __repr__(self):
         return f'{self.__class__.__name__}(par={self.par})'
@@ -77,6 +78,10 @@ class Copula(ABC):
     @property
     def par(self):
         return self._par
+
+    @property
+    def rotation(self):
+        return self._rotation
 
     def mle_est(self, u, v):
         tau, _ = kendalltau(u, v)
@@ -100,64 +105,181 @@ class Copula(ABC):
         return u
 
     def cdf(self, u, v):
-        return self._cop_funs['cdf'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['cdf'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = u - self._cop_funs['cdf'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = u + v - 1 + self._cop_funs['cdf'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = v - self._cop_funs['cdf'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+        return res
 
     def pdf(self, u, v):
-        return self._cop_funs['pdf'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['pdf'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['pdf'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = self._cop_funs['pdf'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = self._cop_funs['pdf'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+        return res
 
     def ll(self, u, v):
-        return self._cop_funs['ll'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['ll'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['ll'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = self._cop_funs['ll'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = self._cop_funs['ll'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+        return res
 
     def _neg_ll(self, theta, u, v):
-        return -np.sum(self._cop_funs['ll'](theta, self._trim_obs(u), self._trim_obs(v)))
+        if self.rotation == 0:
+            res = -np.sum(self._cop_funs['ll'](theta, self._trim_obs(u), self._trim_obs(v)))
+        elif self.rotation == 90:
+            res = -np.sum(self._cop_funs['ll'](theta, self._trim_obs(1.-v), self._trim_obs(u)))
+        elif self.rotation == 180:
+            res = -np.sum(self._cop_funs['ll'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v)))
+        else:
+            assert self.rotation == 270
+            res = -np.sum(self._cop_funs['ll'](theta, self._trim_obs(v), self._trim_obs(1.-u)))
+        return res
 
     def _neg_ll_deriv_theta(self, theta, u, v):
-        return -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)))
+        if self.rotation == 0:
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)))
+        elif self.rotation == 90:
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(1.-v), self._trim_obs(u)))
+        elif self.rotation == 180:
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v)))
+        else:
+            assert self.rotation == 270
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(v), self._trim_obs(1.-u)))
+        return res
 
     def aic(self, u, v):
         res = 2 * self.n_par + 2 * self._neg_ll(self.par, self._trim_obs(u), self._trim_obs(v))
         return res
 
     def hfun(self, u, v):
-        res = self._cop_funs['hfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['hfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['vfun'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = 1. - self._cop_funs['hfun'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = 1. - self._cop_funs['vfun'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return self._trim_obs(res)
 
     def vfun(self, u, v):
-        res = self._cop_funs['vfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['vfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = 1. - self._cop_funs['hfun'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = 1. - self._cop_funs['vfun'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = self._cop_funs['hfun'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return self._trim_obs(res)
 
     def d_hfun_d_theta(self, u, v):
-        res = self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = 1. - self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = 1. - self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def d_vfun_d_theta(self, u, v):
-        res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = 1. - self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = 1. - self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def d_hfun_d_v(self, u, v):
-        res = self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = -1. * self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = -1. * self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def d_vfun_d_u(self, u, v):
-        res = self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = -1. * self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = -1. * self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def inv_hfun(self, u, v):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
-        res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, v[i]) - u[i],
-                                    bracket=[1e-12, 1-1e-12],
-                                    method='brentq',
-                                    xtol=1e-12, rtol=1e-12).root for i in range(len(u))])
+        kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
+
+        if self.rotation == 0:
+            res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, v[i]) - u[i],
+                                        **kwargs).root for i in range(len(u))])
+        elif self.rotation == 90:
+            res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, u[i]) - (1 - v[i]),
+                                        **kwargs).root for i in range(len(u))])
+        elif self.rotation == 180:
+            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, 1. - v[i]) - (1. - u[i]),
+                                             **kwargs).root for i in range(len(u))])
+        else:
+            assert self.rotation == 270
+            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, 1. - u[i]) - v[i],
+                                             **kwargs).root for i in range(len(u))])
+
         return self._trim_obs(res)
 
     def inv_vfun(self, u, v):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
-        res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, u[i], xx) - v[i],
-                                    bracket=[1e-12, 1-1e-12],
-                                    method='brentq',
-                                    xtol=1e-12, rtol=1e-12).root for i in range(len(v))])
+        kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
+
+        if self.rotation == 0:
+            res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, u[i], xx) - v[i],
+                                        **kwargs).root for i in range(len(v))])
+        elif self.rotation == 90:
+            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, (1. - v[i]), xx) - u[i],
+                                             **kwargs).root for i in range(len(v))])
+        elif self.rotation == 180:
+            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, 1. - u[i], xx) - (1. - v[i]),
+                                             **kwargs).root for i in range(len(v))])
+        else:
+            assert self.rotation == 270
+            res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, v[i], xx) - (1. - u[i]),
+                                        **kwargs).root for i in range(len(v))])
+
         return self._trim_obs(res)
 
     def sim(self, n_obs=100):

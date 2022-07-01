@@ -11,8 +11,8 @@ from ._utils_copula_families import clayton_cop_funs, frank_cop_funs, gaussian_c
 class ClaytonCopula(Copula):
     n_par = 1
 
-    def __init__(self, par=None):
-        super().__init__(par, clayton_cop_funs)
+    def __init__(self, par=None, rotation=0):
+        super().__init__(par, clayton_cop_funs, rotation=rotation)
         self._theta_bounds = [(0.0001, 28)]
 
     @staticmethod
@@ -78,8 +78,8 @@ class GaussianCopula(Copula):
 class GumbelCopula(Copula):
     n_par = 1
 
-    def __init__(self, par=None):
-        super().__init__(par, gumbel_cop_funs)
+    def __init__(self, par=None, rotation=0):
+        super().__init__(par, gumbel_cop_funs, rotation=rotation)
         self._theta_bounds = [(1.0, 20)]
 
     @staticmethod
