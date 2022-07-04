@@ -3,7 +3,7 @@ from scipy.stats import norm
 
 from .vine_copulas import DVineCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
-from ._utils_vine_copulas import dvine_pcorr
+from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
 from .copulas import cop_select, GaussianCopula
 from ._utils_kde import KDEMultivariateWithInvCdf
 
@@ -16,6 +16,21 @@ class VineKnockoffs:
                             f'{str(dvine)} of type {str(type(dvine))} was passed.')
         self._dvine = dvine
         self._marginals = marginals
+        self._dvine_structure = np.arange(self._dvine.n_vars)
+        self._inv_dvine_structure = np.argsort(self._dvine_structure)
+
+    @property
+    def dvine_structure(self):
+        return self._dvine_structure
+
+    @dvine_structure.setter
+    def dvine_structure(self, value):
+        self._dvine_structure = value
+        self._inv_dvine_structure = np.argsort(self._dvine_structure)
+
+    @property
+    def inv_dvine_structure(self):
+        return self._inv_dvine_structure
 
     def generate(self, x_test):
         n_obs = x_test.shape[0]
@@ -24,6 +39,9 @@ class VineKnockoffs:
         for i_var in range(n_vars):
             u_test[:, i_var] = self._marginals[i_var].cdf(x_test[:, i_var])
 
+        # apply dvine structure / variable order
+        u_test = u_test[:, self.dvine_structure]
+
         sub_dvine = DVineCopula([self._dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
         u_pits = sub_dvine.compute_pits(u_test)
         knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
@@ -31,12 +49,15 @@ class VineKnockoffs:
         u_sim = self._dvine.sim(w=np.hstack((u_pits, knockoff_pits)))
         u_knockoffs = u_sim[:, n_vars:]
 
+        # get back order of variables
+        u_knockoffs = u_knockoffs[:, self.inv_dvine_structure]
+
         x_knockoffs = np.full_like(x_test, np.nan)
         for i_var in range(n_vars):
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
         return x_knockoffs
 
-    def fit_vine_copula_knockoffs(self, x_train, families='all', indep_test=True):
+    def fit_vine_copula_knockoffs(self, x_train, families='all', rotations=True, indep_test=True):
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
         self.fit_gaussian_copula_knockoffs(x_train, algo='sdp')
 
@@ -46,6 +67,11 @@ class VineKnockoffs:
         u_train = np.full_like(x_train, np.nan)
         for i_var in range(n_vars):
             u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
+
+        # determine dvine structure / variable order
+        self.dvine_structure = d_vine_structure_select
+        u_train = u_train[:, self.dvine_structure]
+
         uu = np.hstack((u_train, u_train))
 
         a = np.full_like(uu, np.nan)
@@ -64,7 +90,8 @@ class VineKnockoffs:
                     # lower trees
                     if cop <= n_vars:
                         self._dvine.copulas[tree - 1][cop - 1] = cop_select(b[:, i - 1], a[:, i + j - 1],
-                                                                            families=families, indep_test=indep_test)
+                                                                            families=families, rotations=rotations,
+                                                                            indep_test=indep_test)
                     else:
                         self._dvine.copulas[tree - 1][cop - 1] = self._dvine.copulas[tree - 1][cop - 1 - n_vars]
                 elif tree == n_vars:
@@ -74,7 +101,8 @@ class VineKnockoffs:
                     assert tree > n_vars
                     # upper trees (standard selection but deactivate the independence test)
                     self._dvine.copulas[tree - 1][cop - 1] = cop_select(b[:, i - 1], a[:, i + j - 1],
-                                                                        families=families, indep_test=False)
+                                                                        families=families, rotations=rotations,
+                                                                        indep_test=False)
 
                 if i < n_vars_x2 - j:
                     xx = self._dvine.copulas[tree - 1][cop - 1].hfun(b[:, i - 1], a[:, i + j - 1])
