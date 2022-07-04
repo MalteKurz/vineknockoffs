@@ -109,14 +109,6 @@ class IndepCopula(Copula):
     def mle_est(self, u, v):
         return None
 
-    def inv_hfun(self, u, v):
-        res = u
-        return res
-
-    def inv_vfun(self, u, v):
-        res = v
-        return res
-
 
 def cop_select(u, v, families='all', rotations=True, indep_test=True):
     assert families == 'all'

@@ -19,9 +19,6 @@ frank_cdf_sym = - 1/theta_sym * \
                     (1 - exp(-theta_sym) - (1 - exp(-theta_sym*u_sym)) * (1 - exp(-theta_sym*v_sym))))
 frank_cop_funs = copula_derivs_one_par(frank_cdf_sym, u_sym, v_sym, theta_sym)
 
-indep_cdf_sym = u_sym * v_sym
-indep_cop_funs = copula_derivs_one_par(indep_cdf_sym, u_sym, v_sym, theta_sym)
-
 x_sym, y_sym, theta_sym = symbols('x y theta')
 gauss_cop_funs = dict()
 gauss_pdf_sym = 1/(sqrt(1-theta_sym**2)) * exp(-(theta_sym**2*(x_sym**2 + y_sym**2) - 2*theta_sym*x_sym*y_sym)
@@ -144,3 +141,17 @@ gaussian_cop_funs = {'cdf': gaussian_cdf,
                      'inv_hfun': gaussian_inv_hfun,
                      'inv_vfun': gaussian_inv_vfun,
                      }
+
+indep_cop_funs = {'cdf': lambda theta, u, v: u * v,
+                  'pdf': lambda theta, u, v: np.ones_like(u),
+                  'll': lambda theta, u, v: np.zeros_like(u),
+                  'd_ll_d_theta': lambda theta, u, v: np.zeros_like(u),
+                  'hfun': lambda theta, u, v: u,
+                  'vfun': lambda theta, u, v: v,
+                  'd_hfun_d_theta': lambda theta, u, v: np.zeros_like(u),
+                  'd_vfun_d_theta': lambda theta, u, v: np.zeros_like(u),
+                  'd_hfun_d_v': lambda theta, u, v: np.zeros_like(u),
+                  'd_vfun_d_u': lambda theta, u, v: np.zeros_like(u),
+                  'inv_hfun': lambda theta, u, v: u,
+                  'inv_vfun': lambda theta, u, v: v,
+                  }
