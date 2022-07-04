@@ -249,14 +249,14 @@ class Copula(ABC):
             res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, v[i]) - u[i],
                                         **kwargs).root for i in range(len(u))])
         elif self.rotation == 90:
-            res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, u[i]) - (1 - v[i]),
+            res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, (1 - v[i]), xx) - u[i],
                                         **kwargs).root for i in range(len(u))])
         elif self.rotation == 180:
             res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, 1. - v[i]) - (1. - u[i]),
                                              **kwargs).root for i in range(len(u))])
         else:
             assert self.rotation == 270
-            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, xx, 1. - u[i]) - v[i],
+            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, v[i], xx) - (1. - u[i]),
                                              **kwargs).root for i in range(len(u))])
 
         return self._trim_obs(res)
@@ -270,14 +270,14 @@ class Copula(ABC):
             res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, u[i], xx) - v[i],
                                         **kwargs).root for i in range(len(v))])
         elif self.rotation == 90:
-            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, (1. - v[i]), xx) - u[i],
+            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, u[i]) - (1. - v[i]),
                                              **kwargs).root for i in range(len(v))])
         elif self.rotation == 180:
             res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, 1. - u[i], xx) - (1. - v[i]),
                                              **kwargs).root for i in range(len(v))])
         else:
             assert self.rotation == 270
-            res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, v[i], xx) - (1. - u[i]),
+            res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, (1. - u[i])) - v[i],
                                         **kwargs).root for i in range(len(v))])
 
         return self._trim_obs(res)
