@@ -15,9 +15,14 @@ class ClaytonCopula(Copula):
         super().__init__(par, clayton_cop_funs, rotation=rotation)
         self._theta_bounds = [(0.0001, 28)]
 
-    @staticmethod
-    def tau2par(tau):
-        return 2 * tau / (1 - tau)
+    def tau2par(self, tau):
+        if self.rotation in [0, 180]:
+            par = 2 * tau / (1 - tau)
+        else:
+            assert self.rotation in [90, 270]
+            tau *= -1.
+            par = 2 * tau / (1 - tau)
+        return par
 
 
 class FrankCopula(Copula):
@@ -27,15 +32,13 @@ class FrankCopula(Copula):
         super().__init__(par, frank_cop_funs)
         self._theta_bounds = [(-40, 40)]
 
-    @staticmethod
-    def par2tau(theta):
+    def par2tau(self, theta):
         # ToDO: Check and compare with R
         debye_fun = integrate.quad(lambda x: x / np.expm1(x), 0, theta)[0]
         tau = 1 - 4/theta*(1-debye_fun/theta)
         return tau
 
-    @staticmethod
-    def tau2par(tau):
+    def tau2par(self, tau):
         # ToDO: Check and compare with R
         tau_l = FrankCopula().par2tau(-40)
         tau_u = FrankCopula().par2tau(40)
@@ -62,8 +65,7 @@ class GaussianCopula(Copula):
         super().__init__(par, gaussian_cop_funs)
         self._theta_bounds = [(-0.999, 0.999)]
 
-    @staticmethod
-    def tau2par(tau):
+    def tau2par(self, tau):
         return np.sin(np.pi * tau / 2)
 
     def inv_hfun(self, u, v):
@@ -82,9 +84,14 @@ class GumbelCopula(Copula):
         super().__init__(par, gumbel_cop_funs, rotation=rotation)
         self._theta_bounds = [(1.0, 20)]
 
-    @staticmethod
-    def tau2par(tau):
-        return 1/(1 - tau)
+    def tau2par(self, tau):
+        if self.rotation in [0, 180]:
+            par = 1/(1 - tau)
+        else:
+            assert self.rotation in [90, 270]
+            tau *= -1.
+            par = 1/(1 - tau)
+        return par
 
 
 class IndepCopula(Copula):
@@ -96,8 +103,7 @@ class IndepCopula(Copula):
     def __repr__(self):
         return f'{self.__class__.__name__}()'
 
-    @staticmethod
-    def tau2par(tau):
+    def tau2par(self, tau):
         return None
 
     def mle_est(self, u, v):
@@ -112,9 +118,17 @@ class IndepCopula(Copula):
         return res
 
 
-def cop_select(u, v, families='all', indep_test=True):
+def cop_select(u, v, families='all', rotations=True, indep_test=True):
     assert families == 'all'
     copulas = [ClaytonCopula(), FrankCopula(), GumbelCopula(), GaussianCopula()]
+    if rotations:
+        tau, _ = kendalltau(u, v)
+        if tau >= 0.:
+            rots = [180]
+        else:
+            rots = [90, 270]
+        copulas += [ClaytonCopula(rotation=rot) for rot in rots]
+        copulas += [GumbelCopula(rotation=rot) for rot in rots]
     indep_cop = False
     if indep_test:
         n_obs = len(u)

@@ -73,7 +73,7 @@ class Copula(ABC):
         self._rotation = rotation
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(par={self.par})'
+        return f'{self.__class__.__name__}(par={self.par}, rotation={self.rotation})'
 
     @property
     def par(self):
@@ -94,9 +94,8 @@ class Copula(ABC):
         self._par = theta_hat
         return
 
-    @staticmethod
     @abstractmethod
-    def tau2par(tau):
+    def tau2par(self, tau):
         pass
 
     def _trim_obs(self, u):
