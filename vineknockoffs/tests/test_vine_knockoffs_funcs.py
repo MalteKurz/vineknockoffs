@@ -1,0 +1,59 @@
+import numpy as np
+import pytest
+
+from scipy.stats import norm
+
+from statsmodels.tools.numdiff import approx_fprime
+
+from vineknockoffs.copulas import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
+from vineknockoffs.vine_copulas import DVineCopula
+from vineknockoffs.vine_knockoffs import VineKnockoffs
+
+np.random.seed(1111)
+
+
+@pytest.fixture(scope='module',
+                params=[DVineCopula([
+                    [ClaytonCopula(4.), ClaytonCopula(3., 90), ClaytonCopula(2.79, 180), ClaytonCopula(5., 270)],
+                    [FrankCopula(4.), FrankCopula(-5.), GaussianCopula(-0.23)],
+                    [GaussianCopula(0.8), IndepCopula()],
+                    [GumbelCopula(6.)]])
+                ])
+def dvine(request):
+    return request.param
+
+
+def test_generate_numdiff(dvine):
+    n_obs = 231
+    u_data = dvine.sim(n_obs)
+    x_data = norm.ppf(u_data)
+
+    vine_ko = VineKnockoffs()
+    vine_ko.fit_vine_copula_knockoffs(x_data)
+
+    u_test = dvine.sim(n_obs)
+    x_test = norm.ppf(u_test)
+    knockoff_eps = np.random.uniform(size=(n_obs, dvine.n_vars))
+
+    res = vine_ko.generate_par_jacobian(x_test=x_test, knockoff_eps=knockoff_eps, which_par='all')
+    par_vec = np.array([cop.par for tree in vine_ko._dvine.copulas for cop in tree if cop.par is not None])
+
+    def generate_for_numdiff(pars, xx_test, ko_eps):
+        ind_par = 0
+        for tree in range(vine_ko._dvine.n_vars-1):
+            for cop in range(vine_ko._dvine.n_vars-1-tree):
+                if not isinstance(vine_ko._dvine.copulas[tree][cop], IndepCopula):
+                    vine_ko._dvine.copulas[tree][cop]._par = pars[ind_par]
+                    ind_par += 1
+        return vine_ko.generate(x_test=xx_test, knockoff_eps=ko_eps)
+
+    res_num = np.swapaxes(approx_fprime(par_vec,
+                                        generate_for_numdiff,
+                                        epsilon=1e-6,
+                                        args=(x_test, knockoff_eps,),
+                                        centered=True),
+                          0, 1)
+
+    assert np.allclose(res_num,
+                       res,
+                       rtol=1e-4, atol=1e-3)

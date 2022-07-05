@@ -24,6 +24,13 @@ class VineKnockoffs:
             self._inv_dvine_structure = np.array([])
 
     @property
+    def n_pars_upper_trees(self):
+        n_vars = self._dvine.n_vars/2
+        start_tree = n_vars - 1
+        n_pars_upper_trees = np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self._dvine.copulas[start_tree:]])
+        return n_pars_upper_trees
+
+    @property
     def dvine_structure(self):
         return self._dvine_structure
 
@@ -36,7 +43,7 @@ class VineKnockoffs:
     def inv_dvine_structure(self):
         return self._inv_dvine_structure
 
-    def generate(self, x_test):
+    def generate(self, x_test, knockoff_eps=None):
         n_obs = x_test.shape[0]
         n_vars = x_test.shape[1]
         u_test = np.full_like(x_test, np.nan)
@@ -48,7 +55,10 @@ class VineKnockoffs:
 
         sub_dvine = DVineCopula([self._dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
         u_pits = sub_dvine.compute_pits(u_test)
-        knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
+        if knockoff_eps is None:
+            knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
+        else:
+            knockoff_pits = knockoff_eps
 
         u_sim = self._dvine.sim(w=np.hstack((u_pits, knockoff_pits)))
         u_knockoffs = u_sim[:, n_vars:]
@@ -60,6 +70,58 @@ class VineKnockoffs:
         for i_var in range(n_vars):
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
         return x_knockoffs
+
+    def generate_par_jacobian(self, x_test, knockoff_eps=None, which_par='upper only'):
+        if which_par == 'upper only':
+            n_pars = self.n_pars_upper_trees
+        else:
+            assert which_par == 'all'
+            n_pars = self._dvine.n_pars
+
+        n_obs = x_test.shape[0]
+        n_vars = x_test.shape[1]
+        u_test = np.full_like(x_test, np.nan)
+        for i_var in range(n_vars):
+            u_test[:, i_var] = self._marginals[i_var].cdf(x_test[:, i_var])
+
+        # apply dvine structure / variable order
+        u_test = u_test[:, self.dvine_structure]
+
+        sub_dvine = DVineCopula([self._dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
+        u_pits = sub_dvine.compute_pits(u_test)
+        if knockoff_eps is None:
+            knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
+        else:
+            knockoff_pits = knockoff_eps
+
+        u_sim = self._dvine.sim(w=np.hstack((u_pits, knockoff_pits)))
+        u_knockoffs = u_sim[:, n_vars:]
+
+        # get back order of variables
+        u_knockoffs = u_knockoffs[:, self.inv_dvine_structure]
+
+        x_knockoffs = np.full_like(x_test, np.nan)
+        for i_var in range(n_vars):
+            x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
+
+        if which_par == 'upper only':
+            NotImplementedError()
+        else:
+            assert which_par == 'all'
+
+            u_sim_jacobian = self._dvine.sim_par_jacobian(w=np.hstack((u_pits, knockoff_pits)))
+            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, :]
+
+            # get back order of variables
+            u_knockoffs_jacobian = u_knockoffs_jacobian[:, self.inv_dvine_structure, :]
+
+            x_knockoffs_jacobian = np.full_like(u_knockoffs_jacobian, np.nan)
+            d_x_cpits = np.full_like(x_test, np.nan)
+            for i_var in range(n_vars):
+                d_x_cpits[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
+            for i_par in range(n_pars):
+                x_knockoffs_jacobian[:, :, i_par] = d_x_cpits * u_knockoffs_jacobian[:, :, i_par]
+        return x_knockoffs_jacobian
 
     def fit_vine_copula_knockoffs(self, x_train, families='all', rotations=True, indep_test=True):
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
