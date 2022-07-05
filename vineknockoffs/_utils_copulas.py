@@ -281,6 +281,34 @@ class Copula(ABC):
 
         return self._trim_obs(res)
 
+    def d_hfun_d_u(self, u, v):
+        return self.pdf(u, v)
+
+    def d_vfun_d_v(self, u, v):
+        return self.pdf(u, v)
+
+    def d_inv_hfun_d_u(self, u, v):
+        return 1. / self.pdf(self.inv_hfun(u, v), v)
+
+    def d_inv_vfun_d_v(self, u, v):
+        return 1. / self.pdf(u, self.inv_vfun(u, v))
+
+    def d_inv_hfun_d_v(self, u, v):
+        xx = self.inv_hfun(u, v)
+        return -1. * self.d_hfun_d_v(xx, v) / self.pdf(xx, v)
+
+    def d_inv_vfun_d_u(self, u, v):
+        xx = self.inv_vfun(u, v)
+        return -1. * self.d_vfun_d_u(u, xx) / self.pdf(u, xx)
+
+    def d_inv_hfun_d_theta(self, u, v):
+        xx = self.inv_hfun(u, v)
+        return -1. * self.d_hfun_d_theta(xx, v) / self.pdf(xx, v)
+
+    def d_inv_vfun_d_theta(self, u, v):
+        xx = self.inv_vfun(u, v)
+        return -1. * self.d_vfun_d_theta(u, xx) / self.pdf(u, xx)
+
     def sim(self, n_obs=100):
         u = np.random.uniform(size=(n_obs, 2))
         u[:, 0] = self.inv_hfun(u[:, 0], u[:, 1])
