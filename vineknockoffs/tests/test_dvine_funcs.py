@@ -27,7 +27,7 @@ def test_sim_numdiff(dvine):
     res = dvine.sim_par_jacobian(w=u_data)
     par_vec = np.array([cop.par for tree in dvine.copulas for cop in tree if cop.par is not None])
 
-    def sim_for_num_diff(pars, w):
+    def sim_for_numdiff(pars, w):
         ind_par = 0
         for tree in range(dvine.n_vars-1):
             for cop in range(dvine.n_vars-1-tree):
@@ -37,7 +37,7 @@ def test_sim_numdiff(dvine):
         return dvine.sim(w=w)
 
     res_num = np.swapaxes(approx_fprime(par_vec,
-                                        sim_for_num_diff,
+                                        sim_for_numdiff,
                                         epsilon=1e-6,
                                         args=(u_data,),
                                         centered=True),
