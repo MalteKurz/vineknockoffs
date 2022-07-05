@@ -10,7 +10,7 @@ from ._utils_copula_families import clayton_cop_funs, frank_cop_funs, gaussian_c
 
 class Copula(ABC):
     _theta_bounds = None
-    n_par = np.nan
+    n_pars = np.nan
     trim_thres = 1e-12
 
     def __init__(self, par, cop_funs, rotation=0):
@@ -110,7 +110,7 @@ class Copula(ABC):
         return res
 
     def aic(self, u, v):
-        res = 2 * self.n_par + 2 * self._neg_ll(self.par, self._trim_obs(u), self._trim_obs(v))
+        res = 2 * self.n_pars + 2 * self._neg_ll(self.par, self._trim_obs(u), self._trim_obs(v))
         return res
 
     def hfun(self, u, v):
@@ -262,7 +262,7 @@ class Copula(ABC):
 
 
 class ClaytonCopula(Copula):
-    n_par = 1
+    n_pars = 1
 
     def __init__(self, par=None, rotation=0):
         super().__init__(par, clayton_cop_funs, rotation=rotation)
@@ -279,7 +279,7 @@ class ClaytonCopula(Copula):
 
 
 class FrankCopula(Copula):
-    n_par = 1
+    n_pars = 1
 
     def __init__(self, par=None):
         super().__init__(par, frank_cop_funs)
@@ -312,7 +312,7 @@ class FrankCopula(Copula):
 
 
 class GaussianCopula(Copula):
-    n_par = 1
+    n_pars = 1
 
     def __init__(self, par=None):
         super().__init__(par, gaussian_cop_funs)
@@ -331,7 +331,7 @@ class GaussianCopula(Copula):
 
 
 class GumbelCopula(Copula):
-    n_par = 1
+    n_pars = 1
 
     def __init__(self, par=None, rotation=0):
         super().__init__(par, gumbel_cop_funs, rotation=rotation)
@@ -348,7 +348,7 @@ class GumbelCopula(Copula):
 
 
 class IndepCopula(Copula):
-    n_par = 1
+    n_pars = 0
 
     def __init__(self):
         super().__init__(None, indep_cop_funs)

@@ -16,8 +16,12 @@ class VineKnockoffs:
                             f'{str(dvine)} of type {str(type(dvine))} was passed.')
         self._dvine = dvine
         self._marginals = marginals
-        self._dvine_structure = np.arange(self._dvine.n_vars)
-        self._inv_dvine_structure = np.argsort(self._dvine_structure)
+        if dvine is not None:
+            self._dvine_structure = np.arange(self._dvine.n_vars)
+            self._inv_dvine_structure = np.argsort(self._dvine_structure)
+        else:
+            self._dvine_structure = np.array([])
+            self._inv_dvine_structure = np.array([])
 
     @property
     def dvine_structure(self):
@@ -69,7 +73,7 @@ class VineKnockoffs:
             u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
 
         # determine dvine structure / variable order
-        self.dvine_structure = d_vine_structure_select
+        self.dvine_structure = d_vine_structure_select(u_train)
         u_train = u_train[:, self.dvine_structure]
 
         uu = np.hstack((u_train, u_train))
