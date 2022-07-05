@@ -9,10 +9,10 @@ np.random.seed(1111)
 
 
 @pytest.fixture(scope='module',
-                params=[ClaytonCopula(4), ClaytonCopula(3, 90), ClaytonCopula(2.79, 180), ClaytonCopula(5, 270),
-                        FrankCopula(4), FrankCopula(-5),
+                params=[ClaytonCopula(4.), ClaytonCopula(3., 90), ClaytonCopula(2.79, 180), ClaytonCopula(5., 270),
+                        FrankCopula(4.), FrankCopula(-5.),
                         GaussianCopula(-0.23), GaussianCopula(0.8),
-                        GumbelCopula(6), GumbelCopula(3, 90), GumbelCopula(2.79, 180), GumbelCopula(5.2, 270),
+                        GumbelCopula(6.), GumbelCopula(3., 90), GumbelCopula(2.79, 180), GumbelCopula(5.2, 270),
                         IndepCopula()])
 def copula(request):
     return request.param
@@ -103,3 +103,76 @@ def test_pdf_numdiff(copula):
     assert np.allclose(res_num,
                        res,
                        rtol=1e-4, atol=1e-3)
+
+
+def test_negll_numdiff(copula):
+    n_obs = 231
+    data = copula.sim(n_obs)
+
+    res = copula._neg_ll_d_theta(copula.par, data[:, 0], data[:, 1])
+
+    if isinstance(copula, IndepCopula):
+        res_num = 0.
+    else:
+        res_num = approx_fprime(np.array([copula.par]),
+                                copula._neg_ll,
+                                epsilon=1e-6,
+                                args=(data[:, 0], data[:, 1],),
+                                centered=True)
+
+    assert np.allclose(res_num,
+                       res,
+                       rtol=1e-4, atol=1e-3)
+
+
+def test_hfun_d_theta_numdiff(copula):
+    n_obs = 231
+    data = copula.sim(n_obs)
+
+    res = copula.d_hfun_d_theta(data[:, 0], data[:, 1])
+
+    def hfun_for_num_diff(theta, u, v):
+        copula._par = theta[0]
+        return copula.hfun(u, v)
+
+    if isinstance(copula, IndepCopula):
+        res_num = np.zeros_like(res)
+    else:
+        res_num = np.full_like(res, np.nan)
+        for i_obs in range(n_obs):
+            res_num[i_obs] = approx_fprime(np.array([copula.par]),
+                                           hfun_for_num_diff,
+                                           epsilon=1e-6,
+                                           args=(data[i_obs:i_obs+1, 0], data[i_obs:i_obs+1, 1]),
+                                           centered=True)
+
+    assert np.allclose(res_num,
+                       res,
+                       rtol=1e-4, atol=1e-3)
+
+
+def test_vfun_d_theta_numdiff(copula):
+    n_obs = 231
+    data = copula.sim(n_obs)
+
+    res = copula.d_vfun_d_theta(data[:, 0], data[:, 1])
+
+    def vfun_for_num_diff(theta, u, v):
+        copula._par = theta[0]
+        return copula.vfun(u, v)
+
+    if isinstance(copula, IndepCopula):
+        res_num = np.zeros_like(res)
+    else:
+        res_num = np.full_like(res, np.nan)
+        for i_obs in range(n_obs):
+            res_num[i_obs] = approx_fprime(np.array([copula.par]),
+                                           vfun_for_num_diff,
+                                           epsilon=1e-6,
+                                           args=(data[i_obs:i_obs+1, 0], data[i_obs:i_obs+1, 1]),
+                                           centered=True)
+
+    assert np.allclose(res_num,
+                       res,
+                       rtol=1e-4, atol=1e-3)
+
