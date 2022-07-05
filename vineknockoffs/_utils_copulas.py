@@ -88,7 +88,7 @@ class Copula(ABC):
         theta_0 = self.tau2par(tau)
         theta_hat, _, _ = fmin_l_bfgs_b(self._neg_ll,
                                         theta_0,
-                                        self._neg_ll_deriv_theta,
+                                        self._neg_ll_d_theta,
                                         (u, v),
                                         bounds=self._theta_bounds)
         self._par = theta_hat
@@ -151,7 +151,7 @@ class Copula(ABC):
             res = -np.sum(self._cop_funs['ll'](theta, self._trim_obs(v), self._trim_obs(1.-u)))
         return res
 
-    def _neg_ll_deriv_theta(self, theta, u, v):
+    def _neg_ll_d_theta(self, theta, u, v):
         if self.rotation == 0:
             res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)))
         elif self.rotation == 90:
@@ -197,19 +197,19 @@ class Copula(ABC):
         elif self.rotation == 90:
             res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
         elif self.rotation == 180:
-            res = 1. - self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            res = -1. * self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
         else:
             assert self.rotation == 270
-            res = 1. - self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+            res = -1. * self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def d_vfun_d_theta(self, u, v):
         if self.rotation == 0:
             res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
-            res = 1. - self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+            res = -1. * self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
         elif self.rotation == 180:
-            res = 1. - self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            res = -1. * self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
         else:
             assert self.rotation == 270
             res = self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
