@@ -9,6 +9,10 @@ class KDEMultivariateWithInvCdf(KDEMultivariate):
         data_max = self.data.max()
         data_range = (data_max - data_min) + 1e-4
         bracket = [data_min - 0.1*data_range, data_max + 0.1*data_range]
+        if x.min() < self.cdf(bracket[0:1]):
+            bracket[0] -= 0.5*data_range
+        if x.max() > self.cdf(bracket[1:2]):
+            bracket[1] += 0.5*data_range
         res = np.array([root_scalar(lambda yy: self.cdf(np.array([[yy]]).T) - x[i],
                                     bracket=bracket,
                                     method='brentq',
