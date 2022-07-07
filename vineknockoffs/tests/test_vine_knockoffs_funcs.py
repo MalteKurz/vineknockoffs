@@ -26,11 +26,15 @@ np.random.seed(1111)
 # def dvine(request):
 #     return request.param
 
+@pytest.fixture(scope='module',
+                params=['all'])
+def which_par(request):
+    return request.param
 
-def test_generate_numdiff():
+
+def test_generate_numdiff(which_par):
     n_obs = 71
     n_vars = 4
-    start_tree = n_vars-1
     # u_data = dvine.sim(n_obs)
     # x_data = norm.ppf(u_data)
 
@@ -46,15 +50,20 @@ def test_generate_numdiff():
     x_test = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
     knockoff_eps = np.random.uniform(size=(n_obs, n_vars))
 
-    res = vine_ko.generate_par_jacobian(x_test=x_test, knockoff_eps=knockoff_eps, which_par='upper only')
-    par_vec = np.array([cop.par for tree in vine_ko._dvine.copulas[start_tree:] for cop in tree if cop.par is not None])
+    res = vine_ko.generate_par_jacobian(x_test=x_test, knockoff_eps=knockoff_eps, which_par=which_par)
+
+    if which_par == 'upper only':
+        start_tree = n_vars
+    else:
+        start_tree = 1
+    par_vec = np.array([cop.par for tree in vine_ko._dvine.copulas[start_tree-1:] for cop in tree if cop.par is not None])
 
     def generate_for_numdiff(pars, from_tree, xx_test, ko_eps):
         ind_par = 0
-        for tree in np.arange(from_tree, vine_ko._dvine.n_vars-1):
-            for cop in range(vine_ko._dvine.n_vars-1-tree):
-                if not isinstance(vine_ko._dvine.copulas[tree][cop], IndepCopula):
-                    vine_ko._dvine.copulas[tree][cop]._par = pars[ind_par]
+        for tree in np.arange(from_tree, vine_ko._dvine.n_vars):
+            for cop in np.arange(1, vine_ko._dvine.n_vars-tree+1):
+                if not isinstance(vine_ko._dvine.copulas[tree-1][cop-1], IndepCopula):
+                    vine_ko._dvine.copulas[tree-1][cop-1]._par = pars[ind_par]
                     ind_par += 1
         return vine_ko.generate(x_test=xx_test, knockoff_eps=ko_eps)
 

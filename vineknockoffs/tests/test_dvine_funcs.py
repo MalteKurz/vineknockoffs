@@ -29,10 +29,10 @@ def test_sim_numdiff(dvine):
 
     def sim_for_numdiff(pars, w):
         ind_par = 0
-        for tree in range(dvine.n_vars-1):
-            for cop in range(dvine.n_vars-1-tree):
-                if not isinstance(dvine.copulas[tree][cop], IndepCopula):
-                    dvine.copulas[tree][cop]._par = pars[ind_par]
+        for tree in np.arange(1, dvine.n_vars):
+            for cop in np.arange(1, dvine.n_vars-tree+1):
+                if not isinstance(dvine.copulas[tree-1][cop-1], IndepCopula):
+                    dvine.copulas[tree-1][cop-1]._par = pars[ind_par]
                     ind_par += 1
         return dvine.sim(w=w)
 
@@ -57,10 +57,10 @@ def test_compute_pits_numdiff(dvine):
 
     def compute_pits_for_numdiff(pars, u):
         ind_par = 0
-        for tree in range(dvine.n_vars-1):
-            for cop in range(dvine.n_vars-1-tree):
-                if not isinstance(dvine.copulas[tree][cop], IndepCopula):
-                    dvine.copulas[tree][cop]._par = pars[ind_par]
+        for tree in np.arange(1, dvine.n_vars):
+            for cop in np.arange(1, dvine.n_vars-tree+1):
+                if not isinstance(dvine.copulas[tree-1][cop-1], IndepCopula):
+                    dvine.copulas[tree-1][cop-1]._par = pars[ind_par]
                     ind_par += 1
         return dvine.compute_pits(u=u)
 

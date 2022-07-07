@@ -151,7 +151,7 @@ class DVineCopula:
                         }
         return par_vec_dict
 
-    def sim_par_jacobian_fast(self, n_obs=100, w=None, from_tree=1):
+    def sim_par_jacobian_fast(self, n_obs=100, w=None, w_jacobian=None, from_tree=1):
         if w is None:
             w = np.random.uniform(size=(n_obs, self.n_vars))
         else:
@@ -168,16 +168,18 @@ class DVineCopula:
         a_d_par = np.full((n_obs, self.n_vars, n_pars), np.nan)
         b_d_par = np.full_like(a_d_par, np.nan)
         u_d_par = np.full_like(a_d_par, np.nan)
+        if w_jacobian is None:
+            w_jacobian = np.zeros_like(u_d_par)
 
-        u_d_par[:, 0, :] = 0.
-        a_d_par[:, 0, :] = 0.
-        b_d_par[:, 0, :] = 0.
+        u_d_par[:, 0, :] = w_jacobian[:, 0, :]
+        a_d_par[:, 0, :] = w_jacobian[:, 0, :]
+        b_d_par[:, 0, :] = w_jacobian[:, 0, :]
         u[:, 0] = w[:, 0]
         a[:, 0] = w[:, 0]
         b[:, 0] = w[:, 0]
         impacted_by_deriv = [False] * n_pars
         for i in np.arange(2, self.n_vars+1):
-            a_d_par[:, 0, :] = 0.
+            a_d_par[:, 0, :] = w_jacobian[:, i-1, :]
             a[:, 0] = w[:, i-1]
             for j in np.arange(i-1, 0, -1):
                 tree = j
@@ -191,7 +193,9 @@ class DVineCopula:
                     if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
                         d_vfun_d_theta_eval = self.copulas[tree-1][cop-1].d_vfun_d_theta(b[:, i-j-1], a_eval)
                         pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, i-j-1], a_eval)
-                        a_d_par[:, i-j, i_par] = - d_vfun_d_theta_eval / pdf_eval
+                        d_theta = - d_vfun_d_theta_eval / pdf_eval
+                        d_v = 1. / pdf_eval
+                        a_d_par[:, i-j, i_par] = d_theta + a_d_par[:, i-j-1, i_par] * d_v
                         impacted_by_deriv[i_par] = True
                     else:
                         if impacted_by_deriv[i_par]:
