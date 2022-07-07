@@ -25,7 +25,7 @@ class VineKnockoffs:
 
     @property
     def n_pars_upper_trees(self):
-        n_vars = self._dvine.n_vars/2
+        n_vars = int(self._dvine.n_vars/2)
         start_tree = n_vars - 1
         n_pars_upper_trees = np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self._dvine.copulas[start_tree:]])
         return n_pars_upper_trees
@@ -76,7 +76,7 @@ class VineKnockoffs:
             n_pars = self.n_pars_upper_trees
         else:
             assert which_par == 'all'
-            n_pars = self._dvine.n_pars
+            NotImplementedError()
 
         n_obs = x_test.shape[0]
         n_vars = x_test.shape[1]
@@ -105,22 +105,21 @@ class VineKnockoffs:
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
 
         if which_par == 'upper only':
-            NotImplementedError()
-        else:
-            assert which_par == 'all'
-
             u_sim_jacobian = self._dvine.sim_par_jacobian(w=np.hstack((u_pits, knockoff_pits)))
-            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, :]
+            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, -self.n_pars_upper_trees:]
 
             # get back order of variables
             u_knockoffs_jacobian = u_knockoffs_jacobian[:, self.inv_dvine_structure, :]
 
             x_knockoffs_jacobian = np.full_like(u_knockoffs_jacobian, np.nan)
-            d_x_cpits = np.full_like(x_test, np.nan)
+            d_x_d_u = np.full_like(x_test, np.nan)
             for i_var in range(n_vars):
-                d_x_cpits[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
-            for i_par in range(n_pars):
-                x_knockoffs_jacobian[:, :, i_par] = d_x_cpits * u_knockoffs_jacobian[:, :, i_par]
+                d_x_d_u[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
+            for i_par in range(self.n_pars_upper_trees):
+                x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
+        else:
+            assert which_par == 'all'
+            NotImplementedError()
         return x_knockoffs_jacobian
 
     def fit_vine_copula_knockoffs(self, x_train, families='all', rotations=True, indep_test=True):
@@ -203,6 +202,7 @@ class VineKnockoffs:
         pcorrs = dvine_pcorr(g_mat)
         copulas = [[GaussianCopula(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
+        self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
 
         return self
 
@@ -226,5 +226,6 @@ class VineKnockoffs:
         pcorrs = dvine_pcorr(g_mat)
         copulas = [[GaussianCopula(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
+        self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
 
         return self
