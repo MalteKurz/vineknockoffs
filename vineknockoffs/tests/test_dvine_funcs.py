@@ -46,3 +46,31 @@ def test_sim_numdiff(dvine):
     assert np.allclose(res_num,
                        res,
                        rtol=1e-4, atol=1e-3)
+
+
+def test_compute_pits_numdiff(dvine):
+    n_obs = 231
+    u_data = dvine.sim(n_obs)
+
+    res = dvine.compute_pits_par_jacobian(u=u_data)
+    par_vec = np.array([cop.par for tree in dvine.copulas for cop in tree if cop.par is not None])
+
+    def compute_pits_for_numdiff(pars, u):
+        ind_par = 0
+        for tree in range(dvine.n_vars-1):
+            for cop in range(dvine.n_vars-1-tree):
+                if not isinstance(dvine.copulas[tree][cop], IndepCopula):
+                    dvine.copulas[tree][cop]._par = pars[ind_par]
+                    ind_par += 1
+        return dvine.compute_pits(u=u)
+
+    res_num = np.swapaxes(approx_fprime(par_vec,
+                                        compute_pits_for_numdiff,
+                                        epsilon=1e-6,
+                                        kwargs={'u': u_data},
+                                        centered=True),
+                          0, 1)
+
+    assert np.allclose(res_num,
+                       res,
+                       rtol=1e-4, atol=1e-3)
