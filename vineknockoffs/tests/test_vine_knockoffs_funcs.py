@@ -2,6 +2,8 @@ import numpy as np
 import pytest
 
 from scipy.stats import norm
+from scipy.linalg import toeplitz
+from scipy.stats import multivariate_normal
 
 from statsmodels.tools.numdiff import approx_fprime
 
@@ -12,35 +14,44 @@ from vineknockoffs.vine_knockoffs import VineKnockoffs
 np.random.seed(1111)
 
 
-@pytest.fixture(scope='module',
-                params=[DVineCopula([
-                    [ClaytonCopula(4.), ClaytonCopula(3., 90), ClaytonCopula(2.79, 180), ClaytonCopula(5., 270)],
-                    [FrankCopula(4.), FrankCopula(-5.), GaussianCopula(-0.23)],
-                    [GaussianCopula(0.8), IndepCopula()],
-                    [GumbelCopula(6.)]])
-                ])
-def dvine(request):
-    return request.param
+# @pytest.fixture(scope='module',
+#                 params=[DVineCopula([
+#                     [ClaytonCopula(4.), ClaytonCopula(2.79, 180)],
+#                     [GaussianCopula(-0.23)]]),
+#                     DVineCopula([
+#                         [ClaytonCopula(4.), ClaytonCopula(2.79, 180), ClaytonCopula(5., 270)],
+#                         [FrankCopula(4.), GaussianCopula(-0.23)],
+#                         [GumbelCopula(6.)]]),
+#                 ])
+# def dvine(request):
+#     return request.param
 
 
-def test_generate_numdiff(dvine):
-    n_obs = 231
-    u_data = dvine.sim(n_obs)
-    x_data = norm.ppf(u_data)
+def test_generate_numdiff():
+    n_obs = 71
+    n_vars = 4
+    start_tree = n_vars-1
+    # u_data = dvine.sim(n_obs)
+    # x_data = norm.ppf(u_data)
+
+    cov_mat = toeplitz([np.power(0.7, k) for k in range(n_vars)])
+    x_data = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
 
     vine_ko = VineKnockoffs()
     vine_ko.fit_vine_copula_knockoffs(x_data)
+    # vine_ko.fit_gaussian_knockoffs(x_data)
 
-    u_test = dvine.sim(n_obs)
-    x_test = norm.ppf(u_test)
-    knockoff_eps = np.random.uniform(size=(n_obs, dvine.n_vars))
+    # u_test = dvine.sim(n_obs)
+    # x_test = norm.ppf(u_test)
+    x_test = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
+    knockoff_eps = np.random.uniform(size=(n_obs, n_vars))
 
-    res = vine_ko.generate_par_jacobian(x_test=x_test, knockoff_eps=knockoff_eps, which_par='all')
-    par_vec = np.array([cop.par for tree in vine_ko._dvine.copulas for cop in tree if cop.par is not None])
+    res = vine_ko.generate_par_jacobian(x_test=x_test, knockoff_eps=knockoff_eps, which_par='upper only')
+    par_vec = np.array([cop.par for tree in vine_ko._dvine.copulas[start_tree:] for cop in tree if cop.par is not None])
 
-    def generate_for_numdiff(pars, xx_test, ko_eps):
+    def generate_for_numdiff(pars, from_tree, xx_test, ko_eps):
         ind_par = 0
-        for tree in range(vine_ko._dvine.n_vars-1):
+        for tree in np.arange(from_tree, vine_ko._dvine.n_vars-1):
             for cop in range(vine_ko._dvine.n_vars-1-tree):
                 if not isinstance(vine_ko._dvine.copulas[tree][cop], IndepCopula):
                     vine_ko._dvine.copulas[tree][cop]._par = pars[ind_par]
@@ -50,10 +61,10 @@ def test_generate_numdiff(dvine):
     res_num = np.swapaxes(approx_fprime(par_vec,
                                         generate_for_numdiff,
                                         epsilon=1e-6,
-                                        args=(x_test, knockoff_eps,),
+                                        args=(start_tree, x_test, knockoff_eps,),
                                         centered=True),
                           0, 1)
 
-    assert np.allclose(res_num,
+    assert np.allclose(res_num.astype('float64'),
                        res,
                        rtol=1e-4, atol=1e-3)
