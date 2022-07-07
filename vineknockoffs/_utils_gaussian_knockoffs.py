@@ -3,7 +3,7 @@ import cvxpy as cp
 from scipy.linalg import eigh
 
 
-def sdp_solver(corr_mat, tol_psd=1e-4, tol_s=1e-6):
+def sdp_solver(corr_mat, tol_psd=1e-4, tol_s=1e-4):
     n_vars = corr_mat.shape[0]
     tol_mat = np.diag(np.repeat(tol_psd, n_vars))
     s = cp.Variable(n_vars)
