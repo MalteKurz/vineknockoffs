@@ -61,7 +61,9 @@ def test_generate_numdiff():
     res_num = np.swapaxes(approx_fprime(par_vec,
                                         generate_for_numdiff,
                                         epsilon=1e-6,
-                                        args=(start_tree, x_test, knockoff_eps,),
+                                        kwargs={'from_tree': start_tree,
+                                                'xx_test': x_test,
+                                                'ko_eps': knockoff_eps},
                                         centered=True),
                           0, 1)
 

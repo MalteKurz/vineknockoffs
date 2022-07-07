@@ -54,7 +54,7 @@ def test_hfun_numdiff(copula):
         res_num[i_obs] = approx_fprime(data[i_obs:i_obs+1, 1],
                                        cdf_for_numdiff,
                                        epsilon=1e-6,
-                                       args=(data[i_obs:i_obs+1, 0],),
+                                       kwargs={'u': data[i_obs:i_obs+1, 0]},
                                        centered=True)
 
     assert np.allclose(res_num,
@@ -73,7 +73,7 @@ def test_vfun_numdiff(copula):
         res_num[i_obs] = approx_fprime(data[i_obs:i_obs+1, 0],
                                        copula.cdf,
                                        epsilon=1e-6,
-                                       args=(data[i_obs:i_obs+1, 1],),
+                                       kwargs={'v': data[i_obs:i_obs+1, 1]},
                                        centered=True)
 
     assert np.allclose(res_num,
@@ -117,7 +117,7 @@ def test_negll_numdiff(copula):
         res_num = approx_fprime(np.array([copula.par]),
                                 copula._neg_ll,
                                 epsilon=1e-6,
-                                args=(data[:, 0], data[:, 1],),
+                                kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                 centered=True)
 
     assert np.allclose(res_num,
@@ -141,7 +141,7 @@ def test_hfun_d_theta_numdiff(copula):
         res_num = approx_fprime(np.array([copula.par]),
                                 hfun_for_numdiff,
                                 epsilon=1e-6,
-                                args=(data[:, 0], data[:, 1]),
+                                kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                 centered=True)
 
     assert np.allclose(res_num,
@@ -165,7 +165,7 @@ def test_vfun_d_theta_numdiff(copula):
         res_num = approx_fprime(np.array([copula.par]),
                                 vfun_for_numdiff,
                                 epsilon=1e-6,
-                                args=(data[:, 0], data[:, 1]),
+                                kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                 centered=True)
 
     assert np.allclose(res_num,
@@ -195,12 +195,12 @@ def test_invhfun_numdiff(copula):
         res_num[i_obs, 0] = approx_fprime(data[i_obs:i_obs+1, 0],
                                           copula.inv_hfun,
                                           epsilon=1e-6,
-                                          args=(data[i_obs:i_obs+1, 1],),
+                                          kwargs={'v': data[i_obs:i_obs+1, 1]},
                                           centered=True)
         res_num[i_obs, 1] = approx_fprime(data[i_obs:i_obs+1, 1],
                                           inv_hfun_for_numdiff_d_v,
                                           epsilon=1e-6,
-                                          args=(data[i_obs:i_obs+1, 0],),
+                                          kwargs={'u': data[i_obs:i_obs+1, 0]},
                                           centered=True)
 
     if isinstance(copula, IndepCopula):
@@ -209,7 +209,7 @@ def test_invhfun_numdiff(copula):
         res_num[:, 2] = approx_fprime(np.array([copula.par]),
                                       inv_hfun_for_numdiff_d_theta,
                                       epsilon=1e-6,
-                                      args=(data[:, 0], data[:, 1]),
+                                      kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                       centered=True)
 
     assert np.allclose(res_num,
@@ -239,12 +239,12 @@ def test_invvfun_numdiff(copula):
         res_num[i_obs, 0] = approx_fprime(data[i_obs:i_obs+1, 0],
                                           copula.inv_vfun,
                                           epsilon=1e-6,
-                                          args=(data[i_obs:i_obs+1, 1],),
+                                          kwargs={'v': data[i_obs:i_obs+1, 1]},
                                           centered=True)
         res_num[i_obs, 1] = approx_fprime(data[i_obs:i_obs+1, 1],
                                           inv_vfun_for_numdiff_d_v,
                                           epsilon=1e-6,
-                                          args=(data[i_obs:i_obs+1, 0],),
+                                          kwargs={'u': data[i_obs:i_obs+1, 0]},
                                           centered=True)
 
     if isinstance(copula, IndepCopula):
@@ -253,7 +253,7 @@ def test_invvfun_numdiff(copula):
         res_num[:, 2] = approx_fprime(np.array([copula.par]),
                                       inv_vfun_for_numdiff_d_theta,
                                       epsilon=1e-6,
-                                      args=(data[:, 0], data[:, 1]),
+                                      kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                       centered=True)
 
     assert np.allclose(res_num,

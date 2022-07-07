@@ -39,7 +39,7 @@ def test_sim_numdiff(dvine):
     res_num = np.swapaxes(approx_fprime(par_vec,
                                         sim_for_numdiff,
                                         epsilon=1e-6,
-                                        args=(u_data,),
+                                        kwargs={'w': u_data},
                                         centered=True),
                           0, 1)
 
