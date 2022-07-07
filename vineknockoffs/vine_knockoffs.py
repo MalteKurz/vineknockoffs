@@ -26,8 +26,8 @@ class VineKnockoffs:
     @property
     def n_pars_upper_trees(self):
         n_vars = int(self._dvine.n_vars/2)
-        start_tree = n_vars - 1
-        n_pars_upper_trees = np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self._dvine.copulas[start_tree:]])
+        from_tree = n_vars - 1
+        n_pars_upper_trees = np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self._dvine.copulas[from_tree:]])
         return n_pars_upper_trees
 
     @property
@@ -105,8 +105,11 @@ class VineKnockoffs:
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
 
         if which_par == 'upper only':
-            u_sim_jacobian = self._dvine.sim_par_jacobian(w=np.hstack((u_pits, knockoff_pits)))
-            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, -self.n_pars_upper_trees:]
+            # u_sim_jacobian = self._dvine.sim_par_jacobian(w=np.hstack((u_pits, knockoff_pits)))
+            # u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, -self.n_pars_upper_trees:]
+            u_sim_jacobian = self._dvine.sim_par_jacobian_fast(w=np.hstack((u_pits, knockoff_pits)),
+                                                               from_tree=n_vars)
+            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, :]
 
             # get back order of variables
             u_knockoffs_jacobian = u_knockoffs_jacobian[:, self.inv_dvine_structure, :]
