@@ -44,6 +44,10 @@ class Copula(ABC):
     def tau2par(self, tau):
         pass
 
+    @abstractmethod
+    def par2tau(self, par):
+        pass
+
     def _trim_obs(self, u):
         u[u < self.trim_thres] = self.trim_thres
         u[u > 1. - self.trim_thres] = 1. - self.trim_thres
@@ -277,6 +281,15 @@ class ClaytonCopula(Copula):
             par = 2 * tau / (1 - tau)
         return par
 
+    def par2tau(self, par):
+        if self.rotation in [0, 180]:
+            tau = par / (par + 2)
+        else:
+            assert self.rotation in [90, 270]
+            tau = par / (par + 2)
+            tau *= -1.
+        return tau
+
 
 class FrankCopula(Copula):
     n_pars = 1
@@ -321,6 +334,9 @@ class GaussianCopula(Copula):
     def tau2par(self, tau):
         return np.sin(np.pi * tau / 2)
 
+    def par2tau(self, par):
+        return 2/np.pi * np.arcsin(par)
+
     def inv_hfun(self, u, v):
         res = self._cop_funs['inv_hfun'](self.par, u, v)
         return res
@@ -346,6 +362,15 @@ class GumbelCopula(Copula):
             par = 1/(1 - tau)
         return par
 
+    def par2tau(self, par):
+        if self.rotation in [0, 180]:
+            tau = 1 - 1/par
+        else:
+            assert self.rotation in [90, 270]
+            tau = 1 - 1/par
+            tau *= -1.
+        return tau
+
 
 class IndepCopula(Copula):
     n_pars = 0
@@ -357,6 +382,9 @@ class IndepCopula(Copula):
         return f'{self.__class__.__name__}()'
 
     def tau2par(self, tau):
+        return None
+
+    def par2tau(self, theta):
         return None
 
     def mle_est(self, u, v):

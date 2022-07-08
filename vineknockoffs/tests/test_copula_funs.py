@@ -18,6 +18,24 @@ def copula(request):
     return request.param
 
 
+@pytest.fixture(scope='module',
+                params=[ClaytonCopula(), ClaytonCopula(rotation=180),
+                        FrankCopula(),
+                        GaussianCopula(),
+                        GumbelCopula(), GumbelCopula(rotation=180)])
+def copula_pos_tau(request):
+    return request.param
+
+
+@pytest.fixture(scope='module',
+                params=[ClaytonCopula(rotation=90), ClaytonCopula(rotation=270),
+                        FrankCopula(),
+                        GaussianCopula(),
+                        GumbelCopula(rotation=90), GumbelCopula(rotation=270)])
+def copula_neg_tau(request):
+    return request.param
+
+
 def test_hfun(copula):
     n_obs = 231
     data = copula.sim(n_obs)
@@ -36,6 +54,26 @@ def test_vfun(copula):
     res = copula.inv_vfun(data[:, 0], copula.vfun(data[:, 0], data[:, 1]))
 
     assert np.allclose(data[:, 1],
+                       res,
+                       rtol=1e-9, atol=1e-4)
+
+
+def test_pos_tau2par(copula_pos_tau):
+    taus = np.linspace(0.15, 0.85)
+
+    res = np.array([copula_pos_tau.par2tau(copula_pos_tau.tau2par(tau)) for tau in taus])
+
+    assert np.allclose(taus,
+                       res,
+                       rtol=1e-9, atol=1e-4)
+
+
+def test_neg_tau2par(copula_neg_tau):
+    taus = np.linspace(-0.85, -0.15)
+
+    res = np.array([copula_neg_tau.par2tau(copula_neg_tau.tau2par(tau)) for tau in taus])
+
+    assert np.allclose(taus,
                        res,
                        rtol=1e-9, atol=1e-4)
 
