@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.stats import bernoulli
+
 from ._utils_gaussian_knockoffs import sdp_solver
 
 
@@ -30,8 +32,12 @@ class KockoffsLoss:
         if sdp_corr is None:
             corr_mat = np.corrcoef(x.transpose())
             sdp_corr = 1. - sdp_solver(corr_mat)
+
         n_obs = x.shape[0]
         dim_x = x.shape[1]
+
+        if swap_inds is None:
+            swap_inds = np.arange(0, dim_x)[bernoulli.rvs(0.5, size=dim_x) == 1]
 
         # Loss part 1: First and second moments
         mu_data = x.mean(axis=0)
@@ -75,16 +81,12 @@ class KockoffsLoss:
         # full swap
         z2 = np.hstack((x_knockoffs_part2, x_part2))
         loss_mmd_full = self._loss_mmd(z1, z2, alphas)
-        # loss_mmd_full = fast_loss_mmd(z1, z2, alphas)
+
         # partial swap
-        if swap_inds is not None:
-            z3 = np.hstack((x_part2, x_knockoffs_part2))
-            z3[:, swap_inds] = x_knockoffs_part2[:, swap_inds]
-            z3[:, swap_inds + dim_x] = x_part2[:, swap_inds]
-            loss_mmd_partial = self._loss_mmd(z1, z3, alphas)
-        else:
-            loss_mmd_partial = 0.
-        # loss_mmd_partial = fast_loss_mmd(z1, z3, alphas)
+        z3 = np.hstack((x_part2, x_knockoffs_part2))
+        z3[:, swap_inds] = x_knockoffs_part2[:, swap_inds]
+        z3[:, swap_inds + dim_x] = x_part2[:, swap_inds]
+        loss_mmd_partial = self._loss_mmd(z1, z3, alphas)
 
         loss_mmd_total = loss_mmd_full + loss_mmd_partial
 
