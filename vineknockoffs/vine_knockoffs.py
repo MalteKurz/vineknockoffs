@@ -4,7 +4,7 @@ from scipy.stats import norm
 from .vine_copulas import DVineCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
-from .copulas import cop_select, GaussianCopula
+from .copulas import cop_select, GaussianCopula, IndepCopula
 from ._utils_kde import KDEMultivariateWithInvCdf
 
 
@@ -149,7 +149,8 @@ class VineKnockoffs:
                 x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
         return x_knockoffs_jacobian
 
-    def fit_vine_copula_knockoffs(self, x_train, families='all', rotations=True, indep_test=True):
+    def fit_vine_copula_knockoffs(self, x_train, families='all', rotations=True, indep_test=True,
+                                  upper_tree_cop_fam_heuristic='lower tree families'):
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
         self.fit_gaussian_copula_knockoffs(x_train, algo='sdp')
 
@@ -191,10 +192,26 @@ class VineKnockoffs:
                     assert isinstance(self._dvine.copulas[tree - 1][cop - 1], GaussianCopula)
                 else:
                     assert tree > n_vars
-                    # upper trees (standard selection but deactivate the independence test)
-                    self._dvine.copulas[tree - 1][cop - 1] = cop_select(b[:, i - 1], a[:, i + j - 1],
-                                                                        families=families, rotations=rotations,
-                                                                        indep_test=False)
+                    # upper trees
+                    if upper_tree_cop_fam_heuristic == 'Gaussian':
+                        assert isinstance(self._dvine.copulas[tree - 1][cop - 1], GaussianCopula)
+                    else:
+                        assert upper_tree_cop_fam_heuristic == 'lower tree families'
+                        assert isinstance(self._dvine.copulas[tree - 1][cop - 1], GaussianCopula)
+                        lower_tree_cop = self._dvine.copulas[tree - n_vars - 1][cop - 1]
+                        par_gaussian_ko = self._dvine.copulas[tree - 1][cop - 1].par
+                        tau_gaussian_ko = GaussianCopula().par2tau(par_gaussian_ko)
+                        if isinstance(lower_tree_cop, IndepCopula):
+                            this_copula = GaussianCopula(par_gaussian_ko)
+                        elif (tau_gaussian_ko < 0.) & (lower_tree_cop.rotation in [0, 180]):
+                            this_copula = GaussianCopula(par_gaussian_ko)
+                        elif (tau_gaussian_ko > 0.) & (lower_tree_cop.rotation in [90, 270]):
+                            this_copula = GaussianCopula(par_gaussian_ko)
+                        else:
+                            this_copula = lower_tree_cop.__class__()
+                            this_copula._par = this_copula.tau2par(tau_gaussian_ko)
+
+                        self._dvine.copulas[tree - 1][cop - 1] = this_copula
 
                 if i < n_vars_x2 - j:
                     xx = self._dvine.copulas[tree - 1][cop - 1].hfun(b[:, i - 1], a[:, i + j - 1])
