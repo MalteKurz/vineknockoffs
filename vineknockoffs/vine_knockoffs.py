@@ -76,7 +76,7 @@ class VineKnockoffs:
             n_pars = self.n_pars_upper_trees
         else:
             assert which_par == 'all'
-            NotImplementedError()
+
 
         n_obs = x_test.shape[0]
         n_vars = x_test.shape[1]
@@ -145,7 +145,7 @@ class VineKnockoffs:
             d_x_d_u = np.full_like(x_test, np.nan)
             for i_var in range(n_vars):
                 d_x_d_u[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
-            for i_par in range(self.n_pars_upper_trees):
+            for i_par in range(self._dvine.n_pars):
                 x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
         return x_knockoffs_jacobian
 
