@@ -1,12 +1,14 @@
-import numpy as np
-from scipy.stats import norm
 from copy import deepcopy
+import numpy as np
+from scipy.stats import norm, bernoulli
 
-from .vine_copulas import DVineCopula
-from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
-from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
 from .copulas import cop_select, GaussianCopula, IndepCopula, FrankCopula
-from ._utils_kde import KDEMultivariateWithInvCdf
+from .knockoffs import KockoffsLoss
+from .vine_copulas import DVineCopula
+
+from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
+from ._utils_kde import KDEMultivariateWithInvCdf, KDE1D
+from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
 
 
 class VineKnockoffs:
@@ -73,11 +75,6 @@ class VineKnockoffs:
         return x_knockoffs
 
     def generate_par_jacobian(self, x_test, knockoff_eps=None, which_par='upper only'):
-        if which_par == 'upper only':
-            n_pars = self.n_pars_upper_trees
-        else:
-            assert which_par == 'all'
-
         n_obs = x_test.shape[0]
         n_vars = x_test.shape[1]
         u_test = np.full_like(x_test, np.nan)
@@ -149,10 +146,15 @@ class VineKnockoffs:
                 x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
         return x_knockoffs_jacobian
 
-    def fit_vine_copula_knockoffs(self, x_train, families='all', rotations=True, indep_test=True,
-                                  upper_tree_cop_fam_heuristic='lower tree families'):
+    def fit_vine_copula_knockoffs(self, x_train,
+                                  marginals='kde1d',
+                                  families='all', rotations=True, indep_test=True,
+                                  upper_tree_cop_fam_heuristic='lower tree families',
+                                  sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
+                                  loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
+
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
-        self.fit_gaussian_copula_knockoffs(x_train, algo='sdp')
+        self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo='sdp')
 
         # select copula families via AIC / MLE
         n_vars = x_train.shape[1]
@@ -223,13 +225,90 @@ class VineKnockoffs:
                 if i < n_vars_x2 - j:
                     b[:, i - 1] = xx
 
+        if sgd:
+            self.fit_sgd(x_train=x_train,
+                         lr=sgd_lr, gamma=sgd_gamma, n_batches=sgd_n_batches, n_iter=sgd_n_iter,
+                         loss_alpha=loss_alpha, loss_delta_sdp_corr=loss_delta_sdp_corr,
+                         loss_gamma=loss_gamma, loss_delta_corr=loss_delta_corr)
+
         return self
 
-    def fit_gaussian_copula_knockoffs(self, x_train, algo='sdp'):
+    def fit_sgd(self, x_train,
+                lr=0.01, gamma=0.9, n_batches=5, n_iter=20,
+                loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
+        n_obs = x_train.shape[0]
+        n_vars = x_train.shape[1]
+        loss_obj = KockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
+                                gamma=loss_gamma, delta_corr=loss_delta_corr)
+        start_tree = 1
+        par_vec = np.array(
+            [cop.par for tree in self._dvine.copulas[start_tree - 1:] for cop in tree if cop.par is not None])
+
+        losses = np.full(n_iter, np.nan)
+        x_knockoffs = self.generate(x_test=x_train)
+        swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
+        loss_vals = loss_obj.eval(x=x_train, x_knockoffs=x_knockoffs,
+                                  swap_inds=swap_inds, sdp_corr=self._sdp_corr)
+        print(loss_vals)
+        losses[0] = loss_vals[0]
+        n_obs_batch = int(np.floor(n_obs / n_batches))
+        for i_iter in np.arange(1, n_iter):
+            ind_shuffled = np.arange(n_obs)
+            np.random.shuffle(ind_shuffled)
+            x_data = x_train.copy()[ind_shuffled, :]
+            update_step = 0.
+            for i_batch in range(n_batches):
+                ind_start = i_batch * n_obs_batch
+                if i_batch < n_batches - 1:
+                    ind_end = (i_batch + 1) * n_obs_batch
+                else:
+                    ind_end = n_obs
+
+                # generate knockoffs
+                knockoff_eps = np.random.uniform(size=(n_obs, n_vars))
+
+                x_knockoffs[ind_start:ind_end, :] = self.generate(x_test=x_data[ind_start:ind_end, :],
+                                                                  knockoff_eps=knockoff_eps[ind_start:ind_end, :])
+                x_knockoffs_deriv = self.generate_par_jacobian(x_test=x_data[ind_start:ind_end, :],
+                                                               knockoff_eps=knockoff_eps[ind_start:ind_end, :],
+                                                               which_par='all')
+
+                swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
+                loss_grad = loss_obj.deriv(x=x_data[ind_start:ind_end, :],
+                                           x_knockoffs=x_knockoffs[ind_start:ind_end, :],
+                                           x_knockoffs_deriv=x_knockoffs_deriv,
+                                           swap_inds=swap_inds, sdp_corr=self._sdp_corr)[0]
+
+                update_step = gamma * update_step + lr * loss_grad
+                par_vec = par_vec - update_step
+
+                # ToDo check parameter bounds
+                ind_par = 0
+                for tree in np.arange(start_tree, self._dvine.n_vars):
+                    for cop in np.arange(1, self._dvine.n_vars - tree + 1):
+                        if not isinstance(self._dvine.copulas[tree - 1][cop - 1], IndepCopula):
+                            self._dvine.copulas[tree - 1][cop - 1]._par = par_vec[ind_par]
+                            ind_par += 1
+
+            swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
+            loss_vals = loss_obj.eval(x=x_data, x_knockoffs=x_knockoffs,
+                                      swap_inds=swap_inds, sdp_corr=self._sdp_corr)
+            losses[i_iter] = loss_vals[0]
+            print(i_iter)
+            print(loss_vals)
+        return self
+
+    def fit_gaussian_copula_knockoffs(self, x_train, marginals='kde1d', algo='sdp'):
         # ToDo May add alternative methods for the marginals (like parameteric distributions)
         n_vars = x_train.shape[1]
-        self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
-                           for i_var in range(n_vars)]
+
+        if marginals == 'kde1d':
+            self._marginals = [KDE1D().fit(x_train[:, i_var])
+                               for i_var in range(n_vars)]
+        else:
+            assert marginals == 'kde_statsmodels'
+            self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
+                               for i_var in range(n_vars)]
         u_train = np.full_like(x_train, np.nan)
         x_gaussian_train = np.full_like(x_train, np.nan)
         for i_var in range(n_vars):
@@ -250,6 +329,7 @@ class VineKnockoffs:
         copulas = [[GaussianCopula(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
+        self._sdp_corr = 1. - s_vec
 
         return self
 
