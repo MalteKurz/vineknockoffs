@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import norm
+from copy import deepcopy
 
 from .vine_copulas import DVineCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
@@ -76,7 +77,6 @@ class VineKnockoffs:
             n_pars = self.n_pars_upper_trees
         else:
             assert which_par == 'all'
-
 
         n_obs = x_test.shape[0]
         n_vars = x_test.shape[1]
@@ -186,7 +186,8 @@ class VineKnockoffs:
                                                                             families=families, rotations=rotations,
                                                                             indep_test=indep_test)
                     else:
-                        self._dvine.copulas[tree - 1][cop - 1] = self._dvine.copulas[tree - 1][cop - 1 - n_vars]
+                        self._dvine.copulas[tree - 1][cop - 1] = deepcopy(
+                            self._dvine.copulas[tree - 1][cop - 1 - n_vars])
                 elif tree == n_vars:
                     # decorrelation tree (do nothing; take Gaussian copula determined via fit_gaussian_copula_knockoffs)
                     assert isinstance(self._dvine.copulas[tree - 1][cop - 1], GaussianCopula)
@@ -208,7 +209,7 @@ class VineKnockoffs:
                         elif (tau_gaussian_ko > 0.) & (lower_tree_cop.rotation in [90, 270]):
                             this_copula = GaussianCopula(par_gaussian_ko)
                         else:
-                            this_copula = lower_tree_cop.__class__()
+                            this_copula = deepcopy(lower_tree_cop)
                             this_copula._par = this_copula.tau2par(tau_gaussian_ko)
 
                         self._dvine.copulas[tree - 1][cop - 1] = this_copula
