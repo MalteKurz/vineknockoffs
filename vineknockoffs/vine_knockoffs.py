@@ -5,7 +5,7 @@ from copy import deepcopy
 from .vine_copulas import DVineCopula
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
-from .copulas import cop_select, GaussianCopula, IndepCopula
+from .copulas import cop_select, GaussianCopula, IndepCopula, FrankCopula
 from ._utils_kde import KDEMultivariateWithInvCdf
 
 
@@ -203,6 +203,8 @@ class VineKnockoffs:
                         par_gaussian_ko = self._dvine.copulas[tree - 1][cop - 1].par
                         tau_gaussian_ko = GaussianCopula().par2tau(par_gaussian_ko)
                         if isinstance(lower_tree_cop, IndepCopula):
+                            this_copula = GaussianCopula(par_gaussian_ko)
+                        elif (np.abs(tau_gaussian_ko) > 0.9) & isinstance(lower_tree_cop, FrankCopula):
                             this_copula = GaussianCopula(par_gaussian_ko)
                         elif (tau_gaussian_ko < 0.) & (lower_tree_cop.rotation in [0, 180]):
                             this_copula = GaussianCopula(par_gaussian_ko)
