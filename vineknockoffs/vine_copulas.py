@@ -198,7 +198,9 @@ class DVineCopula:
                         a_d_par[:, i-j, i_par] = d_theta + a_d_par[:, i-j-1, i_par] * d_v
                         impacted_by_deriv[i_par] = True
                     else:
-                        if impacted_by_deriv[i_par]:
+                        if impacted_by_deriv[i_par] | \
+                                (np.abs(a_d_par[:, i-j-1, i_par]).sum() > 0.) | \
+                                (np.abs(b_d_par[:, i-j-1, i_par]).sum() > 0.):
                             if not deriv_computed:
                                 d_vfun_d_u_eval = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, i-j-1], a_eval)
                                 pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, i-j-1], a_eval)
@@ -228,7 +230,9 @@ class DVineCopula:
                             d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
                             b_d_par[:, i-j-1, i_par] = d_theta + a_d_par[:, i-j, i_par] * d_v
                         else:
-                            if impacted_by_deriv[i_par]:
+                            if impacted_by_deriv[i_par] | \
+                                    (np.abs(a_d_par[:, i-j, i_par]).sum() > 0.) | \
+                                    (np.abs(b_d_par[:, i-j-1, i_par]).sum() > 0.):
                                 if not deriv_computed:
                                     d_u = self.copulas[tree - 1][cop - 1].d_hfun_d_u(b[:, i - j - 1], a[:, i - j])
                                     d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
