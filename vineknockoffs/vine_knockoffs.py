@@ -214,7 +214,7 @@ class VineKnockoffs:
                             this_copula = GaussianCopula(par_gaussian_ko)
                         else:
                             this_copula = deepcopy(lower_tree_cop)
-                            this_copula._par = this_copula.tau2par(tau_gaussian_ko)
+                            this_copula.set_par_w_bound_check(this_copula.tau2par(tau_gaussian_ko))
 
                         self._dvine.copulas[tree - 1][cop - 1] = this_copula
 
@@ -241,8 +241,7 @@ class VineKnockoffs:
         loss_obj = KockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
                                 gamma=loss_gamma, delta_corr=loss_delta_corr)
         start_tree = 1
-        par_vec = np.array(
-            [cop.par for tree in self._dvine.copulas[start_tree - 1:] for cop in tree if cop.par is not None])
+        par_vec = self._dvine.get_par_vec(from_tree=start_tree)
 
         losses = np.full(n_iter, np.nan)
         x_knockoffs = self.generate(x_test=x_train)
@@ -282,13 +281,7 @@ class VineKnockoffs:
                 update_step = gamma * update_step + lr * loss_grad
                 par_vec = par_vec - update_step
 
-                # ToDo check parameter bounds
-                ind_par = 0
-                for tree in np.arange(start_tree, self._dvine.n_vars):
-                    for cop in np.arange(1, self._dvine.n_vars - tree + 1):
-                        if not isinstance(self._dvine.copulas[tree - 1][cop - 1], IndepCopula):
-                            self._dvine.copulas[tree - 1][cop - 1]._par = par_vec[ind_par]
-                            ind_par += 1
+                self._dvine.set_par_vec(par_vec=par_vec, from_tree=start_tree, assert_to_bounds=True)
 
             swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
             loss_vals = loss_obj.eval(x=x_data, x_knockoffs=x_knockoffs,

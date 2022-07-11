@@ -1,6 +1,8 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
+import warnings
+
 import scipy.integrate as integrate
 from scipy.optimize import fmin_l_bfgs_b, root_scalar
 from scipy.stats import norm, kendalltau
@@ -9,12 +11,13 @@ from ._utils_copula_families import clayton_cop_funs, frank_cop_funs, gaussian_c
 
 
 class Copula(ABC):
-    _theta_bounds = None
-    n_pars = np.nan
+    n_pars = 0
     trim_thres = 1e-12
 
-    def __init__(self, par, cop_funs, rotation=0):
-        self._par = par
+    def __init__(self, par, cop_funs, theta_bounds, rotation=0):
+        self._par = np.full(self.n_pars, np.nan)
+        self._theta_bounds = theta_bounds
+        self.par = par
         self._cop_funs = cop_funs
         self._rotation = rotation
 
@@ -24,6 +27,36 @@ class Copula(ABC):
     @property
     def par(self):
         return self._par
+
+    @par.setter
+    def par(self, value):
+        if np.isscalar(value):
+            value = np.array([value])
+        if len(value) != self.n_pars:
+            raise ValueError(f'{self.n_pars} parameters expected but {len(value)} provided')
+        for i_par in range(self.n_pars):
+            if (value[i_par] < self._theta_bounds[i_par][0]) | (value[i_par] > self._theta_bounds[i_par][1]):
+                raise ValueError(f'The {i_par+1}. parameter must be in '
+                                 f'[{self._theta_bounds[i_par][0]}, {self._theta_bounds[i_par][1]}]')
+            else:
+                self._par[i_par] = value[i_par]
+
+    def set_par_w_bound_check(self, value, tol=1e-4):
+        if np.isscalar(value):
+            value = np.array([value])
+        if len(value) != self.n_pars:
+            raise ValueError(f'{self.n_pars} parameters expected but {len(value)} provided')
+        for i_par in range(self.n_pars):
+            if value[i_par] < self._theta_bounds[i_par][0]:
+                self._par[i_par] = self._theta_bounds[i_par][0] + tol
+                warnings.warn(f'{i_par+1}. parameter of {self.__class__.__name__} copula adjusted '
+                              f'from {value[i_par]} to {self._par[i_par]}')
+            elif value[i_par] > self._theta_bounds[i_par][1]:
+                self._par[i_par] = self._theta_bounds[i_par][1] - tol
+                warnings.warn(f'{i_par+1}. parameter of {self.__class__.__name__} copula adjusted '
+                              f'from {value[i_par]} to {self._par[i_par]}')
+            else:
+                self._par[i_par] = value[i_par]
 
     @property
     def rotation(self):
@@ -268,9 +301,9 @@ class Copula(ABC):
 class ClaytonCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=None, rotation=0):
-        super().__init__(par, clayton_cop_funs, rotation=rotation)
-        self._theta_bounds = [(0.0001, 28)]
+    def __init__(self, par=np.nan, rotation=0):
+        super().__init__(par, clayton_cop_funs,
+                         theta_bounds=[(0.0001, 28)], rotation=rotation)
 
     def tau2par(self, tau):
         if self.rotation in [0, 180]:
@@ -294,9 +327,9 @@ class ClaytonCopula(Copula):
 class FrankCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=None):
-        super().__init__(par, frank_cop_funs)
-        self._theta_bounds = [(-40, 40)]
+    def __init__(self, par=np.nan):
+        super().__init__(par, frank_cop_funs,
+                         theta_bounds=[(-40, 40)])
 
     def par2tau(self, theta):
         # ToDO: Check and compare with R
@@ -327,9 +360,9 @@ class FrankCopula(Copula):
 class GaussianCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=None):
-        super().__init__(par, gaussian_cop_funs)
-        self._theta_bounds = [(-0.999, 0.999)]
+    def __init__(self, par=np.nan):
+        super().__init__(par, gaussian_cop_funs,
+                         theta_bounds=[(-0.999, 0.999)])
 
     def tau2par(self, tau):
         return np.sin(np.pi * tau / 2)
@@ -349,9 +382,9 @@ class GaussianCopula(Copula):
 class GumbelCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=None, rotation=0):
-        super().__init__(par, gumbel_cop_funs, rotation=rotation)
-        self._theta_bounds = [(1.0, 20)]
+    def __init__(self, par=np.nan, rotation=0):
+        super().__init__(par, gumbel_cop_funs,
+                         theta_bounds=[(1.0, 20)], rotation=rotation)
 
     def tau2par(self, tau):
         if self.rotation in [0, 180]:
@@ -376,7 +409,8 @@ class IndepCopula(Copula):
     n_pars = 0
 
     def __init__(self):
-        super().__init__(None, indep_cop_funs)
+        super().__init__(np.array([]), indep_cop_funs,
+                         theta_bounds=[])
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'

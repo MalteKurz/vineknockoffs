@@ -122,6 +122,24 @@ class DVineCopula:
         return res
 
     def get_par_vec(self, from_tree=1):
+        par_vec = np.concatenate(
+            [cop.par for tree in self.copulas[from_tree - 1:] for cop in tree if cop.par is not None])
+        return par_vec
+
+    def set_par_vec(self, par_vec, from_tree=1, assert_to_bounds=False):
+        ind_par = 0
+        for tree in np.arange(from_tree, self.n_vars):
+            for cop in self.copulas[tree - 1]:
+                if not isinstance(cop, IndepCopula):
+                    assert cop.n_pars == 1
+                    if assert_to_bounds:
+                        cop.set_par_w_bound_check(par_vec[ind_par])
+                    else:
+                        cop.par = par_vec[ind_par]
+                    ind_par += 1
+        return self
+
+    def get_par_vec_w_info(self, from_tree=1):
         # note: from_tree 1-indexed
         n_pars = np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self.copulas[from_tree-1:]])
         par_vec = np.full(n_pars, np.nan)
@@ -156,7 +174,7 @@ class DVineCopula:
             w = np.random.uniform(size=(n_obs, self.n_vars))
         else:
             n_obs = w.shape[0]
-        par_vec_dict = self.get_par_vec(from_tree)
+        par_vec_dict = self.get_par_vec_w_info(from_tree)
         n_pars = par_vec_dict['n_pars']
         which_tree = par_vec_dict['which_tree']
         which_cop = par_vec_dict['which_cop']
