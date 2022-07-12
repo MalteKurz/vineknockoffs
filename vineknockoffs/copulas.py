@@ -57,6 +57,7 @@ class Copula(ABC):
                               f'from {value[i_par]} to {self._par[i_par]}')
             else:
                 self._par[i_par] = value[i_par]
+        return self
 
     @property
     def rotation(self):
