@@ -1,36 +1,60 @@
 import numpy as np
 
-from sympy import symbols, diff, log, exp, sqrt
+from sympy import symbols
+# from sympy import diff, log, exp, sqrt
 
 from scipy.stats import norm, multivariate_normal
 
-from ._utils_copulas import copula_derivs_one_par, opt_and_lambdify
+from ._utils_copulas import opt_and_lambdify, read_and_lambdify_sympy_expr
+# from ._utils_copulas import sym_copula_derivs_one_par, write_sympy_expr, copula_derivs_one_par
 
 u_sym, v_sym, theta_sym = symbols('u v theta')
 
-gumbel_cdf_sym = exp(-((-log(u_sym))**theta_sym + (-log(v_sym))**theta_sym)**(1/theta_sym))
-gumbel_cop_funs = copula_derivs_one_par(gumbel_cdf_sym, u_sym, v_sym, theta_sym)
+# gumbel_cdf_sym = exp(-((-log(u_sym))**theta_sym + (-log(v_sym))**theta_sym)**(1/theta_sym))
+# gumbel_cop_funs = copula_derivs_one_par(gumbel_cdf_sym, u_sym, v_sym, theta_sym)
+# gumbel_sym_dict = sym_copula_derivs_one_par(gumbel_cdf_sym, u_sym, v_sym, theta_sym)
+# write_sympy_expr(gumbel_sym_dict, './vineknockoffs/sym_copula_expr/gumbel.csv')
 
-clayton_cdf_sym = (u_sym**(-theta_sym) + v_sym**(-theta_sym) - 1)**(-1/theta_sym)
-clayton_cop_funs = copula_derivs_one_par(clayton_cdf_sym, u_sym, v_sym, theta_sym)
+gumbel_cop_funs = read_and_lambdify_sympy_expr('vineknockoffs.sym_copula_expr', 'gumbel.csv',
+                                               (theta_sym, u_sym, v_sym))
 
-frank_cdf_sym = - 1/theta_sym * \
-                log(1/(1 - exp(-theta_sym)) *
-                    (1 - exp(-theta_sym) - (1 - exp(-theta_sym*u_sym)) * (1 - exp(-theta_sym*v_sym))))
-frank_cop_funs = copula_derivs_one_par(frank_cdf_sym, u_sym, v_sym, theta_sym)
+# clayton_cdf_sym = (u_sym**(-theta_sym) + v_sym**(-theta_sym) - 1)**(-1/theta_sym)
+# clayton_cop_funs = copula_derivs_one_par(clayton_cdf_sym, u_sym, v_sym, theta_sym)
+# clayton_sym_dict = sym_copula_derivs_one_par(clayton_cdf_sym, u_sym, v_sym, theta_sym)
+# write_sympy_expr(clayton_sym_dict, './vineknockoffs/sym_copula_expr/clayton.csv')
+
+clayton_cop_funs = read_and_lambdify_sympy_expr('vineknockoffs.sym_copula_expr', 'clayton.csv',
+                                                (theta_sym, u_sym, v_sym))
+
+# frank_cdf_sym = - 1/theta_sym * \
+#                 log(1/(1 - exp(-theta_sym)) *
+#                     (1 - exp(-theta_sym) - (1 - exp(-theta_sym*u_sym)) * (1 - exp(-theta_sym*v_sym))))
+# frank_cop_funs = copula_derivs_one_par(frank_cdf_sym, u_sym, v_sym, theta_sym)
+# frank_sym_dict = sym_copula_derivs_one_par(frank_cdf_sym, u_sym, v_sym, theta_sym)
+# write_sympy_expr(frank_sym_dict, './vineknockoffs/sym_copula_expr/frank.csv')
+
+frank_cop_funs = read_and_lambdify_sympy_expr('vineknockoffs.sym_copula_expr', 'frank.csv',
+                                              (theta_sym, u_sym, v_sym))
 
 x_sym, y_sym, theta_sym = symbols('x y theta')
-gauss_cop_funs = dict()
-gauss_pdf_sym = 1/(sqrt(1-theta_sym**2)) * exp(-(theta_sym**2*(x_sym**2 + y_sym**2) - 2*theta_sym*x_sym*y_sym)
-                                               / (2*(1-theta_sym**2)))
-gauss_pdf_sym, gauss_pdf_fun_xy = opt_and_lambdify(gauss_pdf_sym, x_sym, y_sym, theta_sym)
 
-gauss_ll_sym = log(1/(sqrt(1-theta_sym**2))) - (theta_sym**2*(x_sym**2 + y_sym**2)
-                                                - 2*theta_sym*x_sym*y_sym) / (2*(1-theta_sym**2))
-gauss_ll_sym, gauss_ll_fun_xy = opt_and_lambdify(gauss_ll_sym, x_sym, y_sym, theta_sym)
+# gauss_cop_xy_funs = dict()
+# gauss_sym_dict = dict()
+# gauss_pdf_sym = 1/(sqrt(1-theta_sym**2)) * exp(-(theta_sym**2*(x_sym**2 + y_sym**2) - 2*theta_sym*x_sym*y_sym)
+#                                                / (2*(1-theta_sym**2)))
+# gauss_sym_dict['pdf'], gauss_cop_xy_funs['pdf'] = opt_and_lambdify(gauss_pdf_sym, x_sym, y_sym, theta_sym)
+#
+# gauss_ll_sym = log(1/(sqrt(1-theta_sym**2))) - (theta_sym**2*(x_sym**2 + y_sym**2)
+#                                                 - 2*theta_sym*x_sym*y_sym) / (2*(1-theta_sym**2))
+# gauss_sym_dict['ll'], gauss_cop_xy_funs['ll'] = opt_and_lambdify(gauss_ll_sym, x_sym, y_sym, theta_sym)
+#
+# gauss_d_ll_d_theta_sym = diff(gauss_ll_sym, theta_sym)
+# gauss_sym_dict['d_ll_d_theta'], gauss_cop_xy_funs['d_ll_d_theta'] = opt_and_lambdify(gauss_d_ll_d_theta_sym,
+#                                                                                      x_sym, y_sym, theta_sym)
+# write_sympy_expr(gauss_sym_dict, './vineknockoffs/sym_copula_expr/gaussian.csv')
 
-gauss_d_ll_d_theta_sym = diff(gauss_ll_sym, theta_sym)
-gauss_d_ll_d_theta_sym, gauss_d_ll_d_theta_fun_xy = opt_and_lambdify(gauss_d_ll_d_theta_sym, x_sym, y_sym, theta_sym)
+gauss_cop_xy_funs = read_and_lambdify_sympy_expr('vineknockoffs.sym_copula_expr', 'gaussian.csv',
+                                                 (theta_sym, x_sym, y_sym))
 
 
 def gaussian_cdf(theta, u, v):
@@ -44,21 +68,21 @@ def gaussian_cdf(theta, u, v):
 def gaussian_pdf(theta, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
-    res = gauss_pdf_fun_xy(theta, x, y)
+    res = gauss_cop_xy_funs['pdf'](theta, x, y)
     return res
 
 
 def gaussian_ll(theta, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
-    res = gauss_ll_fun_xy(theta, x, y)
+    res = gauss_cop_xy_funs['ll'](theta, x, y)
     return res
 
 
 def gaussian_d_ll_d_theta(theta, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
-    res = gauss_d_ll_d_theta_fun_xy(theta, x, y)
+    res = gauss_cop_xy_funs['d_ll_d_theta'](theta, x, y)
     return res
 
 
