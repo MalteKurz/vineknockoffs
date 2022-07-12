@@ -93,11 +93,13 @@ class VineKnockoffs:
         sub_dvine = DVineCopula([self._dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
 
         if which_par == 'upper only':
+            n_pars = self.n_pars_upper_trees
             u_pits = sub_dvine.compute_pits(u_test)
             u_sim, u_sim_jacobian = self._dvine.sim_par_jacobian_fast(w=np.hstack((u_pits, knockoff_pits)),
                                                                       from_tree=n_vars, return_u=True)
         else:
             assert which_par == 'all'
+            n_pars = self._dvine.n_pars
             u_pits = sub_dvine.compute_pits(u_test)
             u_pits_d_par = sub_dvine.compute_pits_par_jacobian(u_test)
             w_jacobian = np.zeros((n_obs, self._dvine.n_vars, self._dvine.n_pars))
@@ -130,7 +132,7 @@ class VineKnockoffs:
             d_x_d_u[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
 
         x_knockoffs_jacobian = np.full_like(u_knockoffs_jacobian, np.nan)
-        for i_par in range(self._dvine.n_pars):
+        for i_par in range(n_pars):
             x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
 
         if return_x_knockoffs:
