@@ -45,7 +45,7 @@ def test_generate_numdiff(which_par):
     x_data = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
 
     vine_ko = VineKnockoffs()
-    vine_ko.fit_vine_copula_knockoffs(x_data, indep_test=False)
+    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False)
     # vine_ko.fit_gaussian_knockoffs(x_data)
 
     # u_test = dvine.sim(n_obs)
@@ -87,7 +87,7 @@ def test_loss_numdiff(which_par):
     x_data = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
 
     vine_ko = VineKnockoffs()
-    vine_ko.fit_vine_copula_knockoffs(x_data)
+    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False)
     # vine_ko.fit_gaussian_knockoffs(x_data)
 
     x_test = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
