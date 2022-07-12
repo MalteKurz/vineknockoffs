@@ -169,7 +169,7 @@ class DVineCopula:
                         }
         return par_vec_dict
 
-    def sim_par_jacobian_fast(self, n_obs=100, w=None, w_jacobian=None, from_tree=1):
+    def sim_par_jacobian_fast(self, n_obs=100, w=None, w_jacobian=None, from_tree=1, return_u=False):
         if w is None:
             w = np.random.uniform(size=(n_obs, self.n_vars))
         else:
@@ -260,7 +260,10 @@ class DVineCopula:
                                 b_d_par[:, i-j-1, i_par] = 0.
 
                     b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
-        return u_d_par
+        if return_u:
+            return u, u_d_par
+        else:
+            return u_d_par
 
     def compute_pits(self, u):
         a = np.full_like(u, np.nan)
@@ -286,7 +289,7 @@ class DVineCopula:
                     b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
         return w
 
-    def compute_pits_d_par(self, which_tree, which_cop, u):
+    def compute_pits_d_par(self, which_tree, which_cop, u, return_w=False):
         a = np.full_like(u, np.nan)
         b = np.full_like(u, np.nan)
         w = np.full_like(u, np.nan)
@@ -337,7 +340,10 @@ class DVineCopula:
                         else:
                             b_d_par[:, i-j-1] = 0.
                     b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
-        return w_d_par
+        if return_w:
+            return w, w_d_par
+        else:
+            return w_d_par
 
     def compute_pits_par_jacobian(self, u):
         res = np.full((u.shape[0], self.n_vars, self.n_pars), np.nan)

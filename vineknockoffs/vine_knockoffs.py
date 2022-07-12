@@ -74,9 +74,15 @@ class VineKnockoffs:
             x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
         return x_knockoffs
 
-    def generate_par_jacobian(self, x_test, knockoff_eps=None, which_par='upper only'):
+    def generate_par_jacobian(self, x_test, knockoff_eps=None, which_par='upper only',
+                              return_x_knockoffs=False):
         n_obs = x_test.shape[0]
         n_vars = x_test.shape[1]
+        if knockoff_eps is None:
+            knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
+        else:
+            knockoff_pits = knockoff_eps
+
         u_test = np.full_like(x_test, np.nan)
         for i_var in range(n_vars):
             u_test[:, i_var] = self._marginals[i_var].cdf(x_test[:, i_var])
@@ -85,38 +91,14 @@ class VineKnockoffs:
         u_test = u_test[:, self.dvine_structure]
 
         sub_dvine = DVineCopula([self._dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
-        u_pits = sub_dvine.compute_pits(u_test)
-        if knockoff_eps is None:
-            knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
-        else:
-            knockoff_pits = knockoff_eps
-
-        u_sim = self._dvine.sim(w=np.hstack((u_pits, knockoff_pits)))
-        u_knockoffs = u_sim[:, n_vars:]
-
-        # get back order of variables
-        u_knockoffs = u_knockoffs[:, self.inv_dvine_structure]
-
-        x_knockoffs = np.full_like(x_test, np.nan)
-        for i_var in range(n_vars):
-            x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
 
         if which_par == 'upper only':
-            u_sim_jacobian = self._dvine.sim_par_jacobian_fast(w=np.hstack((u_pits, knockoff_pits)),
-                                                               from_tree=n_vars)
-            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, :]
-
-            # get back order of variables
-            u_knockoffs_jacobian = u_knockoffs_jacobian[:, self.inv_dvine_structure, :]
-
-            x_knockoffs_jacobian = np.full_like(u_knockoffs_jacobian, np.nan)
-            d_x_d_u = np.full_like(x_test, np.nan)
-            for i_var in range(n_vars):
-                d_x_d_u[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
-            for i_par in range(self.n_pars_upper_trees):
-                x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
+            u_pits = sub_dvine.compute_pits(u_test)
+            u_sim, u_sim_jacobian = self._dvine.sim_par_jacobian_fast(w=np.hstack((u_pits, knockoff_pits)),
+                                                                      from_tree=n_vars, return_u=True)
         else:
             assert which_par == 'all'
+            u_pits = sub_dvine.compute_pits(u_test)
             u_pits_d_par = sub_dvine.compute_pits_par_jacobian(u_test)
             w_jacobian = np.zeros((n_obs, self._dvine.n_vars, self._dvine.n_pars))
             ind_par = 0
@@ -131,20 +113,30 @@ class VineKnockoffs:
                             ind_par_sub_dvine += self._dvine.copulas[tree - 1][cop - 1].n_pars
                         ind_par += self._dvine.copulas[tree - 1][cop - 1].n_pars
 
-            u_sim_jacobian = self._dvine.sim_par_jacobian_fast(w=np.hstack((u_pits, knockoff_pits)),
-                                                               w_jacobian=w_jacobian)
-            u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, :]
+            u_sim, u_sim_jacobian = self._dvine.sim_par_jacobian_fast(w=np.hstack((u_pits, knockoff_pits)),
+                                                                      w_jacobian=w_jacobian, return_u=True)
 
-            # get back order of variables
-            u_knockoffs_jacobian = u_knockoffs_jacobian[:, self.inv_dvine_structure, :]
+        u_knockoffs = u_sim[:, n_vars:]
+        u_knockoffs_jacobian = u_sim_jacobian[:, n_vars:, :]
 
-            x_knockoffs_jacobian = np.full_like(u_knockoffs_jacobian, np.nan)
-            d_x_d_u = np.full_like(x_test, np.nan)
-            for i_var in range(n_vars):
-                d_x_d_u[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
-            for i_par in range(self._dvine.n_pars):
-                x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
-        return x_knockoffs_jacobian
+        # get back order of variables
+        u_knockoffs = u_knockoffs[:, self.inv_dvine_structure]
+        u_knockoffs_jacobian = u_knockoffs_jacobian[:, self.inv_dvine_structure, :]
+
+        x_knockoffs = np.full_like(x_test, np.nan)
+        d_x_d_u = np.full_like(x_test, np.nan)
+        for i_var in range(n_vars):
+            x_knockoffs[:, i_var] = self._marginals[i_var].ppf(u_knockoffs[:, i_var])
+            d_x_d_u[:, i_var] = 1 / self._marginals[i_var].pdf(x_knockoffs[:, i_var])
+
+        x_knockoffs_jacobian = np.full_like(u_knockoffs_jacobian, np.nan)
+        for i_par in range(self._dvine.n_pars):
+            x_knockoffs_jacobian[:, :, i_par] = d_x_d_u * u_knockoffs_jacobian[:, :, i_par]
+
+        if return_x_knockoffs:
+            return x_knockoffs, x_knockoffs_jacobian
+        else:
+            return x_knockoffs_jacobian
 
     def fit_vine_copula_knockoffs(self, x_train,
                                   marginals='kde1d',
