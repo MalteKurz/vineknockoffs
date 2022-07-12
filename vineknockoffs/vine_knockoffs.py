@@ -151,6 +151,7 @@ class VineKnockoffs:
                                   families='all', rotations=True, indep_test=True,
                                   upper_tree_cop_fam_heuristic='lower tree families',
                                   sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
+                                  sgd_which_par='all',
                                   loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
 
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
@@ -228,6 +229,7 @@ class VineKnockoffs:
         if sgd:
             self.fit_sgd(x_train=x_train,
                          lr=sgd_lr, gamma=sgd_gamma, n_batches=sgd_n_batches, n_iter=sgd_n_iter,
+                         which_par=sgd_which_par,
                          loss_alpha=loss_alpha, loss_delta_sdp_corr=loss_delta_sdp_corr,
                          loss_gamma=loss_gamma, loss_delta_corr=loss_delta_corr)
 
@@ -235,12 +237,17 @@ class VineKnockoffs:
 
     def fit_sgd(self, x_train,
                 lr=0.01, gamma=0.9, n_batches=5, n_iter=20,
+                which_par='all',
                 loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
         n_obs = x_train.shape[0]
         n_vars = x_train.shape[1]
         loss_obj = KockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
                                 gamma=loss_gamma, delta_corr=loss_delta_corr)
-        start_tree = 1
+        if which_par == 'all':
+            start_tree = 1
+        else:
+            assert which_par == 'upper only'
+            start_tree = n_vars
         par_vec = self._dvine.get_par_vec(from_tree=start_tree)
 
         losses = np.full(n_iter, np.nan)
@@ -270,7 +277,7 @@ class VineKnockoffs:
                                                                   knockoff_eps=knockoff_eps[ind_start:ind_end, :])
                 x_knockoffs_deriv = self.generate_par_jacobian(x_test=x_data[ind_start:ind_end, :],
                                                                knockoff_eps=knockoff_eps[ind_start:ind_end, :],
-                                                               which_par='all')
+                                                               which_par=which_par)
 
                 swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
                 loss_grad = loss_obj.deriv(x=x_data[ind_start:ind_end, :],
