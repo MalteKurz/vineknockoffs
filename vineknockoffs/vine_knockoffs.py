@@ -100,8 +100,7 @@ class VineKnockoffs:
         else:
             assert which_par == 'all'
             n_pars = self._dvine.n_pars
-            u_pits = sub_dvine.compute_pits(u_test)
-            u_pits_d_par = sub_dvine.compute_pits_par_jacobian(u_test)
+            u_pits, u_pits_d_par = sub_dvine.compute_pits_par_jacobian_fast(u_test, return_w=True)
             w_jacobian = np.zeros((n_obs, self._dvine.n_vars, self._dvine.n_pars))
             ind_par = 0
             ind_par_sub_dvine = 0
@@ -267,11 +266,9 @@ class VineKnockoffs:
                 # generate knockoffs
                 knockoff_eps = np.random.uniform(size=(n_obs, n_vars))
 
-                x_knockoffs[ind_start:ind_end, :] = self.generate(x_test=x_data[ind_start:ind_end, :],
-                                                                  knockoff_eps=knockoff_eps[ind_start:ind_end, :])
-                x_knockoffs_deriv = self.generate_par_jacobian(x_test=x_data[ind_start:ind_end, :],
-                                                               knockoff_eps=knockoff_eps[ind_start:ind_end, :],
-                                                               which_par=which_par)
+                x_knockoffs[ind_start:ind_end, :], x_knockoffs_deriv = self.generate_par_jacobian(
+                    x_test=x_data[ind_start:ind_end, :], knockoff_eps=knockoff_eps[ind_start:ind_end, :],
+                    which_par=which_par, return_x_knockoffs=True)
 
                 swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
                 loss_grad = loss_obj.deriv(x=x_data[ind_start:ind_end, :],
