@@ -25,15 +25,10 @@ def test_sim_numdiff(dvine):
     u_data = np.random.uniform(size=(n_obs, dvine.n_vars))
 
     res = dvine.sim_par_jacobian(w=u_data)
-    par_vec = np.array([cop.par for tree in dvine.copulas for cop in tree if cop.par is not None])
+    par_vec = dvine.get_par_vec()
 
     def sim_for_numdiff(pars, w):
-        ind_par = 0
-        for tree in np.arange(1, dvine.n_vars):
-            for cop in np.arange(1, dvine.n_vars-tree+1):
-                if not isinstance(dvine.copulas[tree-1][cop-1], IndepCopula):
-                    dvine.copulas[tree-1][cop-1]._par = pars[ind_par]
-                    ind_par += 1
+        dvine.set_par_vec(par_vec=pars)
         return dvine.sim(w=w)
 
     res_num = np.swapaxes(approx_fprime(par_vec,
@@ -53,15 +48,10 @@ def test_compute_pits_numdiff(dvine):
     u_data = dvine.sim(n_obs)
 
     res = dvine.compute_pits_par_jacobian(u=u_data)
-    par_vec = np.array([cop.par for tree in dvine.copulas for cop in tree if cop.par is not None])
+    par_vec = dvine.get_par_vec()
 
     def compute_pits_for_numdiff(pars, u):
-        ind_par = 0
-        for tree in np.arange(1, dvine.n_vars):
-            for cop in np.arange(1, dvine.n_vars-tree+1):
-                if not isinstance(dvine.copulas[tree-1][cop-1], IndepCopula):
-                    dvine.copulas[tree-1][cop-1]._par = pars[ind_par]
-                    ind_par += 1
+        dvine.set_par_vec(par_vec=pars)
         return dvine.compute_pits(u=u)
 
     res_num = np.swapaxes(approx_fprime(par_vec,
