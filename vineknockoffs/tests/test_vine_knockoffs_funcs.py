@@ -10,7 +10,7 @@ from statsmodels.tools.numdiff import approx_fprime
 from vineknockoffs.copulas import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
 from vineknockoffs.vine_copulas import DVineCopula
 from vineknockoffs.vine_knockoffs import VineKnockoffs
-from vineknockoffs.knockoffs import KockoffsLoss
+from vineknockoffs.knockoffs import KnockoffsLoss
 
 from vineknockoffs._utils_gaussian_knockoffs import sdp_solver
 
@@ -96,7 +96,7 @@ def test_loss_numdiff(which_par):
     x_knockoffs = vine_ko.generate(x_test=x_test, knockoff_eps=knockoff_eps)
     x_knockoffs_deriv = vine_ko.generate_par_jacobian(x_test=x_test, knockoff_eps=knockoff_eps, which_par=which_par)
 
-    loss = KockoffsLoss(delta_corr=1.)
+    loss = KnockoffsLoss(delta_corr=1.)
     swap_inds = np.arange(0, n_vars)[bernoulli.rvs(0.5, size=n_vars) == 1]
     corr_mat = np.corrcoef(x_test.transpose())
     sdp_corr = 1. - sdp_solver(corr_mat)

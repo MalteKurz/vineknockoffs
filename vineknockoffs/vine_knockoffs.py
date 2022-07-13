@@ -3,7 +3,7 @@ import numpy as np
 from scipy.stats import norm, bernoulli
 
 from .copulas import cop_select, GaussianCopula, IndepCopula, FrankCopula
-from .knockoffs import KockoffsLoss
+from .knockoffs import KnockoffsLoss
 from .vine_copulas import DVineCopula
 
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
@@ -234,8 +234,8 @@ class VineKnockoffs:
                 loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
         n_obs = x_train.shape[0]
         n_vars = x_train.shape[1]
-        loss_obj = KockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
-                                gamma=loss_gamma, delta_corr=loss_delta_corr)
+        loss_obj = KnockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
+                                 gamma=loss_gamma, delta_corr=loss_delta_corr)
         if which_par == 'all':
             start_tree = 1
         else:

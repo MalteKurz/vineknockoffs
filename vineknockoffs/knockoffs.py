@@ -4,7 +4,7 @@ from scipy.stats import bernoulli
 from ._utils_gaussian_knockoffs import sdp_solver
 
 
-class KockoffsLoss:
+class KnockoffsLoss:
 
     def __init__(self, alpha=1., delta_sdp_corr=1., gamma=1., delta_corr=0.):
         self._alpha = alpha
