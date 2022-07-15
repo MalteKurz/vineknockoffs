@@ -343,7 +343,7 @@ class VineKnockoffs:
         g_mat = np.vstack((np.hstack((corr_mat, corr_mat - np.diag(s_vec))),
                            np.hstack((corr_mat - np.diag(s_vec), corr_mat))))
         pcorrs = dvine_pcorr(g_mat)
-        copulas = [[GaussianCopula(rho) for rho in xx] for xx in pcorrs]
+        copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
 
