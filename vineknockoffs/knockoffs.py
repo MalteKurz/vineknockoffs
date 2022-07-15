@@ -6,11 +6,14 @@ from ._utils_gaussian_knockoffs import sdp_solver
 
 class KnockoffsLoss:
 
-    def __init__(self, alpha=1., delta_sdp_corr=1., gamma=1., delta_corr=0.):
+    def __init__(self, alpha=1., delta_sdp_corr=1., gamma=1., delta_corr=0.,
+                 mmd_include_diag=False, mmd_sqrt=False):
         self._alpha = alpha
         self._delta_sdp_corr = delta_sdp_corr
         self._gamma = gamma
         self._delta_corr = delta_corr
+        self._mmd_include_diag = mmd_include_diag
+        self._mmd_sqrt = mmd_sqrt
 
     @property
     def alpha(self):
@@ -27,6 +30,14 @@ class KnockoffsLoss:
     @property
     def delta_corr(self):
         return self._delta_corr
+
+    @property
+    def mmd_include_diag(self):
+        return self._mmd_include_diag
+
+    @property
+    def mmd_sqrt(self):
+        return self._mmd_sqrt
 
     def eval(self, x, x_knockoffs, swap_inds=None, sdp_corr=None):
         if sdp_corr is None:
@@ -80,13 +91,13 @@ class KnockoffsLoss:
         z1 = np.hstack((x_part1, x_knockoffs_part1))
         # full swap
         z2 = np.hstack((x_knockoffs_part2, x_part2))
-        loss_mmd_full = self._loss_mmd(z1, z2, alphas)
+        loss_mmd_full = self._loss_mmd(z1, z2, alphas, self.mmd_include_diag, self.mmd_sqrt)
 
         # partial swap
         z3 = np.hstack((x_part2, x_knockoffs_part2))
         z3[:, swap_inds] = x_knockoffs_part2[:, swap_inds]
         z3[:, swap_inds + dim_x] = x_part2[:, swap_inds]
-        loss_mmd_partial = self._loss_mmd(z1, z3, alphas)
+        loss_mmd_partial = self._loss_mmd(z1, z3, alphas, self.mmd_include_diag, self.mmd_sqrt)
 
         loss_mmd_total = loss_mmd_full + loss_mmd_partial
 
@@ -190,8 +201,10 @@ class KnockoffsLoss:
             z3_deriv[:, swap_inds, i_par] = x_knockoffs_deriv_part2[:, swap_inds]
             z3_deriv[:, swap_inds+dim_x, i_par] = x_deriv_part2[:, swap_inds]
 
-        loss_mmd_full_deriv = self._loss_mmd_deriv(z1, z2, z1_deriv, z2_deriv, alphas)
-        loss_mmd_partial_deriv = self._loss_mmd_deriv(z1, z3, z1_deriv, z3_deriv, alphas)
+        loss_mmd_full_deriv = self._loss_mmd_deriv(z1, z2, z1_deriv, z2_deriv, alphas,
+                                                   self.mmd_include_diag, self.mmd_sqrt)
+        loss_mmd_partial_deriv = self._loss_mmd_deriv(z1, z3, z1_deriv, z3_deriv, alphas,
+                                                      self.mmd_include_diag, self.mmd_sqrt)
 
         loss_mmd_total_deriv = loss_mmd_full_deriv + loss_mmd_partial_deriv
 
@@ -200,7 +213,7 @@ class KnockoffsLoss:
         return loss_deriv, loss_moments_deriv, loss_sdp_corr_deriv, loss_mmd_total_deriv, loss_corr_deriv
 
     @staticmethod
-    def _loss_mmd(x, y, alphas):
+    def _loss_mmd(x, y, alphas, include_diag=False, sqrt=False):
         n = x.shape[0]
         m = y.shape[0]
 
@@ -213,14 +226,20 @@ class KnockoffsLoss:
         loss = 0
         for alpha in alphas:
             loss_vals = np.exp(-exponent / (2 * alpha ** 2))
-            loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
-                loss_vals[:n, n:].mean() - loss_vals[n:, 1:n].mean()
+            if include_diag:
+                loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
+                    loss_vals[:n, n:].mean() - loss_vals[n:, :n].mean()
+            else:
+                np.fill_diagonal(loss_vals, 0.)
+                loss += loss_vals[:n, :n].sum()/(n*(n-1.)) + loss_vals[n:, n:].sum()/(m*(m-1.)) - \
+                    loss_vals[:n, n:].sum()/(n*m) - loss_vals[n:, :n].sum()/(n*m)
         # sqrt loss
-        loss = np.sqrt(loss)
+        if sqrt:
+            loss = np.sqrt(loss)
         return loss
 
     @staticmethod
-    def _loss_mmd_deriv(x, y, x_deriv, y_deriv, alphas):
+    def _loss_mmd_deriv(x, y, x_deriv, y_deriv, alphas, include_diag=False, sqrt=False):
         n = x.shape[0]
         m = y.shape[0]
         n_pars = x_deriv.shape[2]
@@ -235,10 +254,17 @@ class KnockoffsLoss:
         loss_vals_for_deriv = np.zeros_like(exponent)
         for alpha in alphas:
             loss_vals = np.exp(-exponent / (2 * alpha ** 2))
-            loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
-            loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
-                loss_vals[:n, n:].mean() - loss_vals[n:, 1:n].mean()
-        loss = np.sqrt(loss)
+            if include_diag:
+                loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
+                loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
+                    loss_vals[:n, n:].mean() - loss_vals[n:, :n].mean()
+            else:
+                np.fill_diagonal(loss_vals, 0.)
+                loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
+                loss += loss_vals[:n, :n].sum()/(n*(n-1.)) + loss_vals[n:, n:].sum()/(m*(m-1.)) - \
+                    loss_vals[:n, n:].sum()/(n*m) - loss_vals[n:, :n].sum()/(n*m)
+        if sqrt:
+            loss = np.sqrt(loss)
 
         loss_deriv = np.zeros(n_pars)
         for i_par in range(n_pars):
@@ -251,8 +277,13 @@ class KnockoffsLoss:
                               - 2 * zz_deriv - 2 * zz_deriv.T)
 
             loss_vals_deriv = exponent_deriv * loss_vals_for_deriv
-            loss_deriv[i_par] = loss_vals_deriv[:n, :n].mean() + loss_vals_deriv[n:, n:].mean() - \
-                loss_vals_deriv[:n, n:].mean() - loss_vals_deriv[n:, 1:n].mean()
+            if include_diag:
+                loss_deriv[i_par] = loss_vals_deriv[:n, :n].mean() + loss_vals_deriv[n:, n:].mean() - \
+                    loss_vals_deriv[:n, n:].mean() - loss_vals_deriv[n:, :n].mean()
+            else:
+                loss_deriv[i_par] = loss_vals_deriv[:n, :n].sum()/(n*(n-1.)) + loss_vals_deriv[n:, n:].sum()/(m*(m-1.)) - \
+                    loss_vals_deriv[:n, n:].sum()/(n*m) - loss_vals_deriv[n:, :n].sum()/(n*m)
 
-        loss_deriv = loss_deriv / (2 * loss)
+        if sqrt:
+            loss_deriv = loss_deriv / (2 * loss)
         return loss_deriv

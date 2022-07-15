@@ -235,7 +235,8 @@ class VineKnockoffs:
         n_obs = x_train.shape[0]
         n_vars = x_train.shape[1]
         loss_obj = KnockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
-                                 gamma=loss_gamma, delta_corr=loss_delta_corr)
+                                 gamma=loss_gamma, delta_corr=loss_delta_corr,
+                                 mmd_include_diag=True, mmd_sqrt=True)
         if which_par == 'all':
             start_tree = 1
         else:
