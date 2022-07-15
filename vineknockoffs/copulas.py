@@ -22,7 +22,7 @@ class Copula(ABC):
         self._rotation = rotation
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(par={self.par}, rotation={self.rotation})'
+        return f'{self.__class__.__name__}(par={self.par})'
 
     @property
     def par(self):
@@ -306,6 +306,9 @@ class ClaytonCopula(Copula):
         super().__init__(par, clayton_cop_funs,
                          theta_bounds=[(0.0001, 28)], rotation=rotation)
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}(par={self.par}, rotation={self.rotation})'
+
     def tau2par(self, tau):
         if self.rotation in [0, 180]:
             par = 2 * tau / (1 - tau)
@@ -386,6 +389,9 @@ class GumbelCopula(Copula):
     def __init__(self, par=np.nan, rotation=0):
         super().__init__(par, gumbel_cop_funs,
                          theta_bounds=[(1.0, 20)], rotation=rotation)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(par={self.par}, rotation={self.rotation})'
 
     def tau2par(self, tau):
         if self.rotation in [0, 180]:
