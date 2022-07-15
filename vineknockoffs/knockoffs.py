@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import bernoulli
+from scipy.spatial.distance import cdist
 
 from ._utils_gaussian_knockoffs import sdp_solver
 
@@ -287,3 +288,89 @@ class KnockoffsLoss:
         if sqrt:
             loss_deriv = loss_deriv / (2 * loss)
         return loss_deriv
+
+
+class KnockoffsDiagnostics:
+
+    def compute_knock_diagnostics(self, x, x_knockoffs):
+        n_obs = x.shape[0]
+        dim_x = x.shape[1]
+        n_obs_half = int(np.floor(n_obs / 2.))
+        x_part1 = x[:n_obs_half, :]
+        x_part2 = x[n_obs_half:, :]
+        x_knockoffs_part1 = x_knockoffs[:n_obs_half, :]
+        x_knockoffs_part2 = x_knockoffs[n_obs_half:, :]
+
+        z1 = np.hstack((x_part1, x_knockoffs_part1))
+        # full swap
+        z2 = np.hstack((x_knockoffs_part2, x_part2))
+
+        # partial swap
+        swap_inds = np.arange(0, dim_x)[bernoulli.rvs(0.5, size=dim_x) == 1]
+        z3 = np.hstack((x_part2, x_knockoffs_part2))
+        z3[:, swap_inds] = x_knockoffs_part2[:, swap_inds]
+        z3[:, swap_inds + dim_x] = x_part2[:, swap_inds]
+
+        # cov
+        cov_full = self.cov_distance(z1, z2)
+        cov_partial = self.cov_distance(z1, z3)
+
+        # MMD
+        alphas = np.array([1., 2., 4., 8., 16., 32., 64., 128.])
+        loss_mmd_full = KnockoffsLoss()._loss_mmd(z1, z2, alphas, include_diag=False, sqrt=False)
+        loss_mmd_partial = KnockoffsLoss()._loss_mmd(z1, z3, alphas, include_diag=False, sqrt=False)
+
+        # energy distance
+        energy_full = self.energy_distance(z1, z2)
+        energy_partial = self.energy_distance(z1, z3)
+
+        # abs corr avg
+        corr_mat = np.corrcoef(x, x_knockoffs, rowvar=False)
+        abs_corr_avg = np.mean(np.diag(corr_mat, dim_x))
+
+        diagnostics = {'abs_corr_avg': abs_corr_avg,
+                       'full_swap': {
+                           'cov': cov_full,
+                           'mmd': loss_mmd_full,
+                           'energy': energy_full
+                       },
+                       'partial_swap': {
+                           'cov': cov_partial,
+                           'mmd': loss_mmd_partial,
+                           'energy': energy_partial
+                       },
+                       }
+
+        return diagnostics
+
+    @staticmethod
+    def cov_distance(x, y):
+        n = x.shape[0]
+        m = y.shape[0]
+
+        mu_x = x.mean(axis=0)
+        mu_y = y.mean(axis=0)
+
+        x_dm = x - mu_x
+        y_dm = y - mu_y
+
+        sigma_x = (x_dm @ x_dm.T) ** 2
+        np.fill_diagonal(sigma_x, 0.)
+        sigma_y = (y_dm @ y_dm.T) ** 2
+        np.fill_diagonal(sigma_y, 0.)
+        sigma_xy = (x_dm @ y_dm.T) ** 2
+
+        phi_cov = sigma_x.sum() / (n * (n-1)) + sigma_y.sum() / (m * (m-1)) - \
+            2. * sigma_xy.mean()
+
+        return phi_cov
+
+    @staticmethod
+    def energy_distance(x, y):
+        pw_dist_xx = cdist(x, x, metric='euclidean')
+        pw_dist_yy = cdist(y, y, metric='euclidean')
+        pw_dist_xy = cdist(x, y, metric='euclidean')
+
+        energy_dist = 2 * pw_dist_xy.mean() - pw_dist_xx.mean() - pw_dist_yy.mean()
+
+        return energy_dist
