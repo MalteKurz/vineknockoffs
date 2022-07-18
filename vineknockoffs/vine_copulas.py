@@ -431,6 +431,34 @@ class DVineCopula:
         else:
             return w_d_par
 
+    def ll(self, u):
+        n_vars = u.shape[1]
+
+        a = np.full_like(u, np.nan)
+        b = np.full_like(u, np.nan)
+        xx = None
+
+        for i in np.arange(1, n_vars):
+            a[:, i] = u[:, i]
+            b[:, i-1] = u[:, i-1]
+
+        res = 0.
+        for j in np.arange(1, n_vars):
+            tree = j
+            for i in np.arange(1, n_vars-j+1):
+                cop = i
+                xx = self.copulas[tree-1][cop-1].ll(b[:, i-1], a[:, i+j-1]).sum()
+                print(f'Tree: {tree}, copula: {cop}, LL: {xx}')
+                res += xx
+                if i < n_vars-j:
+                    xx = self.copulas[tree-1][cop-1].hfun(b[:, i-1], a[:, i+j-1])
+                if i > 1:
+                    a[:, i+j-1] = self.copulas[tree-1][cop-1].vfun(b[:, i-1], a[:, i+j-1])
+                if i < n_vars-j:
+                    b[:, i-1] = xx
+
+        return res
+
     @classmethod
     def cop_select(cls, u, families='all', indep_test=True):
         n_vars = u.shape[1]

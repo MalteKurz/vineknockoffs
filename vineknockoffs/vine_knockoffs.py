@@ -159,6 +159,7 @@ class VineKnockoffs:
 
         # determine dvine structure / variable order
         self.dvine_structure = d_vine_structure_select(u_train)
+        # self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
         u_train = u_train[:, self.dvine_structure]
 
         uu = np.hstack((u_train, u_train))
@@ -348,3 +349,25 @@ class VineKnockoffs:
         self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
 
         return self
+
+    def ll(self, x, x_knockoffs):
+        n_vars = x.shape[1]
+
+        ll_marginals = 0.
+        u_data = np.full_like(x, np.nan)
+        u_knockoffs = np.full_like(x_knockoffs, np.nan)
+        for i_var in range(n_vars):
+            u_data[:, i_var] = self._marginals[i_var].cdf(x[:, i_var])
+            u_knockoffs[:, i_var] = self._marginals[i_var].cdf(x_knockoffs[:, i_var])
+            ll_marginals += np.log(self._marginals[i_var].pdf(x[:, i_var])).sum()
+            ll_marginals += np.log(self._marginals[i_var].pdf(x_knockoffs[:, i_var])).sum()
+
+        u = np.hstack((u_data[:, self.dvine_structure],
+                       u_knockoffs[:, self.dvine_structure]))
+
+        ll_copula = self._dvine.ll(u)
+
+        print(ll_copula)
+        print(ll_marginals)
+
+        return ll_marginals + ll_copula
