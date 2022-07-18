@@ -92,13 +92,13 @@ class KnockoffsLoss:
         z1 = np.hstack((x_part1, x_knockoffs_part1))
         # full swap
         z2 = np.hstack((x_knockoffs_part2, x_part2))
-        loss_mmd_full = self._loss_mmd(z1, z2, alphas, self.mmd_include_diag, self.mmd_sqrt)
+        loss_mmd_full = _loss_mmd(z1, z2, alphas, self.mmd_include_diag, self.mmd_sqrt)
 
         # partial swap
         z3 = np.hstack((x_part2, x_knockoffs_part2))
         z3[:, swap_inds] = x_knockoffs_part2[:, swap_inds]
         z3[:, swap_inds + dim_x] = x_part2[:, swap_inds]
-        loss_mmd_partial = self._loss_mmd(z1, z3, alphas, self.mmd_include_diag, self.mmd_sqrt)
+        loss_mmd_partial = _loss_mmd(z1, z3, alphas, self.mmd_include_diag, self.mmd_sqrt)
 
         loss_mmd_total = loss_mmd_full + loss_mmd_partial
 
@@ -202,10 +202,10 @@ class KnockoffsLoss:
             z3_deriv[:, swap_inds, i_par] = x_knockoffs_deriv_part2[:, swap_inds]
             z3_deriv[:, swap_inds+dim_x, i_par] = x_deriv_part2[:, swap_inds]
 
-        loss_mmd_full_deriv = self._loss_mmd_deriv(z1, z2, z1_deriv, z2_deriv, alphas,
-                                                   self.mmd_include_diag, self.mmd_sqrt)
-        loss_mmd_partial_deriv = self._loss_mmd_deriv(z1, z3, z1_deriv, z3_deriv, alphas,
-                                                      self.mmd_include_diag, self.mmd_sqrt)
+        loss_mmd_full_deriv = _loss_mmd_deriv(z1, z2, z1_deriv, z2_deriv, alphas,
+                                              self.mmd_include_diag, self.mmd_sqrt)
+        loss_mmd_partial_deriv = _loss_mmd_deriv(z1, z3, z1_deriv, z3_deriv, alphas,
+                                                 self.mmd_include_diag, self.mmd_sqrt)
 
         loss_mmd_total_deriv = loss_mmd_full_deriv + loss_mmd_partial_deriv
 
@@ -213,81 +213,81 @@ class KnockoffsLoss:
             + self.gamma * loss_mmd_total_deriv + self.delta_corr * loss_corr_deriv
         return loss_deriv, loss_moments_deriv, loss_sdp_corr_deriv, loss_mmd_total_deriv, loss_corr_deriv
 
-    @staticmethod
-    def _loss_mmd(x, y, alphas, include_diag=False, sqrt=False):
-        n = x.shape[0]
-        m = y.shape[0]
 
-        z = np.vstack((x, y))
-        zzt = z @ z.T
-        diag_zzt = zzt.diagonal()
-        diag_zzt_mat = np.tile(diag_zzt, (n + m, 1))
+def _loss_mmd(x, y, alphas, include_diag=False, sqrt=False):
+    n = x.shape[0]
+    m = y.shape[0]
 
-        exponent = diag_zzt_mat + diag_zzt_mat.T - 2 * zzt
-        loss = 0
-        for alpha in alphas:
-            loss_vals = np.exp(-exponent / (2 * alpha ** 2))
-            if include_diag:
-                loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
-                    loss_vals[:n, n:].mean() - loss_vals[n:, :n].mean()
-            else:
-                np.fill_diagonal(loss_vals, 0.)
-                loss += loss_vals[:n, :n].sum()/(n*(n-1.)) + loss_vals[n:, n:].sum()/(m*(m-1.)) - \
-                    loss_vals[:n, n:].sum()/(n*m) - loss_vals[n:, :n].sum()/(n*m)
-        # sqrt loss
-        if sqrt:
-            loss = np.sqrt(loss)
-        return loss
+    z = np.vstack((x, y))
+    zzt = z @ z.T
+    diag_zzt = zzt.diagonal()
+    diag_zzt_mat = np.tile(diag_zzt, (n + m, 1))
 
-    @staticmethod
-    def _loss_mmd_deriv(x, y, x_deriv, y_deriv, alphas, include_diag=False, sqrt=False):
-        n = x.shape[0]
-        m = y.shape[0]
-        n_pars = x_deriv.shape[2]
+    exponent = diag_zzt_mat + diag_zzt_mat.T - 2 * zzt
+    loss = 0
+    for alpha in alphas:
+        loss_vals = np.exp(-exponent / (2 * alpha ** 2))
+        if include_diag:
+            loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
+                loss_vals[:n, n:].mean() - loss_vals[n:, :n].mean()
+        else:
+            np.fill_diagonal(loss_vals, 0.)
+            loss += loss_vals[:n, :n].sum()/(n*(n-1.)) + loss_vals[n:, n:].sum()/(m*(m-1.)) - \
+                loss_vals[:n, n:].sum()/(n*m) - loss_vals[n:, :n].sum()/(n*m)
+    # sqrt loss
+    if sqrt:
+        loss = np.sqrt(loss)
+    return loss
 
-        z = np.vstack((x, y))
-        zzt = z @ z.T
-        diag_zzt = zzt.diagonal()
-        diag_zzt_mat = np.tile(diag_zzt, (n + m, 1))
 
-        exponent = diag_zzt_mat + diag_zzt_mat.T - 2 * zzt
-        loss = 0
-        loss_vals_for_deriv = np.zeros_like(exponent)
-        for alpha in alphas:
-            loss_vals = np.exp(-exponent / (2 * alpha ** 2))
-            if include_diag:
-                loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
-                loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
-                    loss_vals[:n, n:].mean() - loss_vals[n:, :n].mean()
-            else:
-                np.fill_diagonal(loss_vals, 0.)
-                loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
-                loss += loss_vals[:n, :n].sum()/(n*(n-1.)) + loss_vals[n:, n:].sum()/(m*(m-1.)) - \
-                    loss_vals[:n, n:].sum()/(n*m) - loss_vals[n:, :n].sum()/(n*m)
-        if sqrt:
-            loss = np.sqrt(loss)
+def _loss_mmd_deriv(x, y, x_deriv, y_deriv, alphas, include_diag=False, sqrt=False):
+    n = x.shape[0]
+    m = y.shape[0]
+    n_pars = x_deriv.shape[2]
 
-        loss_deriv = np.zeros(n_pars)
-        for i_par in range(n_pars):
-            z_deriv = np.vstack((x_deriv[:, :, i_par], y_deriv[:, :, i_par]))
-            zz_deriv = z @ z_deriv.T
-            diag_zz_deriv = zz_deriv.diagonal()
-            diag_zz_deriv_mat = np.tile(diag_zz_deriv, (n + m, 1))
+    z = np.vstack((x, y))
+    zzt = z @ z.T
+    diag_zzt = zzt.diagonal()
+    diag_zzt_mat = np.tile(diag_zzt, (n + m, 1))
 
-            exponent_deriv = (2 * diag_zz_deriv_mat + 2 * diag_zz_deriv_mat.T
-                              - 2 * zz_deriv - 2 * zz_deriv.T)
+    exponent = diag_zzt_mat + diag_zzt_mat.T - 2 * zzt
+    loss = 0
+    loss_vals_for_deriv = np.zeros_like(exponent)
+    for alpha in alphas:
+        loss_vals = np.exp(-exponent / (2 * alpha ** 2))
+        if include_diag:
+            loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
+            loss += loss_vals[:n, :n].mean() + loss_vals[n:, n:].mean() - \
+                loss_vals[:n, n:].mean() - loss_vals[n:, :n].mean()
+        else:
+            np.fill_diagonal(loss_vals, 0.)
+            loss_vals_for_deriv += loss_vals * (-1/(2 * alpha ** 2))
+            loss += loss_vals[:n, :n].sum()/(n*(n-1.)) + loss_vals[n:, n:].sum()/(m*(m-1.)) - \
+                loss_vals[:n, n:].sum()/(n*m) - loss_vals[n:, :n].sum()/(n*m)
+    if sqrt:
+        loss = np.sqrt(loss)
 
-            loss_vals_deriv = exponent_deriv * loss_vals_for_deriv
-            if include_diag:
-                loss_deriv[i_par] = loss_vals_deriv[:n, :n].mean() + loss_vals_deriv[n:, n:].mean() - \
-                    loss_vals_deriv[:n, n:].mean() - loss_vals_deriv[n:, :n].mean()
-            else:
-                loss_deriv[i_par] = loss_vals_deriv[:n, :n].sum()/(n*(n-1.)) + loss_vals_deriv[n:, n:].sum()/(m*(m-1.)) - \
-                    loss_vals_deriv[:n, n:].sum()/(n*m) - loss_vals_deriv[n:, :n].sum()/(n*m)
+    loss_deriv = np.zeros(n_pars)
+    for i_par in range(n_pars):
+        z_deriv = np.vstack((x_deriv[:, :, i_par], y_deriv[:, :, i_par]))
+        zz_deriv = z @ z_deriv.T
+        diag_zz_deriv = zz_deriv.diagonal()
+        diag_zz_deriv_mat = np.tile(diag_zz_deriv, (n + m, 1))
 
-        if sqrt:
-            loss_deriv = loss_deriv / (2 * loss)
-        return loss_deriv
+        exponent_deriv = (2 * diag_zz_deriv_mat + 2 * diag_zz_deriv_mat.T
+                          - 2 * zz_deriv - 2 * zz_deriv.T)
+
+        loss_vals_deriv = exponent_deriv * loss_vals_for_deriv
+        if include_diag:
+            loss_deriv[i_par] = loss_vals_deriv[:n, :n].mean() + loss_vals_deriv[n:, n:].mean() - \
+                                loss_vals_deriv[:n, n:].mean() - loss_vals_deriv[n:, :n].mean()
+        else:
+            loss_deriv[i_par] = loss_vals_deriv[:n, :n].sum()/(n*(n-1.)) + loss_vals_deriv[n:, n:].sum()/(m*(m-1.)) - \
+                                loss_vals_deriv[:n, n:].sum()/(n*m) - loss_vals_deriv[n:, :n].sum()/(n*m)
+
+    if sqrt:
+        loss_deriv = loss_deriv / (2 * loss)
+    return loss_deriv
 
 
 class KnockoffsDiagnostics:
@@ -317,8 +317,8 @@ class KnockoffsDiagnostics:
 
         # MMD
         alphas = np.array([1., 2., 4., 8., 16., 32., 64., 128.])
-        loss_mmd_full = KnockoffsLoss()._loss_mmd(z1, z2, alphas, include_diag=False, sqrt=False)
-        loss_mmd_partial = KnockoffsLoss()._loss_mmd(z1, z3, alphas, include_diag=False, sqrt=False)
+        loss_mmd_full = _loss_mmd(z1, z2, alphas, include_diag=False, sqrt=False)
+        loss_mmd_partial = _loss_mmd(z1, z3, alphas, include_diag=False, sqrt=False)
 
         # energy distance
         energy_full = self.energy_distance(z1, z2)
