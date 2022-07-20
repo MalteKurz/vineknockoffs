@@ -142,13 +142,15 @@ class VineKnockoffs:
     def fit_vine_copula_knockoffs(self, x_train,
                                   marginals='kde1d',
                                   families='all', rotations=True, indep_test=True,
+                                  vine_structure='select_tsp',
                                   upper_tree_cop_fam_heuristic='lower tree families',
                                   sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
                                   sgd_which_par='all',
                                   loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
 
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
-        self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo='sdp')
+        self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo='sdp',
+                                           vine_structure=vine_structure)
 
         # select copula families via AIC / MLE
         n_vars = x_train.shape[1]
@@ -157,9 +159,7 @@ class VineKnockoffs:
         for i_var in range(n_vars):
             u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
 
-        # determine dvine structure / variable order
-        self.dvine_structure = d_vine_structure_select(u_train)
-        # self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
+        # d-vine structure selection happens in fit_gaussian_copula_knockoffs
         u_train = u_train[:, self.dvine_structure]
 
         uu = np.hstack((u_train, u_train))
@@ -291,22 +291,24 @@ class VineKnockoffs:
             print(loss_vals)
         return self
 
-    def fit_gaussian_copula_knockoffs(self, x_train, marginals='kde1d', algo='sdp'):
-        # ToDo May add alternative methods for the marginals (like parameteric distributions)
-        n_vars = x_train.shape[1]
+    def fit_gaussian_copula_knockoffs(self, x_train, marginals='kde1d', algo='sdp',
+                                      vine_structure='1:n'):
+        self.fit_marginals(x_train, model=marginals)
 
-        if marginals == 'kde1d':
-            self._marginals = [KDE1D().fit(x_train[:, i_var])
-                               for i_var in range(n_vars)]
-        else:
-            assert marginals == 'kde_statsmodels'
-            self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
-                               for i_var in range(n_vars)]
+        n_vars = x_train.shape[1]
         u_train = np.full_like(x_train, np.nan)
         x_gaussian_train = np.full_like(x_train, np.nan)
         for i_var in range(n_vars):
             u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
             x_gaussian_train[:, i_var] = norm.ppf(u_train[:, i_var])
+
+        # determine dvine structure / variable order
+        if vine_structure == 'select_tsp':
+            self.dvine_structure = d_vine_structure_select(u_train)
+        else:
+            assert vine_structure == '1:n'
+            self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
+        x_gaussian_train = x_gaussian_train[:, self.dvine_structure]
 
         corr_mat = np.corrcoef(x_gaussian_train.transpose())
 
@@ -321,7 +323,6 @@ class VineKnockoffs:
         pcorrs = dvine_pcorr(g_mat)
         copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
-        self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
         self._sdp_corr = 1. - s_vec
 
         return self
@@ -347,6 +348,20 @@ class VineKnockoffs:
         copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
+
+        return self
+
+    def fit_marginals(self, x_train, model='kde1d'):
+        # ToDo May add alternative methods for the marginals (like parameteric distributions)
+        n_vars = x_train.shape[1]
+
+        if model == 'kde1d':
+            self._marginals = [KDE1D().fit(x_train[:, i_var])
+                               for i_var in range(n_vars)]
+        else:
+            assert model == 'kde_statsmodels'
+            self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
+                               for i_var in range(n_vars)]
 
         return self
 
