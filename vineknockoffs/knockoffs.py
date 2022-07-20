@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+
 from scipy.stats import bernoulli
 from scipy.spatial.distance import cdist
 
@@ -328,18 +330,15 @@ class KnockoffsDiagnostics:
         corr_mat = np.corrcoef(x, x_knockoffs, rowvar=False)
         abs_corr_avg = np.mean(np.diag(corr_mat, dim_x))
 
-        diagnostics = {'abs_corr_avg': abs_corr_avg,
-                       'full_swap': {
-                           'cov': cov_full,
-                           'mmd': loss_mmd_full,
-                           'energy': energy_full
-                       },
-                       'partial_swap': {
-                           'cov': cov_partial,
-                           'mmd': loss_mmd_partial,
-                           'energy': energy_partial
-                       },
-                       }
+        diagnostics = pd.DataFrame({'metric': ['abs_corr_avg',
+                                               'cov', 'mmd', 'energy',
+                                               'cov', 'mmd', 'energy'],
+                                    'swap': [None,
+                                             'full', 'full', 'full',
+                                             'partial', 'partial', 'partial'],
+                                    'value': [abs_corr_avg,
+                                              cov_full, loss_mmd_full, energy_full,
+                                              cov_partial, loss_mmd_partial, energy_partial]})
 
         return diagnostics
 
