@@ -307,7 +307,7 @@ class VineKnockoffs:
             self.dvine_structure = d_vine_structure_select(u_train)
         else:
             assert vine_structure == '1:n'
-            self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
+            self.dvine_structure = np.arange(int(n_vars/2))
         x_gaussian_train = x_gaussian_train[:, self.dvine_structure]
 
         corr_mat = np.corrcoef(x_gaussian_train.transpose())
