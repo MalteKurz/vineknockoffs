@@ -46,6 +46,10 @@ def copula_derivs_one_par(cdf_sym, u_sym, v_sym, theta_sym):
     d_ll_d_theta_sym, ufuns['d_ll_d_theta'] = opt_and_lambdify(d_ll_d_theta_sym,
                                                                u_sym, v_sym, theta_sym)
 
+    d_cdf_d_theta_sym = diff(cdf_sym, theta_sym)
+    d_cdf_d_theta_sym, ufuns['d_cdf_d_theta'] = opt_and_lambdify(d_cdf_d_theta_sym,
+                                                                 u_sym, v_sym, theta_sym)
+
     d_hfun_d_theta_sym = diff(hfun_sym, theta_sym)
     d_hfun_d_theta_sym, ufuns['d_hfun_d_theta'] = opt_and_lambdify(d_hfun_d_theta_sym,
                                                                    u_sym, v_sym, theta_sym)
@@ -84,6 +88,9 @@ def sym_copula_derivs_one_par(cdf_sym, u_sym, v_sym, theta_sym):
 
     d_ll_d_theta_sym = diff(ll_sym, theta_sym)
     sym_funs['d_ll_d_theta'] = opt_and_print(d_ll_d_theta_sym)
+
+    d_cdf_d_theta_sym = diff(cdf_sym, theta_sym)
+    sym_funs['d_cdf_d_theta'] = opt_and_print(d_cdf_d_theta_sym)
 
     d_hfun_d_theta_sym = diff(hfun_sym, theta_sym)
     sym_funs['d_hfun_d_theta'] = opt_and_print(d_hfun_d_theta_sym)
