@@ -86,6 +86,13 @@ def gaussian_d_ll_d_theta(theta, u, v):
     return res
 
 
+def gaussian_d_cdf_d_theta(theta, u, v):
+    x = norm.ppf(u)
+    y = norm.ppf(v)
+    res = 1 / (2 * np.pi * np.sqrt(1 - theta**2)) * np.exp((2 * theta * x * y - x**2 - y**2) / (2 * (1 - theta**2)))
+    return res
+
+
 def gaussian_hfun(theta, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
@@ -156,6 +163,7 @@ gaussian_cop_funs = {'cdf': gaussian_cdf,
                      'pdf': gaussian_pdf,
                      'll': gaussian_ll,
                      'd_ll_d_theta': gaussian_d_ll_d_theta,
+                     'd_cdf_d_theta': gaussian_d_cdf_d_theta,
                      'hfun': gaussian_hfun,
                      'vfun': gaussian_vfun,
                      'd_hfun_d_theta': gaussian_d_hfun_d_theta,
@@ -170,6 +178,7 @@ indep_cop_funs = {'cdf': lambda theta, u, v: u * v,
                   'pdf': lambda theta, u, v: np.ones_like(u),
                   'll': lambda theta, u, v: np.zeros_like(u),
                   'd_ll_d_theta': lambda theta, u, v: np.zeros_like(u),
+                  'd_cdf_d_theta': lambda theta, u, v: np.zeros_like(u),
                   'hfun': lambda theta, u, v: u,
                   'vfun': lambda theta, u, v: v,
                   'd_hfun_d_theta': lambda theta, u, v: np.zeros_like(u),
