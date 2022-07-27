@@ -6,6 +6,7 @@ from vineknockoffs._utils_kde import KDEMultivariateWithInvCdf
 
 
 def test_inv_cdf():
+    np.random.seed(3141)
     n_obs = 124
     data = np.random.normal(size=n_obs)
     marginal = KDEMultivariateWithInvCdf(data, 'c')
@@ -18,6 +19,7 @@ def test_inv_cdf():
 
 
 def test_inv_cdf_numdiff():
+    np.random.seed(3141)
     n_obs = 124
     data = np.random.normal(size=n_obs)
     marginal = KDEMultivariateWithInvCdf(data, 'c')

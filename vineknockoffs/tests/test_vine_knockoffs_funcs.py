@@ -14,8 +14,6 @@ from vineknockoffs.knockoffs import KnockoffsLoss
 
 from vineknockoffs._utils_gaussian_knockoffs import sdp_solver
 
-np.random.seed(1111)
-
 
 # @pytest.fixture(scope='module',
 #                 params=[DVineCopula([
@@ -36,6 +34,7 @@ def which_par(request):
 
 
 def test_generate_numdiff(which_par):
+    np.random.seed(3141)
     n_obs = 71
     n_vars = 4
     # u_data = dvine.sim(n_obs)
@@ -80,6 +79,7 @@ def test_generate_numdiff(which_par):
 
 
 def test_loss_numdiff(which_par):
+    np.random.seed(3141)
     n_obs = 71
     n_vars = 4
 

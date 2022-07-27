@@ -6,8 +6,6 @@ from statsmodels.tools.numdiff import approx_fprime
 from vineknockoffs.copulas import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
 from vineknockoffs.vine_copulas import DVineCopula
 
-np.random.seed(1111)
-
 
 @pytest.fixture(scope='module',
                 params=[DVineCopula([
@@ -21,6 +19,7 @@ def dvine(request):
 
 
 def test_sim_numdiff(dvine):
+    np.random.seed(3141)
     n_obs = 231
     u_data = np.random.uniform(size=(n_obs, dvine.n_vars))
 
@@ -44,6 +43,7 @@ def test_sim_numdiff(dvine):
 
 
 def test_compute_pits_numdiff(dvine):
+    np.random.seed(3141)
     n_obs = 231
     u_data = dvine.sim(n_obs)
 

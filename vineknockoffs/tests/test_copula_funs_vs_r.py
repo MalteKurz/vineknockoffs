@@ -9,8 +9,6 @@ rpy2 = pytest.importorskip("rpy2")
 import rpy2.robjects.numpy2ri
 rpy2.robjects.numpy2ri.activate()
 
-np.random.seed(1111)
-
 
 @pytest.fixture(scope='module',
                 params=['cdf', 'pdf', 'hfun', 'vfun',
@@ -45,6 +43,7 @@ def gumbel_cop_par(request):
 
 
 def test_clayton_deriv_py_vs_r(clayton_cop_par, fun_type):
+    np.random.seed(3141)
     cop_obj = ClaytonCopula(clayton_cop_par)
     n_obs = 231
     data = cop_obj.sim(n_obs)
@@ -60,6 +59,7 @@ def test_clayton_deriv_py_vs_r(clayton_cop_par, fun_type):
 
 
 def test_frank_deriv_py_vs_r(frank_cop_par, fun_type):
+    np.random.seed(3141)
     cop_obj = FrankCopula(frank_cop_par)
     n_obs = 231
     data = cop_obj.sim(n_obs)
@@ -75,6 +75,7 @@ def test_frank_deriv_py_vs_r(frank_cop_par, fun_type):
 
 
 def test_gaussian_deriv_py_vs_r(gaussian_cop_par, fun_type):
+    np.random.seed(3141)
     cop_obj = GaussianCopula(gaussian_cop_par)
     n_obs = 231
     data = cop_obj.sim(n_obs)
@@ -90,6 +91,7 @@ def test_gaussian_deriv_py_vs_r(gaussian_cop_par, fun_type):
 
 
 def test_gumbel_deriv_py_vs_r(gumbel_cop_par, fun_type):
+    np.random.seed(3141)
     cop_obj = GumbelCopula(gumbel_cop_par)
     n_obs = 231
     data = cop_obj.sim(n_obs)
@@ -105,6 +107,7 @@ def test_gumbel_deriv_py_vs_r(gumbel_cop_par, fun_type):
 
 
 def test_indep_deriv_py_vs_r(fun_type):
+    np.random.seed(3141)
     cop_obj = IndepCopula()
     n_obs = 231
     data = cop_obj.sim(n_obs)

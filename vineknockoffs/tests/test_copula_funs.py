@@ -5,8 +5,6 @@ from statsmodels.tools.numdiff import approx_fprime, approx_hess3
 
 from vineknockoffs.copulas import ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula, IndepCopula
 
-np.random.seed(1111)
-
 
 @pytest.fixture(scope='module',
                 params=[ClaytonCopula(4.), ClaytonCopula(3., 90), ClaytonCopula(2.79, 180), ClaytonCopula(5., 270),
@@ -37,6 +35,7 @@ def copula_neg_tau(request):
 
 
 def test_hfun(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -48,6 +47,7 @@ def test_hfun(copula):
 
 
 def test_vfun(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -79,6 +79,7 @@ def test_neg_tau2par(copula_neg_tau):
 
 
 def test_hfun_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -101,6 +102,7 @@ def test_hfun_numdiff(copula):
 
 
 def test_vfun_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -120,6 +122,7 @@ def test_vfun_numdiff(copula):
 
 
 def test_pdf_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -144,6 +147,7 @@ def test_pdf_numdiff(copula):
 
 
 def test_negll_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -164,6 +168,7 @@ def test_negll_numdiff(copula):
 
 
 def test_hfun_d_theta_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -188,6 +193,7 @@ def test_hfun_d_theta_numdiff(copula):
 
 
 def test_vfun_d_theta_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -211,7 +217,33 @@ def test_vfun_d_theta_numdiff(copula):
                        rtol=1e-4, atol=1e-3)
 
 
+def test_cdf_d_theta_numdiff(copula):
+    np.random.seed(3141)
+    n_obs = 231
+    data = copula.sim(n_obs)
+
+    res = copula.d_cdf_d_theta(data[:, 0], data[:, 1])
+
+    def cdf_for_numdiff(theta, u, v):
+        copula._par = theta[0]
+        return copula.cdf(u, v)
+
+    if isinstance(copula, IndepCopula):
+        res_num = np.zeros_like(res)
+    else:
+        res_num = approx_fprime(np.array([copula.par]),
+                                cdf_for_numdiff,
+                                epsilon=1e-6,
+                                kwargs={'u': data[:, 0], 'v': data[:, 1]},
+                                centered=True)
+
+    assert np.allclose(res_num,
+                       res,
+                       rtol=1e-4, atol=1e-3)
+
+
 def test_invhfun_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
@@ -256,6 +288,7 @@ def test_invhfun_numdiff(copula):
 
 
 def test_invvfun_numdiff(copula):
+    np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
