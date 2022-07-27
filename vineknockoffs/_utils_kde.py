@@ -65,3 +65,25 @@ class KDE1D:
 
     def pdf(self, x):
         return r_kde1d_pdf_eval(self._kdefit, x)
+
+
+class ECDF:
+
+    def __init__(self):
+        self._x_sorted = None
+        self._n_obs = None
+
+    def fit(self, x):
+        self._x_sorted = np.sort(x)
+        self._n_obs = len(x)
+        return self
+
+    def ppf(self, x):
+        ind = int(np.floor((self._n_obs + 1) * x))
+        return self._x_sorted[ind]
+
+    def cdf(self, x):
+        return np.searchsorted(self._x_sorted, x, side='right') / (self._n_obs+1)
+
+    # def pdf(self, x):
+    #     return r_kde1d_pdf_eval(self._kdefit, x)
