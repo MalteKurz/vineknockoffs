@@ -101,65 +101,66 @@ class Copula(ABC):
         u[u > 1. - self.trim_thres] = 1. - self.trim_thres
         return u
 
-    def cdf(self, u, v):
-        assert self.continuous_vars
+    def _cdf(self, theta, u, v):
         if self.rotation == 0:
-            res = self._cop_funs['cdf'](self.par, self._trim_obs(u), self._trim_obs(v))
+            res = self._cop_funs['cdf'](theta, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
-            res = u - self._cop_funs['cdf'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+            res = u - self._cop_funs['cdf'](theta, self._trim_obs(1.-v), self._trim_obs(u))
         elif self.rotation == 180:
-            res = u + v - 1 + self._cop_funs['cdf'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            res = u + v - 1 + self._cop_funs['cdf'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
         else:
             assert self.rotation == 270
-            res = v - self._cop_funs['cdf'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+            res = v - self._cop_funs['cdf'](theta, self._trim_obs(v), self._trim_obs(1.-u))
+        return res
+
+    def cdf(self, u, v):
+        return self._cdf(theta=self.par, u=u, v=v)
+
+    def _d_cdf_d_theta(self, theta, u, v):
+        if self.rotation == 0:
+            res = self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = -self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = -self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def d_cdf_d_theta(self, u, v):
-        assert self.continuous_vars
-        if self.rotation == 0:
-            res = self._cop_funs['d_cdf_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
-        elif self.rotation == 90:
-            res = -self._cop_funs['d_cdf_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
-        elif self.rotation == 180:
-            res = self._cop_funs['d_cdf_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
-        else:
-            assert self.rotation == 270
-            res = -self._cop_funs['d_cdf_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
-        return res
+        return self._d_cdf_d_theta(theta=self.par, u=u, v=v)
 
     def _pdf_cc(self, theta, u, v):
-        return self._cop_funs['pdf'](theta, self._trim_obs(u), self._trim_obs(v))
+        if self.rotation == 0:
+            res = self._cop_funs['pdf'](theta, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['pdf'](theta, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = self._cop_funs['pdf'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = self._cop_funs['pdf'](theta, self._trim_obs(v), self._trim_obs(1.-u))
+        return res
 
     def _pdf_dc(self, theta, u, v, u_):
-        return self._cop_funs['hfun'](theta, self._trim_obs(u), self._trim_obs(v)) \
-                      - self._cop_funs['hfun'](theta, self._trim_obs(u_), self._trim_obs(v))
+        assert not self.v_discrete
+        return self._hfun(theta, u=u, v=v) - self._hfun(theta, u=u_, v=v)
 
     def _pdf_cd(self, theta, u, v, v_):
-        return self._cop_funs['vfun'](theta, self._trim_obs(u), self._trim_obs(v)) \
-                      - self._cop_funs['vfun'](theta, self._trim_obs(u), self._trim_obs(v_))
+        assert not self.u_discrete
+        return self._vfun(theta, u=u, v=v) - self._vfun(theta, u=u, v=v_)
 
     def _pdf_dd(self, theta, u, v, u_, v_):
-        return self._cop_funs['cdf'](theta, self._trim_obs(u), self._trim_obs(v)) \
-                      - self._cop_funs['cdf'](theta, self._trim_obs(u_), self._trim_obs(v)) \
-                      - self._cop_funs['cdf'](theta, self._trim_obs(u), self._trim_obs(v_)) \
-                      + self._cop_funs['cdf'](theta, self._trim_obs(u_), self._trim_obs(v_))
+        return self._cdf(theta, u, v) - self._cdf(theta, u_, v) - self._cdf(theta, u, v_) + self._cdf(theta, u_, v_)
 
     def _pdf(self, theta, u, v, u_=None, v_=None):
-        (u, v, u_, v_) = self._rot_obs(u=u, v=v, u_=u_, v_=v_)
         if self.continuous_vars:
             res = self._pdf_cc(theta, u, v)
         elif self.u_discrete & (not self.v_discrete):
-            if self.rotation in [0, 180]:
-                res = self._pdf_dc(theta, u, v, u_=u_)
-            else:
-                assert self.rotation in [90, 270]
-                res = self._pdf_cd(theta, u, v, v_=v_)
+            res = self._pdf_dc(theta, u, v, u_=u_)
         elif (not self.u_discrete) & self.v_discrete:
-            if self.rotation in [0, 180]:
-                res = self._pdf_cd(theta, u, v, v_=v_)
-            else:
-                assert self.rotation in [90, 270]
-                res = self._pdf_dc(theta, u, v, u_=u_)
+            res = self._pdf_cd(theta, u, v, v_=v_)
         else:
             assert self.u_discrete & self.v_discrete
             res = self._pdf_dd(theta, u, v, u_=u_, v_=v_)
@@ -182,119 +183,124 @@ class Copula(ABC):
         return -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)))
 
     def _neg_ll_d_theta_dc(self, theta, u, v, u_):
-        nom = self._cop_funs['d_hfun_d_theta'](theta, self._trim_obs(u), self._trim_obs(v))\
-            - self._cop_funs['d_hfun_d_theta'](theta, self._trim_obs(u_), self._trim_obs(v))
+        nom = self._d_hfun_d_theta(theta, u, v) - self._d_hfun_d_theta(theta, u_, v)
         denom = self._pdf_dc(theta=theta, u=u, v=v, u_=u_)
         return -np.sum(nom / denom)
 
     def _neg_ll_d_theta_cd(self, theta, u, v, v_):
-        nom = self._cop_funs['d_vfun_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)) \
-            - self._cop_funs['d_vfun_d_theta'](theta, self._trim_obs(u), self._trim_obs(v_))
+        nom = self._d_vfun_d_theta(theta, u, v) - self._d_vfun_d_theta(theta, u, v_)
         denom = self._pdf_cd(theta=theta, u=u, v=v, v_=v_)
         return -np.sum(nom / denom)
 
     def _neg_ll_d_theta_dd(self, theta, u, v, u_, v_):
-        nom = self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)) \
-            - self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(u_), self._trim_obs(v)) \
-            - self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(u), self._trim_obs(v_)) \
-            + self._cop_funs['d_cdf_d_theta'](theta, self._trim_obs(u_), self._trim_obs(v_))
+        nom = self._d_cdf_d_theta(theta, u, v) - self._d_cdf_d_theta(theta, u_, v) \
+            - self._d_cdf_d_theta(theta, u, v_) + self._d_cdf_d_theta(theta, u_, v_)
         denom = self._pdf_dd(theta=theta, u=u, v=v, u_=u_, v_=v_)
         return -np.sum(nom / denom)
 
-    def _rot_obs(self, u, v, u_=None, v_=None):
-        # ToDo check rotation transformation of u_ & v_ arguments
-        if u_ is None:
-            u_ = np.full_like(u, np.nan)
-        if v_ is None:
-            v_ = np.full_like(v, np.nan)
-        if self.rotation == 90:
-            (u, v, u_, v_) = (1.-v, u, 1.-v_, u_)
-        elif self.rotation == 180:
-            (u, v, u_, v_) = (1.-u, 1.-v, 1.-u_, 1-v_)
-        elif self.rotation == 270:
-            (u, v, u_, v_) = (v, 1.-u, v_, 1.-u_)
-        else:
-            assert self.rotation == 0
-        return u, v, u_, v_
-
     def _neg_ll_d_theta(self, theta, u, v, u_=None, v_=None):
-        (u, v, u_, v_) = self._rot_obs(u=u, v=v, u_=u_, v_=v_)
         if self.continuous_vars:
             res = self._neg_ll_d_theta_cc(theta, u, v)
         elif self.u_discrete & (not self.v_discrete):
-            if self.rotation in [0, 180]:
-                res = self._neg_ll_d_theta_dc(theta, u, v, u_=u_)
-            else:
-                assert self.rotation in [90, 270]
-                res = self._neg_ll_d_theta_cd(theta, u, v, v_=v_)
+            res = self._neg_ll_d_theta_dc(theta, u, v, u_=u_)
         elif (not self.u_discrete) & self.v_discrete:
-            if self.rotation in [0, 180]:
-                res = self._neg_ll_d_theta_cd(theta, u, v, v_=v_)
-            else:
-                assert self.rotation in [90, 270]
-                res = self._neg_ll_d_theta_dc(theta, u, v, u_=u_)
+            res = self._neg_ll_d_theta_cd(theta, u, v, v_=v_)
         else:
             assert self.u_discrete & self.v_discrete
             res = self._neg_ll_d_theta_dd(theta, u, v, u_=u_, v_=v_)
 
         return res
 
-    def aic(self, u, v):
-        assert self.continuous_vars
-        res = 2 * self.n_pars + 2 * self._neg_ll(self.par, self._trim_obs(u), self._trim_obs(v))
+    def aic(self, u, v, u_=None, v_=None):
+        res = 2 * self.n_pars + 2 * self._neg_ll(self.par, u=u, v=v, u_=u_, v_=v_)
         return res
 
-    def hfun(self, u, v):
-        assert self.continuous_vars
+    def _hfun(self, theta, u, v, v_=None):
         if self.rotation == 0:
-            res = self._cop_funs['hfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+            if not self.v_discrete:
+                res = self._cop_funs['hfun'](theta, self._trim_obs(u), self._trim_obs(v))
+            else:
+                res = (self._cdf(theta, u, v) - self._cdf(theta, u, v_)) / (v - v_)
         elif self.rotation == 90:
-            res = self._cop_funs['vfun'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+            if not self.v_discrete:
+                res = self._cop_funs['vfun'](theta, self._trim_obs(1.-v), self._trim_obs(u))
+            else:
+                res = (self._cdf(theta, 1.-v, u) - self._cdf(theta, 1.-v_, u)) / (v_ - v)
         elif self.rotation == 180:
-            res = 1. - self._cop_funs['hfun'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            if not self.v_discrete:
+                res = 1. - self._cop_funs['hfun'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            else:
+                res = 1. - (self._cdf(theta, 1.-u, 1.-v) - self._cdf(theta, 1.-u, 1.-v_)) / (v_ - v)
         else:
             assert self.rotation == 270
-            res = 1. - self._cop_funs['vfun'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+            if not self.v_discrete:
+                res = 1. - self._cop_funs['vfun'](theta, self._trim_obs(v), self._trim_obs(1.-u))
+            else:
+                res = 1. - (self._cdf(theta, v, 1.-u) - self._cdf(theta, v_, 1.-u)) / (v - v_)
+
         return self._trim_obs(res)
 
-    def vfun(self, u, v):
-        assert self.continuous_vars
+    def hfun(self, u, v, v_=None):
+        return self._hfun(theta=self.par, u=u, v=v, v_=v_)
+
+    def _vfun(self, theta, u, v, u_=None):
         if self.rotation == 0:
-            res = self._cop_funs['vfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+            if not self.u_discrete:
+                res = self._cop_funs['vfun'](theta, self._trim_obs(u), self._trim_obs(v))
+            else:
+                res = (self._cdf(theta, u, v) - self._cdf(theta, u_, v)) / (u - u_)
         elif self.rotation == 90:
-            res = 1. - self._cop_funs['hfun'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+            if not self.u_discrete:
+                res = 1. - self._cop_funs['hfun'](theta, self._trim_obs(1.-v), self._trim_obs(u))
+            else:
+                res = 1. - (self._cdf(theta, 1.-v, u) - self._cdf(theta, 1.-v, u_)) / (u - u_)
         elif self.rotation == 180:
-            res = 1. - self._cop_funs['vfun'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            if not self.u_discrete:
+                res = 1. - self._cop_funs['vfun'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            else:
+                res = 1. - (self._cdf(theta, 1.-u, 1.-v) - self._cdf(theta, 1.-u_, 1.-v)) / (u_ - u)
         else:
             assert self.rotation == 270
-            res = self._cop_funs['hfun'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+            if not self.u_discrete:
+                res = self._cop_funs['hfun'](theta, self._trim_obs(v), self._trim_obs(1.-u))
+            else:
+                res = (self._cdf(theta, v, 1.-u) - self._cdf(theta, v, 1.-u_)) / (u_ - u)
         return self._trim_obs(res)
+
+    def vfun(self, u, v, u_=None):
+        return self._vfun(theta=self.par, u=u, v=v, u_=u_)
+
+    def _d_hfun_d_theta(self, theta, u, v):
+        assert not self.v_discrete
+        if self.rotation == 0:
+            res = self._cop_funs['d_hfun_d_theta'](theta, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['d_vfun_d_theta'](theta, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = -1. * self._cop_funs['d_hfun_d_theta'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = -1. * self._cop_funs['d_vfun_d_theta'](theta, self._trim_obs(v), self._trim_obs(1.-u))
+        return res
 
     def d_hfun_d_theta(self, u, v):
-        assert self.continuous_vars
+        return self._d_hfun_d_theta(theta=self.par, u=u, v=v)
+
+    def _d_vfun_d_theta(self, theta, u, v):
+        assert not self.u_discrete
         if self.rotation == 0:
-            res = self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
+            res = self._cop_funs['d_vfun_d_theta'](theta, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
-            res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+            res = -1. * self._cop_funs['d_hfun_d_theta'](theta, self._trim_obs(1.-v), self._trim_obs(u))
         elif self.rotation == 180:
-            res = -1. * self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            res = -1. * self._cop_funs['d_vfun_d_theta'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v))
         else:
             assert self.rotation == 270
-            res = -1. * self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+            res = self._cop_funs['d_hfun_d_theta'](theta, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
     def d_vfun_d_theta(self, u, v):
-        assert self.continuous_vars
-        if self.rotation == 0:
-            res = self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(u), self._trim_obs(v))
-        elif self.rotation == 90:
-            res = -1. * self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
-        elif self.rotation == 180:
-            res = -1. * self._cop_funs['d_vfun_d_theta'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
-        else:
-            assert self.rotation == 270
-            res = self._cop_funs['d_hfun_d_theta'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
-        return res
+        return self._d_vfun_d_theta(theta=self.par, u=u, v=v)
 
     def d_hfun_d_v(self, u, v):
         assert self.continuous_vars
@@ -545,39 +551,44 @@ class IndepCopula(Copula):
     def par2tau(self, theta):
         return None
 
-    def mle_est(self, u, v):
+    def mle_est(self, u, v, u_=None, v_=None):
         return None
 
 
 def cop_select(u, v, families='all', rotations=True, indep_test=True,
-               u_=None, v_=None):
-    u_d = (u_ is not None)
-    v_d = (v_ is not None)
+               u_=None, v_=None, u_discrete=False, v_discrete=False):
     assert families == 'all'
-    copulas = [cop(u_discrete=u_d, v_discrete=v_d)
-               for cop in [ClaytonCopula, FrankCopula, GumbelCopula, GaussianCopula]]
+    if u_ is None:
+        u_ = np.full_like(u, np.nan)
+    if v_ is None:
+        v_ = np.full_like(v, np.nan)
+    copulas = [cop(u_discrete=u_discrete, v_discrete=v_discrete)
+               for cop in [FrankCopula, GaussianCopula]]
     if rotations:
         tau, _ = kendalltau(u, v)
         if tau >= 0.:
-            rots = [180]
+            rots = [0, 180]
         else:
             rots = [90, 270]
-        copulas += [ClaytonCopula(u_discrete=u_d, v_discrete=v_d, rotation=rot) for rot in rots]
-        copulas += [GumbelCopula(u_discrete=u_d, v_discrete=v_d, rotation=rot) for rot in rots]
+    else:
+        rots = [0]
+    copulas += [ClaytonCopula(u_discrete=u_discrete, v_discrete=v_discrete, rotation=rot) for rot in rots]
+    copulas += [GumbelCopula(u_discrete=u_discrete, v_discrete=v_discrete, rotation=rot) for rot in rots]
     indep_cop = False
     if indep_test:
         n_obs = len(u)
         tau, _ = kendalltau(u, v)
+        # ToDo check whether the independence test is valid for discrete variables
         test_stat = np.sqrt(9*n_obs*(n_obs-1)/2/(2*n_obs+5)) * np.abs(tau)
         indep_cop = (test_stat <= norm.ppf(0.975))
 
     if indep_cop:
-        cop_sel = IndepCopula(u_discrete=u_d, v_discrete=v_d)
+        cop_sel = IndepCopula(u_discrete=u_discrete, v_discrete=v_discrete)
     else:
         aics = np.full(len(copulas), np.nan)
         for ind, this_cop in enumerate(copulas):
-            this_cop.mle_est(u, v)
-            aics[ind] = this_cop.aic(u, v)
+            this_cop.mle_est(u, v, u_=u_, v_=v_)
+            aics[ind] = this_cop.aic(u, v, u_=u_, v_=v_)
         best_ind = np.argmin(aics)
         cop_sel = copulas[best_ind]
 

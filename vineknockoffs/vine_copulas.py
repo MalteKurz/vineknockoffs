@@ -460,29 +460,48 @@ class DVineCopula:
         return res
 
     @classmethod
-    def cop_select(cls, u, families='all', indep_test=True):
+    def cop_select(cls, u, families='all', indep_test=True, u_=None, discrete_vars=False):
         n_vars = u.shape[1]
+        if isinstance(discrete_vars, bool):
+            discrete_vars = [discrete_vars] * n_vars
+        else:
+            assert len(discrete_vars) == n_vars
+
         copulas = [[IndepCopula()] * j for j in np.arange(n_vars - 1, 0, -1)]
 
         a = np.full_like(u, np.nan)
         b = np.full_like(u, np.nan)
+        a_ = np.full_like(u, np.nan)
+        b_ = np.full_like(u, np.nan)
         xx = None
+        yy = None
 
         for i in np.arange(1, n_vars):
             a[:, i] = u[:, i]
             b[:, i-1] = u[:, i-1]
+            if discrete_vars[i]:
+                a_[:, i] = u_[:, i]
+            if discrete_vars[i-1]:
+                b_[:, i-1] = u_[:, i-1]
 
         for j in np.arange(1, n_vars):
             tree = j
             for i in np.arange(1, n_vars-j+1):
                 cop = i
                 copulas[tree-1][cop-1] = cop_select(b[:, i-1], a[:, i+j-1],
-                                                    families=families, indep_test=indep_test)
+                                                    families=families, indep_test=indep_test,
+                                                    u_=b_[:, i-1], v_=a_[:, i+j-1],
+                                                    u_discrete=discrete_vars[i-1], v_discrete=discrete_vars[i+j-1])
                 if i < n_vars-j:
-                    xx = copulas[tree-1][cop-1].hfun(b[:, i-1], a[:, i+j-1])
+                    xx = copulas[tree-1][cop-1].hfun(u=b[:, i-1], v=a[:, i+j-1], v_=a_[:, i+j-1])
+                    if discrete_vars[i-1]:
+                        yy = copulas[tree-1][cop-1].hfun(u=b_[:, i-1], v=a[:, i+j-1], v_=a_[:, i+j-1])
                 if i > 1:
-                    a[:, i+j-1] = copulas[tree-1][cop-1].vfun(b[:, i-1], a[:, i+j-1])
+                    a[:, i+j-1] = copulas[tree-1][cop-1].vfun(u=b[:, i-1], v=a[:, i+j-1], u_=b_[:, i-1])
+                    if discrete_vars[i+j-1]:
+                        a_[:, i+j-1] = copulas[tree-1][cop-1].vfun(u=b[:, i-1], v=a_[:, i+j-1], u_=b_[:, i-1])
                 if i < n_vars-j:
                     b[:, i-1] = xx
+                    b_[:, i-1] = yy
 
         return cls(copulas)
