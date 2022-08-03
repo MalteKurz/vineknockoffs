@@ -29,6 +29,13 @@ r_kde1d_fit = robjects.r('''
         }
         ''')
 
+r_kde1d_discrete_fit = robjects.r('''
+        kde_fit <- function(x, levels) {
+          x <- ordered(x, levels=levels)
+          return(kde1d::kde1d(x))
+        }
+        ''')
+
 r_kde1d_cdf_eval = robjects.r('''
         cdf_eval <- function(kde_fit, x) {
           return(kde1d::pkde1d(x, kde_fit))
@@ -52,16 +59,28 @@ class KDE1D:
 
     def __init__(self):
         self._kdefit = None
+        self._discrete_levels = None
 
-    def fit(self, x):
-        self._kdefit = r_kde1d_fit(x)
+    def fit(self, x, discrete=False):
+        if not discrete:
+            self._kdefit = r_kde1d_fit(x)
+        else:
+            self._discrete_levels = np.unique(x)
+            self._kdefit = r_kde1d_discrete_fit(x, self._discrete_levels)
         return self
 
     def ppf(self, x):
         return r_kde1d_invcdf_eval(self._kdefit, x)
 
     def cdf(self, x):
-        return r_kde1d_cdf_eval(self._kdefit, x)
+        if self._discrete_levels is None:
+            res = r_kde1d_cdf_eval(self._kdefit, x)
+        else:
+            # bring the x values to the next smaller value in self._discrete_levels
+            ind = np.searchsorted(self._discrete_levels, x, side='right')
+            res = r_kde1d_cdf_eval(self._kdefit, self._discrete_levels[ind - 1])
+            res[ind == 0] = 0.
+        return res
 
     def pdf(self, x):
         return r_kde1d_pdf_eval(self._kdefit, x)
