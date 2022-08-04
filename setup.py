@@ -1,12 +1,12 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
-#PROJECT_URLS = {
-#    'Bug Tracker': 'https://github.com/MalteKurz/vineknockoffs/issues',
-#    'Source Code': 'https://github.com/MalteKurz/vineknockoffs'
-#}
+# PROJECT_URLS = {
+#     'Bug Tracker': 'https://github.com/MalteKurz/vineknockoffs/issues',
+#     'Source Code': 'https://github.com/MalteKurz/vineknockoffs'
+# }
 
 setup(
     name='vineknockoffs',
@@ -25,6 +25,10 @@ setup(
         'statsmodels',
         'sympy',
     ],
+    extras_require={
+        'KDE1D': ['rpy2'],
+        # 'KDE1D': ['pykde1d @ git+https://github.com/vinecopulib/pykde1d.git@main#egg=pykde1d'],
+    },
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
