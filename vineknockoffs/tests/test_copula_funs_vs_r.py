@@ -12,7 +12,7 @@ rpy2.robjects.numpy2ri.activate()
 
 @pytest.fixture(scope='module',
                 params=['cdf', 'pdf', 'hfun', 'vfun',
-                        'd_hfun_d_theta', 'd_vfun_d_theta', 'd_hfun_d_v', 'd_vfun_d_u'])
+                        'd_hfun_d_par', 'd_vfun_d_par', 'd_hfun_d_v', 'd_vfun_d_u'])
 def fun_type(request):
     return request.param
 

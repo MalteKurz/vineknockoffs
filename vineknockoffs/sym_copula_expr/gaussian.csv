@@ -1,4 +1,4 @@
 fun_name,lambdarepr
-pdf,exp((-theta**2*(x**2 + y**2) + 2*theta*x*y)/(2 - 2*theta**2))/sqrt(1 - theta**2)
-ll,-log(-(theta - 1)*(theta + 1))/2 - (theta**2*(x**2 + y**2) - 2*theta*x*y)/(2 - 2*theta**2)
-d_ll_d_theta,-(theta**3 - theta**2*x*y + theta*x**2 + theta*y**2 - theta - x*y)/((theta - 1)**2*(theta + 1)**2)
+pdf,exp((-par**2*(x**2 + y**2) + 2*par*x*y)/(2 - 2*par**2))/sqrt(1 - par**2)
+ll,-log(-(par - 1)*(par + 1))/2 - (par**2*(x**2 + y**2) - 2*par*x*y)/(2 - 2*par**2)
+d_ll_d_par,-(par**3 - par**2*x*y + par*x**2 + par*y**2 - par - x*y)/((par - 1)**2*(par + 1)**2)

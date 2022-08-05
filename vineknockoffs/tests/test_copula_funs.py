@@ -151,7 +151,7 @@ def test_negll_numdiff(copula):
     n_obs = 231
     data = copula.sim(n_obs)
 
-    res = copula._neg_ll_d_theta(copula.par, data[:, 0], data[:, 1])
+    res = copula._neg_ll_d_par(copula.par, data[:, 0], data[:, 1])
 
     if isinstance(copula, IndepCopula):
         res_num = 0.
@@ -167,15 +167,15 @@ def test_negll_numdiff(copula):
                        rtol=1e-4, atol=1e-3)
 
 
-def test_hfun_d_theta_numdiff(copula):
+def test_hfun_d_par_numdiff(copula):
     np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
-    res = copula.d_hfun_d_theta(data[:, 0], data[:, 1])
+    res = copula.d_hfun_d_par(data[:, 0], data[:, 1])
 
-    def hfun_for_numdiff(theta, u, v):
-        copula._par = theta[0]
+    def hfun_for_numdiff(par, u, v):
+        copula._par = par[0]
         return copula.hfun(u, v)
 
     if isinstance(copula, IndepCopula):
@@ -192,15 +192,15 @@ def test_hfun_d_theta_numdiff(copula):
                        rtol=1e-4, atol=1e-3)
 
 
-def test_vfun_d_theta_numdiff(copula):
+def test_vfun_d_par_numdiff(copula):
     np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
-    res = copula.d_vfun_d_theta(data[:, 0], data[:, 1])
+    res = copula.d_vfun_d_par(data[:, 0], data[:, 1])
 
-    def vfun_for_numdiff(theta, u, v):
-        copula._par = theta[0]
+    def vfun_for_numdiff(par, u, v):
+        copula._par = par[0]
         return copula.vfun(u, v)
 
     if isinstance(copula, IndepCopula):
@@ -217,15 +217,15 @@ def test_vfun_d_theta_numdiff(copula):
                        rtol=1e-4, atol=1e-3)
 
 
-def test_cdf_d_theta_numdiff(copula):
+def test_cdf_d_par_numdiff(copula):
     np.random.seed(3141)
     n_obs = 231
     data = copula.sim(n_obs)
 
-    res = copula.d_cdf_d_theta(data[:, 0], data[:, 1])
+    res = copula.d_cdf_d_par(data[:, 0], data[:, 1])
 
-    def cdf_for_numdiff(theta, u, v):
-        copula._par = theta[0]
+    def cdf_for_numdiff(par, u, v):
+        copula._par = par[0]
         return copula.cdf(u, v)
 
     if isinstance(copula, IndepCopula):
@@ -249,15 +249,15 @@ def test_invhfun_numdiff(copula):
 
     d_inv_hfun_d_u = copula.d_inv_hfun_d_u(data[:, 0], data[:, 1])
     d_inv_hfun_d_v = copula.d_inv_hfun_d_v(data[:, 0], data[:, 1])
-    d_inv_hfun_d_theta = copula.d_inv_hfun_d_theta(data[:, 0], data[:, 1])
+    d_inv_hfun_d_par = copula.d_inv_hfun_d_par(data[:, 0], data[:, 1])
 
-    res = np.column_stack((d_inv_hfun_d_u, d_inv_hfun_d_v, d_inv_hfun_d_theta))
+    res = np.column_stack((d_inv_hfun_d_u, d_inv_hfun_d_v, d_inv_hfun_d_par))
 
     def inv_hfun_for_numdiff_d_v(v, u):
         return copula.inv_hfun(u, v)
 
-    def inv_hfun_for_numdiff_d_theta(theta, u, v):
-        copula._par = theta[0]
+    def inv_hfun_for_numdiff_d_par(par, u, v):
+        copula._par = par[0]
         return copula.inv_hfun(u, v)
 
     res_num = np.full_like(res, np.nan)
@@ -277,7 +277,7 @@ def test_invhfun_numdiff(copula):
         res_num[:, 2] = 0.
     else:
         res_num[:, 2] = approx_fprime(np.array([copula.par]),
-                                      inv_hfun_for_numdiff_d_theta,
+                                      inv_hfun_for_numdiff_d_par,
                                       epsilon=1e-6,
                                       kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                       centered=True)
@@ -294,15 +294,15 @@ def test_invvfun_numdiff(copula):
 
     d_inv_vfun_d_u = copula.d_inv_vfun_d_u(data[:, 0], data[:, 1])
     d_inv_vfun_d_v = copula.d_inv_vfun_d_v(data[:, 0], data[:, 1])
-    d_inv_vfun_d_theta = copula.d_inv_vfun_d_theta(data[:, 0], data[:, 1])
+    d_inv_vfun_d_par = copula.d_inv_vfun_d_par(data[:, 0], data[:, 1])
 
-    res = np.column_stack((d_inv_vfun_d_u, d_inv_vfun_d_v, d_inv_vfun_d_theta))
+    res = np.column_stack((d_inv_vfun_d_u, d_inv_vfun_d_v, d_inv_vfun_d_par))
 
     def inv_vfun_for_numdiff_d_v(v, u):
         return copula.inv_vfun(u, v)
 
-    def inv_vfun_for_numdiff_d_theta(theta, u, v):
-        copula._par = theta[0]
+    def inv_vfun_for_numdiff_d_par(par, u, v):
+        copula._par = par[0]
         return copula.inv_vfun(u, v)
 
     res_num = np.full_like(res, np.nan)
@@ -322,7 +322,7 @@ def test_invvfun_numdiff(copula):
         res_num[:, 2] = 0.
     else:
         res_num[:, 2] = approx_fprime(np.array([copula.par]),
-                                      inv_vfun_for_numdiff_d_theta,
+                                      inv_vfun_for_numdiff_d_par,
                                       epsilon=1e-6,
                                       kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                       centered=True)

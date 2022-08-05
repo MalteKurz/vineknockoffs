@@ -81,7 +81,7 @@ class DVineCopula:
                 cop = i-j
 
                 if (tree == which_tree) & (cop == which_cop):
-                    a_d_par[:, i-j] = self.copulas[tree-1][cop-1].d_inv_vfun_d_theta(b[:, i-j-1], a[:, i-j-1])
+                    a_d_par[:, i-j] = self.copulas[tree-1][cop-1].d_inv_vfun_d_par(b[:, i-j-1], a[:, i-j-1])
                     impacted_by_deriv = True
                 else:
                     if impacted_by_deriv:
@@ -102,9 +102,9 @@ class DVineCopula:
                     cop = i-j
 
                     if (tree == which_tree) & (cop == which_cop):
-                        d_theta = self.copulas[tree-1][cop-1].d_hfun_d_theta(b[:, i-j-1], a[:, i-j])
+                        d_par = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
                         d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
-                        b_d_par[:, i-j-1] = d_theta + a_d_par[:, i-j] * d_v
+                        b_d_par[:, i-j-1] = d_par + a_d_par[:, i-j] * d_v
                     else:
                         if impacted_by_deriv:
                             d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, i-j-1], a[:, i-j])
@@ -161,8 +161,8 @@ class DVineCopula:
                 if cop_n_pars > 0:
                     assert self.copulas[tree-1][cop-1].n_pars == 1
                     par_vec[ind_par:ind_par+cop_n_pars] = self.copulas[tree-1][cop-1].par
-                    lb_vec[ind_par:ind_par+cop_n_pars] = self.copulas[tree-1][cop-1]._theta_bounds[0][0]
-                    ub_vec[ind_par:ind_par+cop_n_pars] = self.copulas[tree-1][cop-1]._theta_bounds[0][1]
+                    lb_vec[ind_par:ind_par+cop_n_pars] = self.copulas[tree-1][cop-1]._par_bounds[0][0]
+                    ub_vec[ind_par:ind_par+cop_n_pars] = self.copulas[tree-1][cop-1]._par_bounds[0][1]
                     which_tree[ind_par:ind_par+cop_n_pars] = tree
                     which_cop[ind_par:ind_par+cop_n_pars] = cop
                     ind_par += self.copulas[tree-1][cop-1].n_pars
@@ -216,11 +216,11 @@ class DVineCopula:
                 d_v = np.nan
                 for i_par in range(n_pars):
                     if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                        d_vfun_d_theta_eval = self.copulas[tree-1][cop-1].d_vfun_d_theta(b[:, i-j-1], a_eval)
+                        d_vfun_d_par_eval = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, i-j-1], a_eval)
                         pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, i-j-1], a_eval)
-                        d_theta = - d_vfun_d_theta_eval / pdf_eval
+                        d_par = - d_vfun_d_par_eval / pdf_eval
                         d_v = 1. / pdf_eval
-                        a_d_par[:, i-j, i_par] = d_theta + a_d_par[:, i-j-1, i_par] * d_v
+                        a_d_par[:, i-j, i_par] = d_par + a_d_par[:, i-j-1, i_par] * d_v
                         impacted_by_deriv[i_par] = True
                     else:
                         if impacted_by_deriv[i_par] | \
@@ -251,9 +251,9 @@ class DVineCopula:
                     d_v = np.nan
                     for i_par in range(n_pars):
                         if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                            d_theta = self.copulas[tree-1][cop-1].d_hfun_d_theta(b[:, i-j-1], a[:, i-j])
+                            d_par = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
                             d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
-                            b_d_par[:, i-j-1, i_par] = d_theta + a_d_par[:, i-j, i_par] * d_v
+                            b_d_par[:, i-j-1, i_par] = d_par + a_d_par[:, i-j, i_par] * d_v
                         else:
                             if impacted_by_deriv[i_par] | \
                                     (np.abs(a_d_par[:, i-j, i_par]).sum() > 0.) | \
@@ -319,7 +319,7 @@ class DVineCopula:
                 tree = j
                 cop = i-j
                 if (tree == which_tree) & (cop == which_cop):
-                    a_d_par[:, i-j-1] = self.copulas[tree-1][cop-1].d_vfun_d_theta(b[:, i-j-1], a[:, i-j])
+                    a_d_par[:, i-j-1] = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, i-j-1], a[:, i-j])
                     impacted_by_deriv = True
                 else:
                     if impacted_by_deriv:
@@ -338,7 +338,7 @@ class DVineCopula:
                     tree = j
                     cop = i-j
                     if (tree == which_tree) & (cop == which_cop):
-                        b_d_par[:, i-j-1] = self.copulas[tree - 1][cop - 1].d_hfun_d_theta(b[:, i-j-1], a[:, i-j])
+                        b_d_par[:, i-j-1] = self.copulas[tree - 1][cop - 1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
                     else:
                         if impacted_by_deriv:
                             d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, i-j-1], a[:, i-j])
@@ -396,7 +396,7 @@ class DVineCopula:
                 d_v = np.nan
                 for i_par in range(n_pars):
                     if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                        a_d_par[:, i-j-1, i_par] = self.copulas[tree-1][cop-1].d_vfun_d_theta(b[:, i-j-1], a[:, i-j])
+                        a_d_par[:, i-j-1, i_par] = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, i-j-1], a[:, i-j])
                         impacted_by_deriv = True
                     else:
                         if impacted_by_deriv:
@@ -422,7 +422,7 @@ class DVineCopula:
                     d_v = np.nan
                     for i_par in range(n_pars):
                         if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                            b_d_par[:, i-j-1, i_par] = self.copulas[tree - 1][cop - 1].d_hfun_d_theta(b[:, i-j-1], a[:, i-j])
+                            b_d_par[:, i-j-1, i_par] = self.copulas[tree - 1][cop - 1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
                         else:
                             if impacted_by_deriv:
                                 if not deriv_computed:

@@ -13,10 +13,10 @@ def py_copula_funs_eval(data, cop_obj, fun_type):
         res = cop_obj.hfun(data[:, 0], data[:, 1])
     elif fun_type == 'vfun':
         res = cop_obj.vfun(data[:, 0], data[:, 1])
-    elif fun_type == 'd_hfun_d_theta':
-        res = cop_obj.d_hfun_d_theta(data[:, 0], data[:, 1])
-    elif fun_type == 'd_vfun_d_theta':
-        res = cop_obj.d_vfun_d_theta(data[:, 0], data[:, 1])
+    elif fun_type == 'd_hfun_d_par':
+        res = cop_obj.d_hfun_d_par(data[:, 0], data[:, 1])
+    elif fun_type == 'd_vfun_d_par':
+        res = cop_obj.d_vfun_d_par(data[:, 0], data[:, 1])
     elif fun_type == 'd_hfun_d_v':
         res = cop_obj.d_hfun_d_v(data[:, 0], data[:, 1])
     else:
@@ -42,10 +42,10 @@ r_copula_funs_eval = robjects.r('''
           else if (type == 'vfun'){
             res = BiCopHfunc1(u, v, family, par)
           }
-          else if (type == 'd_hfun_d_theta'){
+          else if (type == 'd_hfun_d_par'){
             res = BiCopHfuncDeriv(u, v, family, par, deriv="par")
           }
-          else if (type == 'd_vfun_d_theta'){
+          else if (type == 'd_vfun_d_par'){
             # flip arguments to get vfun (only valid for symmetric copulas)
             res = BiCopHfuncDeriv(v, u, family, par, deriv="par")
           }
