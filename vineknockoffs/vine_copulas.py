@@ -20,6 +20,13 @@ class DVineCopula:
     def n_pars(self):
         return np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self.copulas])
 
+    def _set_all_vars_continuous(self):
+        for tree in self.copulas:
+            for cop in tree:
+                cop._u_discrete = False
+                cop._v_discrete = False
+        return self
+
     def sim(self, n_obs=100, w=None):
         if w is None:
             w = np.random.uniform(size=(n_obs, self.n_vars))
@@ -460,10 +467,10 @@ class DVineCopula:
         return res
 
     @classmethod
-    def cop_select(cls, u, families='all', indep_test=True, u_=None, discrete_vars=False):
+    def cop_select(cls, u, families='all', rotations=True, indep_test=True, u_=None, discrete_vars=None):
         n_vars = u.shape[1]
-        if isinstance(discrete_vars, bool):
-            discrete_vars = [discrete_vars] * n_vars
+        if discrete_vars is None:
+            discrete_vars = [False] * n_vars
         else:
             assert len(discrete_vars) == n_vars
 
@@ -489,7 +496,7 @@ class DVineCopula:
             for i in np.arange(1, n_vars-j+1):
                 cop = i
                 copulas[tree-1][cop-1] = cop_select(b[:, i-1], a[:, i+j-1],
-                                                    families=families, indep_test=indep_test,
+                                                    families=families, rotations=rotations, indep_test=indep_test,
                                                     u_=b_[:, i-1], v_=a_[:, i+j-1],
                                                     u_discrete=discrete_vars[i-1], v_discrete=discrete_vars[i+j-1])
                 if i < n_vars-j:
