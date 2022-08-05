@@ -36,6 +36,13 @@ r_kde1d_invcdf_eval = robjects.r('''
         }
         ''')
 
+r_kde1d_discrete_invcdf_eval = robjects.r('''
+        invcdf_eval <- function(kde_fit, x) {
+          res <- kde1d::qkde1d(x, kde_fit)
+          return(as.numeric(levels(res)[res]))
+        }
+        ''')
+
 r_kde1d_pdf_eval = robjects.r('''
         pdf_eval <- function(kde_fit, x) {
           return(kde1d::dkde1d(x, kde_fit))
@@ -48,20 +55,30 @@ class KDE1D:
     def __init__(self):
         self._kdefit = None
         self._discrete_levels = None
+        self._discrete = False
+
+    @property
+    def discrete(self):
+        return self._discrete
 
     def fit(self, x, discrete=False):
         if not discrete:
             self._kdefit = r_kde1d_fit(x)
         else:
+            self._discrete = True
             self._discrete_levels = np.unique(x)
             self._kdefit = r_kde1d_discrete_fit(x, self._discrete_levels)
         return self
 
     def ppf(self, x):
-        return r_kde1d_invcdf_eval(self._kdefit, x)
+        if not self.discrete:
+            res = r_kde1d_invcdf_eval(self._kdefit, x)
+        else:
+            res = r_kde1d_discrete_invcdf_eval(self._kdefit, x)
+        return res
 
     def cdf(self, x):
-        if self._discrete_levels is None:
+        if not self.discrete:
             res = r_kde1d_cdf_eval(self._kdefit, x)
         else:
             # bring the x values to the next smaller value in self._discrete_levels

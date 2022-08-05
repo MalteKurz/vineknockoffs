@@ -487,18 +487,18 @@ class GaussianCopula(Copula):
     def par2tau(self, par):
         return 2/np.pi * np.arcsin(par)
 
-    def inv_hfun(self, u, v):
+    def inv_hfun(self, u, v, v_=None):
         if self.continuous_vars:
             res = self._cop_funs['inv_hfun'](self.par, u, v)
         else:
-            res = super().inv_hfun(u, v)
+            res = super().inv_hfun(u, v, v_)
         return res
 
-    def inv_vfun(self, u, v):
+    def inv_vfun(self, u, v, u_=None):
         if self.continuous_vars:
             res = self._cop_funs['inv_vfun'](self.par, u, v)
         else:
-            res = super().inv_vfun(u, v)
+            res = super().inv_vfun(u, v, u_)
         return res
 
 

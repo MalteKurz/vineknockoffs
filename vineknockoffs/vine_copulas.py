@@ -54,6 +54,69 @@ class DVineCopula:
                     b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
         return u
 
+    def _sim_w_discrete_marginals(self, n_obs=100, w=None, marginals=None):
+        if w is None:
+            w = np.random.uniform(size=(n_obs, self.n_vars))
+        discrete_vars = [xx.discrete for xx in marginals]
+
+        a = np.full_like(w, np.nan)
+        b = np.full_like(w, np.nan)
+        u = np.full_like(w, np.nan)
+        a_minus = np.full_like(u, np.nan)
+        b_minus = np.full_like(u, np.nan)
+        u_minus = np.full_like(w, np.nan)
+
+        if not discrete_vars[0]:
+            u[:, 0] = w[:, 0]
+            a[:, 0] = w[:, 0]
+            b[:, 0] = w[:, 0]
+        else:
+            x_discrete = marginals[0].ppf(w[:, 0])
+            u[:, 0] = marginals[0].cdf(x_discrete)
+            a[:, 0] = u[:, 0]
+            b[:, 0] = u[:, 0]
+            levels = np.unique(x_discrete)
+            thres = np.min(np.diff(levels)) * 0.5
+            assert thres > 1e-10
+            u_minus[:, 0] = marginals[0].cdf(x_discrete - thres)
+            a_minus[:, 0] = u_minus[:, 0]
+            b_minus[:, 0] = u_minus[:, 0]
+
+        for i in np.arange(2, self.n_vars+1):
+            a[:, 0] = w[:, i-1]
+            for j in np.arange(i-1, 0, -1):
+                tree = j
+                cop = i-j
+                a[:, i-j] = self.copulas[tree-1][cop-1].inv_vfun(u=b[:, i-j-1], v=a[:, i-j-1], u_=b_minus[:, i-j-1])
+                if discrete_vars[i-j] & (j > 0):
+                    a_minus[:, i-j-1] = self.copulas[tree-1][cop-1].vfun(u=b[:, i-j-1], v=a_minus[:, i-j],
+                                                                         u_=b_minus[:, i-j-1])
+
+            if not discrete_vars[i-1]:
+                u[:, i-1] = a[:, i-1]
+            else:
+                x_discrete = marginals[i-1].ppf(a[:, i-1])
+                u[:, i-1] = marginals[i-1].cdf(x_discrete)
+                levels = np.unique(x_discrete)
+                thres = np.min(np.diff(levels)) * 0.5
+                assert thres > 1e-10
+                u_minus[:, i-1] = marginals[i-1].cdf(x_discrete - thres)
+                a_minus[:, i-1] = u_minus[:, i-1]
+
+            if i < self.n_vars:
+                b[:, i-1] = a[:, i-1]
+                if discrete_vars[i - 1]:
+                    b_minus[:, i-1] = u_minus[:, i-1]
+                for j in np.arange(1, i):
+                    tree = j
+                    cop = i-j
+                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(u=b[:, i-j-1], v=a[:, i-j], v_=a_minus[:, i-j])
+                    if discrete_vars[i-j-1]:
+                        b_minus[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(u=b_minus[:, i-j-1], v=a[:, i-j],
+                                                                             v_=a_minus[:, i-j])
+
+        return u
+
     def sim_d_par(self, which_tree, which_cop, n_obs=100, w=None):
         if w is None:
             w = np.random.uniform(size=(n_obs, self.n_vars))
