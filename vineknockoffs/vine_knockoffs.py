@@ -165,10 +165,9 @@ class VineKnockoffs:
         self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, var_types=var_types, algo=gau_cop_algo,
                                            vine_structure=vine_structure, corr_est=gau_cop_corr_est)
 
-        discrete_vars = [False] * n_vars
-        discrete_vars[var_types == 'bin'] = True
-        discrete_vars[var_types == 'discrete'] = True
-        discrete_vars += discrete_vars
+        discrete_vars = np.full(n_vars, False)
+        discrete_vars[np.in1d(var_types, ['bin', 'discrete'])] = True
+        discrete_vars = np.repeat(discrete_vars, 2)
 
         # select copula families via AIC / MLE
         n_vars_x2 = n_vars * 2
