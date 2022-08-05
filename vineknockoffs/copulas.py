@@ -180,7 +180,16 @@ class Copula(ABC):
         return -np.sum(self._ll(theta=theta, u=u, v=v, u_=u_, v_=v_))
 
     def _neg_ll_d_theta_cc(self, theta, u, v):
-        return -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)))
+        if self.rotation == 0:
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(u), self._trim_obs(v)))
+        elif self.rotation == 90:
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(1.-v), self._trim_obs(u)))
+        elif self.rotation == 180:
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(1.-u), self._trim_obs(1.-v)))
+        else:
+            assert self.rotation == 270
+            res = -np.sum(self._cop_funs['d_ll_d_theta'](theta, self._trim_obs(v), self._trim_obs(1.-u)))
+        return res
 
     def _neg_ll_d_theta_dc(self, theta, u, v, u_):
         nom = self._d_hfun_d_theta(theta, u, v) - self._d_hfun_d_theta(theta, u_, v)
