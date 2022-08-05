@@ -97,6 +97,7 @@ class Copula(ABC):
         pass
 
     def _trim_obs(self, u):
+        u = np.array(u)
         u[u < self.trim_thres] = self.trim_thres
         u[u > 1. - self.trim_thres] = 1. - self.trim_thres
         return u
@@ -337,47 +338,31 @@ class Copula(ABC):
             res = -1. * self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
-    def inv_hfun(self, u, v):
-        assert self.continuous_vars
+    def inv_hfun(self, u, v, v_=None):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
 
-        if self.rotation == 0:
-            res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, v[i]) - u[i],
+        if not self.v_discrete:
+            res = np.array([root_scalar(lambda xx: self._hfun(theta=self.par, u=xx, v=v[i]) - u[i],
                                         **kwargs).root for i in range(len(u))])
-        elif self.rotation == 90:
-            res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, (1 - v[i]), xx) - u[i],
-                                        **kwargs).root for i in range(len(u))])
-        elif self.rotation == 180:
-            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, 1. - v[i]) - (1. - u[i]),
-                                             **kwargs).root for i in range(len(u))])
         else:
-            assert self.rotation == 270
-            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, v[i], xx) - (1. - u[i]),
-                                             **kwargs).root for i in range(len(u))])
+            res = np.array([root_scalar(lambda xx: self._hfun(theta=self.par, u=xx, v=v[i], v_=v_[i]) - u[i],
+                                        **kwargs).root for i in range(len(u))])
 
         return self._trim_obs(res)
 
-    def inv_vfun(self, u, v):
-        assert self.continuous_vars
+    def inv_vfun(self, u, v, u_=None):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
 
-        if self.rotation == 0:
-            res = np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, u[i], xx) - v[i],
-                                        **kwargs).root for i in range(len(v))])
-        elif self.rotation == 90:
-            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, u[i]) - (1. - v[i]),
-                                             **kwargs).root for i in range(len(v))])
-        elif self.rotation == 180:
-            res = 1. - np.array([root_scalar(lambda xx: self._cop_funs['vfun'](self.par, 1. - u[i], xx) - (1. - v[i]),
-                                             **kwargs).root for i in range(len(v))])
+        if not self.u_discrete:
+            res = np.array([root_scalar(lambda xx: self._vfun(theta=self.par, u=u[i], v=xx, u_=u_) - v[i],
+                                        **kwargs).root for i in range(len(u))])
         else:
-            assert self.rotation == 270
-            res = np.array([root_scalar(lambda xx: self._cop_funs['hfun'](self.par, xx, (1. - u[i])) - v[i],
-                                        **kwargs).root for i in range(len(v))])
+            res = np.array([root_scalar(lambda xx: self._vfun(theta=self.par, u=u[i], v=xx) - v[i],
+                                        **kwargs).root for i in range(len(u))])
 
         return self._trim_obs(res)
 
