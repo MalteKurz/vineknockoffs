@@ -146,7 +146,7 @@ class VineKnockoffs:
             return x_knockoffs_jacobian
 
     def fit_vine_copula_knockoffs(self, x_train,
-                                  marginals='kde1d',
+                                  marginals='kde1d', var_types=None,
                                   families='all', rotations=True, indep_test=True,
                                   vine_structure='select_tsp',
                                   upper_tree_cop_fam_heuristic='lower tree families',
@@ -154,30 +154,54 @@ class VineKnockoffs:
                                   sgd_which_par='all',
                                   loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.,
                                   gau_cop_algo='sdp', gau_cop_corr_est='latentcorr'):
+        n_vars = x_train.shape[1]
+        if var_types is None:
+            var_types = self._guess_vartypes(x_train)
+        else:
+            assert len(var_types) == n_vars
+            assert np.all(np.in1d(var_types, ['bin', 'discrete', 'con']))
 
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
-        self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo=gau_cop_algo,
+        self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, var_types=var_types, algo=gau_cop_algo,
                                            vine_structure=vine_structure, corr_est=gau_cop_corr_est)
 
+        discrete_vars = np.full(n_vars, False)
+        discrete_vars[np.in1d(var_types, ['bin', 'discrete'])] = True
+        discrete_vars = np.repeat(discrete_vars, 2)
+
         # select copula families via AIC / MLE
-        n_vars = x_train.shape[1]
         n_vars_x2 = n_vars * 2
         u_train = np.full_like(x_train, np.nan)
+        u_train_minus = np.full_like(x_train, np.nan)
         for i_var in range(n_vars):
             u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
+            if discrete_vars[i_var]:
+                levels = np.unique(x_train[:, i_var])
+                thres = np.min(np.diff(levels)) * 0.5
+                assert thres > 1e-10
+                u_train_minus[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var] - thres)
 
         # d-vine structure selection happens in fit_gaussian_copula_knockoffs
         u_train = u_train[:, self.dvine_structure]
+        u_train_minus = u_train_minus[:, self.dvine_structure]
 
         uu = np.hstack((u_train, u_train))
+        uu_minus = np.hstack((u_train_minus, u_train_minus))
 
         a = np.full_like(uu, np.nan)
         b = np.full_like(uu, np.nan)
+        a_minus = np.full_like(uu, np.nan)
+        b_minus = np.full_like(uu, np.nan)
         xx = None
+        yy = None
 
         for i in np.arange(1, n_vars_x2):
             a[:, i] = uu[:, i]
             b[:, i - 1] = uu[:, i - 1]
+            if discrete_vars[i]:
+                a_minus[:, i] = uu_minus[:, i]
+            if discrete_vars[i-1]:
+                b_minus[:, i-1] = uu_minus[:, i-1]
 
         for j in np.arange(1, n_vars_x2):
             tree = j
@@ -188,19 +212,28 @@ class VineKnockoffs:
                     if cop <= n_vars:
                         self._dvine.copulas[tree - 1][cop - 1] = cop_select(
                             b[:, i - 1], a[:, i + j - 1],
-                            families=families, rotations=rotations, indep_test=indep_test)
+                            families=families, rotations=rotations, indep_test=indep_test,
+                            u_=b_minus[:, i - 1], v_=a_minus[:, i + j - 1],
+                            u_discrete=discrete_vars[i - 1], v_discrete=discrete_vars[i + j - 1])
                     else:
                         self._dvine.copulas[tree - 1][cop - 1] = deepcopy(
                             self._dvine.copulas[tree - 1][cop - 1 - n_vars])
 
                     if i < n_vars_x2 - j:
                         xx = self._dvine.copulas[tree - 1][cop - 1].hfun(
-                            u=b[:, i - 1], v=a[:, i + j - 1])
+                            u=b[:, i - 1], v=a[:, i + j - 1], v_=a_minus[:, i+j-1])
+                        if discrete_vars[i-1]:
+                            yy = self._dvine.copulas[tree-1][cop-1].hfun(
+                                u=b_minus[:, i-1], v=a[:, i+j-1], v_=a_minus[:, i+j-1])
                     if i > 1:
                         a[:, i + j - 1] = self._dvine.copulas[tree - 1][cop - 1].vfun(
-                            u=b[:, i - 1], v=a[:, i + j - 1])
+                            u=b[:, i - 1], v=a[:, i + j - 1], u_=b_minus[:, i-1])
+                        if discrete_vars[i+j-1]:
+                            a_minus[:, i+j-1] = self._dvine.copulas[tree-1][cop-1].vfun(
+                                u=b[:, i-1], v=a_minus[:, i+j-1], u_=b_minus[:, i-1])
                     if i < n_vars_x2 - j:
                         b[:, i - 1] = xx
+                        b_minus[:, i-1] = yy
                 elif tree == n_vars:
                     # decorrelation tree (do nothing; take Gaussian copula determined via fit_gaussian_copula_knockoffs)
                     assert isinstance(self._dvine.copulas[tree - 1][cop - 1], GaussianCopula)
@@ -300,26 +333,38 @@ class VineKnockoffs:
             print(loss_vals)
         return self
 
-    def fit_gaussian_copula_knockoffs(self, x_train, marginals='kde1d',
-                                      algo='sdp', vine_structure='1:n'):
-        # determine dvine structure / variable order
+    def fit_gaussian_copula_knockoffs(self, x_train, marginals='kde1d', var_types=None,
+                                      algo='sdp', vine_structure='1:n', corr_est='latentcorr'):
         n_vars = x_train.shape[1]
+        if var_types is None:
+            var_types = self._guess_vartypes(x_train)
+        else:
+            assert len(var_types) == n_vars
+            assert np.all(np.in1d(var_types, ['bin', 'discrete', 'con']))
+
+        # determine dvine structure / variable order
         if vine_structure == 'select_tsp':
             self.dvine_structure = d_vine_structure_select(x_train)
         else:
             assert vine_structure == '1:n'
             self.dvine_structure = np.arange(n_vars)
 
-        self.fit_marginals(x_train, model=marginals)
+        self.fit_marginals(x_train, model=marginals, var_types=var_types)
 
-        u_train = np.full_like(x_train, np.nan)
-        x_gaussian_train = np.full_like(x_train, np.nan)
-        for i_var in range(n_vars):
-            u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
-            x_gaussian_train[:, i_var] = norm.ppf(u_train[:, i_var])
+        if corr_est == 'samplecorr':
+            u_train = np.full_like(x_train, np.nan)
+            x_gaussian_train = np.full_like(x_train, np.nan)
+            for i_var in range(n_vars):
+                u_train[:, i_var] = self._marginals[i_var].cdf(x_train[:, i_var])
+                x_gaussian_train[:, i_var] = norm.ppf(u_train[:, i_var])
 
-        x_gaussian_train = x_gaussian_train[:, self.dvine_structure]
-        corr_mat = np.corrcoef(x_gaussian_train.transpose())
+            x_gaussian_train = x_gaussian_train[:, self.dvine_structure]
+            corr_mat = np.corrcoef(x_gaussian_train.transpose())
+        else:
+            assert corr_est == 'latentcorr'
+            tsp = deepcopy(var_types)
+            tsp[tsp == 'discrete'] = 'con'
+            corr_mat = latentcor(x_train, tps=tsp)[0]
 
         if algo == 'sdp':
             s_vec = sdp_solver(corr_mat)
@@ -360,15 +405,41 @@ class VineKnockoffs:
 
         return self
 
-    def fit_marginals(self, x_train, model='kde1d'):
+    @staticmethod
+    def _guess_vartypes(x):
+        n_obs = x.shape[0]
+        n_vars = x.shape[1]
+        vartypes = [''] * n_vars
+        for i_var in range(n_vars):
+            levels = np.unique(x[:, i_var])
+            if len(levels) == 1:
+                ValueError(f'No variation in variable {i_var}')
+            elif len(levels) == 2:
+                vartypes[i_var] = 'bin'
+            elif len(levels) <= (0.5 * n_obs):
+                vartypes[i_var] = 'discrete'
+            else:
+                vartypes[i_var] = 'con'
+        return vartypes
+
+    def fit_marginals(self, x_train, model='kde1d', var_types=None):
         # ToDo May add alternative methods for the marginals (like parameteric distributions)
         n_vars = x_train.shape[1]
+        if var_types is None:
+            var_types = self._guess_vartypes(x_train)
+        else:
+            assert len(var_types) == n_vars
+            assert np.all(np.in1d(var_types, ['bin', 'discrete', 'con']))
+
         if model == 'kde1d':
-            self._marginals = [KDE1D().fit(x_train[:, i_var])
+            self._marginals = [KDE1D().fit(x_train[:, i_var], discrete=var_types[i_var] in ['bin', 'discrete'])
                                for i_var in range(n_vars)]
         else:
             assert model == 'kde_statsmodels'
-            self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
+            con_discrete_dict = {'con': 'c',
+                                 'bin': 'o',
+                                 'discrete': 'o'}
+            self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], con_discrete_dict[var_types[i_var]])
                                for i_var in range(n_vars)]
 
         return self

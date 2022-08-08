@@ -14,12 +14,14 @@ class Copula(ABC):
     n_pars = 0
     trim_thres = 1e-12
 
-    def __init__(self, par, cop_funs, par_bounds, rotation=0):
+    def __init__(self, par, cop_funs, par_bounds, rotation=0, u_discrete=False, v_discrete=False):
         self._par = np.full(self.n_pars, np.nan)
         self._par_bounds = par_bounds
         self.par = par
         self._cop_funs = cop_funs
         self._rotation = rotation
+        self._u_discrete = u_discrete
+        self._v_discrete = v_discrete
 
     def __repr__(self):
         return f'{self.__class__.__name__}(par={self.par})'
@@ -63,13 +65,25 @@ class Copula(ABC):
     def rotation(self):
         return self._rotation
 
-    def mle_est(self, u, v):
+    @property
+    def u_discrete(self):
+        return self._u_discrete
+
+    @property
+    def continuous_vars(self):
+        return not (self.u_discrete | self.u_discrete)
+
+    @property
+    def v_discrete(self):
+        return self._v_discrete
+
+    def mle_est(self, u, v, u_=None, v_=None):
         tau, _ = kendalltau(u, v)
         par_0 = self.tau2par(tau)
         par_hat, _, _ = fmin_l_bfgs_b(self._neg_ll,
                                       par_0,
                                       self._neg_ll_d_par,
-                                      (u, v),
+                                      (u, v, u_, v_),
                                       bounds=self._par_bounds)
         self._par = par_hat
         return
@@ -130,21 +144,41 @@ class Copula(ABC):
             res = self._cop_funs['pdf'](par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
-    def _pdf(self, par, u, v):
-        res = self._pdf_cc(par, u, v)
+    def _pdf_dc(self, par, u, v, u_):
+        assert not self.v_discrete
+        return self._hfun(par, u=u, v=v) - self._hfun(par, u=u_, v=v)
+
+    def _pdf_cd(self, par, u, v, v_):
+        assert not self.u_discrete
+        return self._vfun(par, u=u, v=v) - self._vfun(par, u=u, v=v_)
+
+    def _pdf_dd(self, par, u, v, u_, v_):
+        return self._cdf(par, u, v) - self._cdf(par, u_, v) - self._cdf(par, u, v_) + self._cdf(par, u_, v_)
+
+    def _pdf(self, par, u, v, u_=None, v_=None):
+        if self.continuous_vars:
+            res = self._pdf_cc(par, u, v)
+        elif self.u_discrete & (not self.v_discrete):
+            res = self._pdf_dc(par, u, v, u_=u_)
+        elif (not self.u_discrete) & self.v_discrete:
+            res = self._pdf_cd(par, u, v, v_=v_)
+        else:
+            assert self.u_discrete & self.v_discrete
+            res = self._pdf_dd(par, u, v, u_=u_, v_=v_)
+
         return res
 
-    def pdf(self, u, v):
-        return self._pdf(par=self.par, u=u, v=v)
+    def pdf(self, u, v, u_=None, v_=None):
+        return self._pdf(par=self.par, u=u, v=v, u_=u_, v_=v_)
 
-    def _ll(self, par, u, v):
-        return np.log(self._pdf(par=par, u=u, v=v))
+    def _ll(self, par, u, v, u_=None, v_=None):
+        return np.log(self._pdf(par=par, u=u, v=v, u_=u_, v_=v_))
 
-    def ll(self, u, v):
-        return self._ll(par=self.par, u=u, v=v)
+    def ll(self, u, v, u_=None, v_=None):
+        return self._ll(par=self.par, u=u, v=v, u_=u_, v_=v_)
 
-    def _neg_ll(self, par, u, v):
-        return -np.sum(self._ll(par=par, u=u, v=v))
+    def _neg_ll(self, par, u, v, u_=None, v_=None):
+        return -np.sum(self._ll(par=par, u=u, v=v, u_=u_, v_=v_))
 
     def _neg_ll_d_par_cc(self, par, u, v):
         if self.rotation == 0:
@@ -158,46 +192,96 @@ class Copula(ABC):
             res = -np.sum(self._cop_funs['d_ll_d_par'](par, self._trim_obs(v), self._trim_obs(1.-u)))
         return res
 
-    def _neg_ll_d_par(self, par, u, v):
-        res = self._neg_ll_d_par_cc(par, u, v)
+    def _neg_ll_d_par_dc(self, par, u, v, u_):
+        nom = self._d_hfun_d_par(par, u, v) - self._d_hfun_d_par(par, u_, v)
+        denom = self._pdf_dc(par=par, u=u, v=v, u_=u_)
+        return -np.sum(nom / denom)
+
+    def _neg_ll_d_par_cd(self, par, u, v, v_):
+        nom = self._d_vfun_d_par(par, u, v) - self._d_vfun_d_par(par, u, v_)
+        denom = self._pdf_cd(par=par, u=u, v=v, v_=v_)
+        return -np.sum(nom / denom)
+
+    def _neg_ll_d_par_dd(self, par, u, v, u_, v_):
+        nom = self._d_cdf_d_par(par, u, v) - self._d_cdf_d_par(par, u_, v) \
+            - self._d_cdf_d_par(par, u, v_) + self._d_cdf_d_par(par, u_, v_)
+        denom = self._pdf_dd(par=par, u=u, v=v, u_=u_, v_=v_)
+        return -np.sum(nom / denom)
+
+    def _neg_ll_d_par(self, par, u, v, u_=None, v_=None):
+        if self.continuous_vars:
+            res = self._neg_ll_d_par_cc(par, u, v)
+        elif self.u_discrete & (not self.v_discrete):
+            res = self._neg_ll_d_par_dc(par, u, v, u_=u_)
+        elif (not self.u_discrete) & self.v_discrete:
+            res = self._neg_ll_d_par_cd(par, u, v, v_=v_)
+        else:
+            assert self.u_discrete & self.v_discrete
+            res = self._neg_ll_d_par_dd(par, u, v, u_=u_, v_=v_)
+
         return res
 
-    def aic(self, u, v):
-        res = 2 * self.n_pars + 2 * self._neg_ll(self.par, u=u, v=v)
+    def aic(self, u, v, u_=None, v_=None):
+        res = 2 * self.n_pars + 2 * self._neg_ll(self.par, u=u, v=v, u_=u_, v_=v_)
         return res
 
-    def _hfun(self, par, u, v):
+    def _hfun(self, par, u, v, v_=None):
         if self.rotation == 0:
-            res = self._cop_funs['hfun'](par, self._trim_obs(u), self._trim_obs(v))
+            if not self.v_discrete:
+                res = self._cop_funs['hfun'](par, self._trim_obs(u), self._trim_obs(v))
+            else:
+                res = (self._cdf(par, u, v) - self._cdf(par, u, v_)) / (v - v_)
         elif self.rotation == 90:
-            res = self._cop_funs['vfun'](par, self._trim_obs(1.-v), self._trim_obs(u))
+            if not self.v_discrete:
+                res = self._cop_funs['vfun'](par, self._trim_obs(1.-v), self._trim_obs(u))
+            else:
+                res = (self._cdf(par, 1.-v, u) - self._cdf(par, 1.-v_, u)) / (v_ - v)
         elif self.rotation == 180:
-            res = 1. - self._cop_funs['hfun'](par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            if not self.v_discrete:
+                res = 1. - self._cop_funs['hfun'](par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            else:
+                res = 1. - (self._cdf(par, 1.-u, 1.-v) - self._cdf(par, 1.-u, 1.-v_)) / (v_ - v)
         else:
             assert self.rotation == 270
-            res = 1. - self._cop_funs['vfun'](par, self._trim_obs(v), self._trim_obs(1.-u))
+            if not self.v_discrete:
+                res = 1. - self._cop_funs['vfun'](par, self._trim_obs(v), self._trim_obs(1.-u))
+            else:
+                res = 1. - (self._cdf(par, v, 1.-u) - self._cdf(par, v_, 1.-u)) / (v - v_)
 
         return self._trim_obs(res)
 
-    def hfun(self, u, v):
-        return self._hfun(par=self.par, u=u, v=v)
+    def hfun(self, u, v, v_=None):
+        return self._hfun(par=self.par, u=u, v=v, v_=v_)
 
-    def _vfun(self, par, u, v):
+    def _vfun(self, par, u, v, u_=None):
         if self.rotation == 0:
-            res = self._cop_funs['vfun'](par, self._trim_obs(u), self._trim_obs(v))
+            if not self.u_discrete:
+                res = self._cop_funs['vfun'](par, self._trim_obs(u), self._trim_obs(v))
+            else:
+                res = (self._cdf(par, u, v) - self._cdf(par, u_, v)) / (u - u_)
         elif self.rotation == 90:
-            res = 1. - self._cop_funs['hfun'](par, self._trim_obs(1.-v), self._trim_obs(u))
+            if not self.u_discrete:
+                res = 1. - self._cop_funs['hfun'](par, self._trim_obs(1.-v), self._trim_obs(u))
+            else:
+                res = 1. - (self._cdf(par, 1.-v, u) - self._cdf(par, 1.-v, u_)) / (u - u_)
         elif self.rotation == 180:
-            res = 1. - self._cop_funs['vfun'](par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            if not self.u_discrete:
+                res = 1. - self._cop_funs['vfun'](par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+            else:
+                res = 1. - (self._cdf(par, 1.-u, 1.-v) - self._cdf(par, 1.-u_, 1.-v)) / (u_ - u)
         else:
             assert self.rotation == 270
-            res = self._cop_funs['hfun'](par, self._trim_obs(v), self._trim_obs(1.-u))
+            if not self.u_discrete:
+                res = self._cop_funs['hfun'](par, self._trim_obs(v), self._trim_obs(1.-u))
+            else:
+                res = (self._cdf(par, v, 1.-u) - self._cdf(par, v, 1.-u_)) / (u_ - u)
         return self._trim_obs(res)
 
     def vfun(self, u, v, u_=None):
-        return self._vfun(par=self.par, u=u, v=v)
+        return self._vfun(par=self.par, u=u, v=v, u_=u_)
 
     def _d_hfun_d_par(self, par, u, v):
+        assert not self.v_discrete
         if self.rotation == 0:
             res = self._cop_funs['d_hfun_d_par'](par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
@@ -213,6 +297,7 @@ class Copula(ABC):
         return self._d_hfun_d_par(par=self.par, u=u, v=v)
 
     def _d_vfun_d_par(self, par, u, v):
+        assert not self.u_discrete
         if self.rotation == 0:
             res = self._cop_funs['d_vfun_d_par'](par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
@@ -228,6 +313,7 @@ class Copula(ABC):
         return self._d_vfun_d_par(par=self.par, u=u, v=v)
 
     def d_hfun_d_v(self, u, v):
+        assert self.continuous_vars
         if self.rotation == 0:
             res = self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
@@ -240,6 +326,7 @@ class Copula(ABC):
         return res
 
     def d_vfun_d_u(self, u, v):
+        assert self.continuous_vars
         if self.rotation == 0:
             res = self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
@@ -251,55 +338,72 @@ class Copula(ABC):
             res = -1. * self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
         return res
 
-    def inv_hfun(self, u, v):
+    def inv_hfun(self, u, v, v_=None):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
 
-        res = np.array([root_scalar(lambda xx: self._hfun(par=self.par, u=xx, v=v[i]) - u[i],
-                                    **kwargs).root for i in range(len(u))])
+        if not self.v_discrete:
+            res = np.array([root_scalar(lambda xx: self._hfun(par=self.par, u=xx, v=v[i]) - u[i],
+                                        **kwargs).root for i in range(len(u))])
+        else:
+            res = np.array([root_scalar(lambda xx: self._hfun(par=self.par, u=xx, v=v[i], v_=v_[i]) - u[i],
+                                        **kwargs).root for i in range(len(u))])
 
         return self._trim_obs(res)
 
-    def inv_vfun(self, u, v):
+    def inv_vfun(self, u, v, u_=None):
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
 
-        res = np.array([root_scalar(lambda xx: self._vfun(par=self.par, u=u[i], v=xx) - v[i],
-                                    **kwargs).root for i in range(len(u))])
+        if not self.u_discrete:
+            res = np.array([root_scalar(lambda xx: self._vfun(par=self.par, u=u[i], v=xx, u_=u_) - v[i],
+                                        **kwargs).root for i in range(len(u))])
+        else:
+            res = np.array([root_scalar(lambda xx: self._vfun(par=self.par, u=u[i], v=xx) - v[i],
+                                        **kwargs).root for i in range(len(u))])
 
         return self._trim_obs(res)
 
     def d_hfun_d_u(self, u, v):
+        assert self.continuous_vars
         return self.pdf(u, v)
 
     def d_vfun_d_v(self, u, v):
+        assert self.continuous_vars
         return self.pdf(u, v)
 
     def d_inv_hfun_d_u(self, u, v):
+        assert self.continuous_vars
         return 1. / self.pdf(self.inv_hfun(u, v), v)
 
     def d_inv_vfun_d_v(self, u, v):
+        assert self.continuous_vars
         return 1. / self.pdf(u, self.inv_vfun(u, v))
 
     def d_inv_hfun_d_v(self, u, v):
+        assert self.continuous_vars
         xx = self.inv_hfun(u, v)
         return -1. * self.d_hfun_d_v(xx, v) / self.pdf(xx, v)
 
     def d_inv_vfun_d_u(self, u, v):
+        assert self.continuous_vars
         xx = self.inv_vfun(u, v)
         return -1. * self.d_vfun_d_u(u, xx) / self.pdf(u, xx)
 
     def d_inv_hfun_d_par(self, u, v):
+        assert self.continuous_vars
         xx = self.inv_hfun(u, v)
         return -1. * self.d_hfun_d_par(xx, v) / self.pdf(xx, v)
 
     def d_inv_vfun_d_par(self, u, v):
+        assert self.continuous_vars
         xx = self.inv_vfun(u, v)
         return -1. * self.d_vfun_d_par(u, xx) / self.pdf(u, xx)
 
     def sim(self, n_obs=100):
+        assert self.continuous_vars
         u = np.random.uniform(size=(n_obs, 2))
         u[:, 0] = self.inv_hfun(u[:, 0], u[:, 1])
         return u
@@ -308,9 +412,10 @@ class Copula(ABC):
 class ClaytonCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=np.nan, rotation=0):
+    def __init__(self, par=np.nan, rotation=0, u_discrete=False, v_discrete=False):
         super().__init__(par, clayton_cop_funs,
-                         par_bounds=[(0.0001, 28)], rotation=rotation)
+                         par_bounds=[(0.0001, 28)], rotation=rotation,
+                         u_discrete=u_discrete, v_discrete=v_discrete)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(par={self.par}, rotation={self.rotation})'
@@ -337,9 +442,10 @@ class ClaytonCopula(Copula):
 class FrankCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=np.nan):
+    def __init__(self, par=np.nan, u_discrete=False, v_discrete=False):
         super().__init__(par, frank_cop_funs,
-                         par_bounds=[(-40, 40)])
+                         par_bounds=[(-40, 40)],
+                         u_discrete=u_discrete, v_discrete=v_discrete)
 
     def par2tau(self, par):
         # ToDO: Check and compare with R
@@ -370,9 +476,10 @@ class FrankCopula(Copula):
 class GaussianCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=np.nan):
+    def __init__(self, par=np.nan, u_discrete=False, v_discrete=False):
         super().__init__(par, gaussian_cop_funs,
-                         par_bounds=[(-0.999, 0.999)])
+                         par_bounds=[(-0.999, 0.999)],
+                         u_discrete=u_discrete, v_discrete=v_discrete)
 
     def tau2par(self, tau):
         return np.sin(np.pi * tau / 2)
@@ -380,21 +487,28 @@ class GaussianCopula(Copula):
     def par2tau(self, par):
         return 2/np.pi * np.arcsin(par)
 
-    def inv_hfun(self, u, v):
-        res = self._cop_funs['inv_hfun'](self.par, u, v)
+    def inv_hfun(self, u, v, v_=None):
+        if self.continuous_vars:
+            res = self._cop_funs['inv_hfun'](self.par, u, v)
+        else:
+            res = super().inv_hfun(u, v, v_)
         return res
 
-    def inv_vfun(self, u, v):
-        res = self._cop_funs['inv_vfun'](self.par, u, v)
+    def inv_vfun(self, u, v, u_=None):
+        if self.continuous_vars:
+            res = self._cop_funs['inv_vfun'](self.par, u, v)
+        else:
+            res = super().inv_vfun(u, v, u_)
         return res
 
 
 class GumbelCopula(Copula):
     n_pars = 1
 
-    def __init__(self, par=np.nan, rotation=0):
+    def __init__(self, par=np.nan, rotation=0, u_discrete=False, v_discrete=False):
         super().__init__(par, gumbel_cop_funs,
-                         par_bounds=[(1.0, 20)], rotation=rotation)
+                         par_bounds=[(1.0, 20)], rotation=rotation,
+                         u_discrete=u_discrete, v_discrete=v_discrete)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(par={self.par}, rotation={self.rotation})'
@@ -421,9 +535,10 @@ class GumbelCopula(Copula):
 class IndepCopula(Copula):
     n_pars = 0
 
-    def __init__(self):
+    def __init__(self, u_discrete=False, v_discrete=False):
         super().__init__(np.array([]), indep_cop_funs,
-                         par_bounds=[])
+                         par_bounds=[],
+                         u_discrete=u_discrete, v_discrete=v_discrete)
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -434,13 +549,18 @@ class IndepCopula(Copula):
     def par2tau(self, par):
         return None
 
-    def mle_est(self, u, v):
+    def mle_est(self, u, v, u_=None, v_=None):
         return None
 
 
-def cop_select(u, v, families='all', rotations=True, indep_test=True):
+def cop_select(u, v, families='all', rotations=True, indep_test=True,
+               u_=None, v_=None, u_discrete=False, v_discrete=False):
     assert families == 'all'
-    copulas = [cop()
+    if u_ is None:
+        u_ = np.full_like(u, np.nan)
+    if v_ is None:
+        v_ = np.full_like(v, np.nan)
+    copulas = [cop(u_discrete=u_discrete, v_discrete=v_discrete)
                for cop in [FrankCopula, GaussianCopula]]
     if rotations:
         tau, _ = kendalltau(u, v)
@@ -450,22 +570,23 @@ def cop_select(u, v, families='all', rotations=True, indep_test=True):
             rots = [90, 270]
     else:
         rots = [0]
-    copulas += [ClaytonCopula(rotation=rot) for rot in rots]
-    copulas += [GumbelCopula(rotation=rot) for rot in rots]
+    copulas += [ClaytonCopula(u_discrete=u_discrete, v_discrete=v_discrete, rotation=rot) for rot in rots]
+    copulas += [GumbelCopula(u_discrete=u_discrete, v_discrete=v_discrete, rotation=rot) for rot in rots]
     indep_cop = False
     if indep_test:
         n_obs = len(u)
         tau, _ = kendalltau(u, v)
+        # ToDo check whether the independence test is valid for discrete variables
         test_stat = np.sqrt(9*n_obs*(n_obs-1)/2/(2*n_obs+5)) * np.abs(tau)
         indep_cop = (test_stat <= norm.ppf(0.975))
 
     if indep_cop:
-        cop_sel = IndepCopula()
+        cop_sel = IndepCopula(u_discrete=u_discrete, v_discrete=v_discrete)
     else:
         aics = np.full(len(copulas), np.nan)
         for ind, this_cop in enumerate(copulas):
-            this_cop.mle_est(u, v)
-            aics[ind] = this_cop.aic(u, v)
+            this_cop.mle_est(u, v, u_=u_, v_=v_)
+            aics[ind] = this_cop.aic(u, v, u_=u_, v_=v_)
         best_ind = np.argmin(aics)
         cop_sel = copulas[best_ind]
 
