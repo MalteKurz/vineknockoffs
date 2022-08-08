@@ -59,17 +59,14 @@ class VineKnockoffs:
         # apply dvine structure / variable order
         u_test = u_test[:, self.dvine_structure]
 
-        dvine = deepcopy(self._dvine)
-        dvine._set_all_vars_continuous()
-
-        sub_dvine = DVineCopula([dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
+        sub_dvine = DVineCopula([self._dvine.copulas[tree][:n_vars-tree-1] for tree in np.arange(0, n_vars-1)])
         u_pits = sub_dvine.compute_pits(u_test)
         if knockoff_eps is None:
             knockoff_pits = np.random.uniform(size=(n_obs, n_vars))
         else:
             knockoff_pits = knockoff_eps
 
-        u_sim = dvine.sim(w=np.hstack((u_pits, knockoff_pits)))
+        u_sim = self._dvine.sim(w=np.hstack((u_pits, knockoff_pits)))
         u_knockoffs = u_sim[:, n_vars:]
 
         # get back order of variables
@@ -153,11 +150,11 @@ class VineKnockoffs:
                                   sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
                                   sgd_which_par='all',
                                   loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.,
-                                  gau_cop_algo='sdp', gau_cop_corr_est='latentcorr'):
+                                  gau_cop_algo='sdp'):
 
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
         self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo=gau_cop_algo,
-                                           vine_structure=vine_structure, corr_est=gau_cop_corr_est)
+                                           vine_structure=vine_structure)
 
         # select copula families via AIC / MLE
         n_vars = x_train.shape[1]
