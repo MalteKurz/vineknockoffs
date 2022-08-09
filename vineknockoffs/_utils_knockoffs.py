@@ -14,6 +14,6 @@ if not r_kde1d_available:
 cv_glmnet_r = robjects.r('''
         cv_glmnet <- function(x, y, s) {
           fit <- glmnet::cv.glmnet(x, y)
-          return(coef(fit, s=s))
+          return(as.numeric(coef(fit, s=s)))
         }
         ''')

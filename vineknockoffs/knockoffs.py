@@ -15,35 +15,41 @@ class KnockoffFilter:
         self.knockoff_plus = knockoff_plus
 
     def _compute_threshold(self, test_stats):
-        t = np.sort(test_stats)
+        t = np.unique(np.abs(test_stats))  # returns sorted array
         knockoff_plus = 1. * self.knockoff_plus
         tau_vec = np.array([(knockoff_plus + np.sum(test_stats <= -this_t))
                             / np.maximum(1.0, np.sum(test_stats >= this_t)) for this_t in t])
-        ind = np.searchsorted(tau_vec, self.target_fdr, side='right')
-        if ind == 0:
+        ind = np.where(tau_vec <= self.target_fdr)[0]
+        if len(ind) == 0:
             threshold = np.inf
         else:
-            threshold = tau_vec[ind-1]
+            threshold = t[ind[0]]
         return threshold
 
     def apply(self, x, x_knockoff, y, s='lambda.min'):
         n_vars = x.shape[1]
         assert s in ['lambda.min', 'lambda.1se']
-        # ToDo: Check whether a random permutation of the covariates is necessary
-        coefs = cv_glmnet_r(np.hstack(x, x_knockoff), y, s)
+
+        # check whether a random permutation of the covariates is necessary
+        coefs = cv_glmnet_r(np.hstack((x, x_knockoff)), y, s)
+        coefs = coefs[1:]  # remove intercept
         test_stats = np.abs(coefs[:n_vars]) - np.abs(coefs[n_vars:])
 
         threshold = self._compute_threshold(test_stats)
         selected_vars = np.where(test_stats >= threshold)[0]
-        nonzero_vars = np.where(coefs != 0)[0]
+
+        return selected_vars
+
+    @staticmethod
+    def evaluate(true_coefs, selected_vars):
+        nonzero_vars = np.where(true_coefs != 0)[0]
         true_positive = len(np.intersect1d(selected_vars, nonzero_vars))
         false_positive = len(selected_vars) - true_positive
 
-        fdp = false_positive / np.maximum(true_positive + false_positive, 1.0)
-        power = false_positive / np.maximum(len(nonzero_vars), 1.0)
+        false_discovery_rate = false_positive / np.maximum(true_positive + false_positive, 1.0)
+        power = true_positive / np.maximum(len(nonzero_vars), 1.0)
 
-        res_dict = {'selected_vars': selected_vars,
-                    'fdp': fdp,
+        res_dict = {'false_discovery_rate': false_discovery_rate,
                     'power': power}
         return res_dict
 
