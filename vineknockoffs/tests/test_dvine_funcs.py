@@ -64,3 +64,16 @@ def test_compute_pits_numdiff(dvine):
     assert np.allclose(res_num,
                        res,
                        rtol=1e-4, atol=1e-3)
+
+
+def test_sim_pits(dvine):
+    np.random.seed(3141)
+    n_obs = 231
+    w = np.random.uniform(size=(n_obs, dvine.n_vars))
+
+    w_cop = dvine.sim(n_obs=n_obs, w=w)
+    w_pits = dvine.compute_pits(w_cop)
+
+    assert np.allclose(w,
+                       w_pits,
+                       rtol=1e-9, atol=1e-4)

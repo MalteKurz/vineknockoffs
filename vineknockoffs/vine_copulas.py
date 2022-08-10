@@ -34,17 +34,17 @@ class DVineCopula:
 
         for i in np.arange(2, self.n_vars+1):
             a[:, 0] = w[:, i-1]
-            for j in np.arange(i-1, 0, -1):
-                tree = j
-                cop = i-j
-                a[:, i-j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, i-j-1], a[:, i-j-1])
+            for j in np.arange(1, i):
+                tree = i-j
+                cop = j
+                a[:, j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, j-1], a[:, j-1])
             u[:, i-1] = a[:, i-1]
             if i < self.n_vars:
                 b[:, i-1] = a[:, i-1]
                 for j in np.arange(1, i):
-                    tree = j
-                    cop = i-j
-                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+                    tree = i-j
+                    cop = j
+                    b[:, j-1] = self.copulas[tree-1][cop-1].hfun(b[:, j-1], a[:, j])
         return u
 
     def sim_d_par(self, which_tree, which_cop, n_obs=100, w=None):
@@ -69,44 +69,44 @@ class DVineCopula:
         for i in np.arange(2, self.n_vars+1):
             a_d_par[:, 0] = 0.
             a[:, 0] = w[:, i-1]
-            for j in np.arange(i-1, 0, -1):
-                tree = j
-                cop = i-j
+            for j in np.arange(1, i):
+                tree = i - j
+                cop = j
 
                 if (tree == which_tree) & (cop == which_cop):
-                    a_d_par[:, i-j] = self.copulas[tree-1][cop-1].d_inv_vfun_d_par(b[:, i-j-1], a[:, i-j-1])
+                    a_d_par[:, j] = self.copulas[tree-1][cop-1].d_inv_vfun_d_par(b[:, j-1], a[:, j-1])
                     impacted_by_deriv = True
                 else:
                     if impacted_by_deriv:
-                        d_u = self.copulas[tree-1][cop-1].d_inv_vfun_d_u(b[:, i-j-1], a[:, i-j-1])
-                        d_v = self.copulas[tree-1][cop-1].d_inv_vfun_d_v(b[:, i-j-1], a[:, i-j-1])
-                        a_d_par[:, i-j] = b_d_par[:, i-j-1] * d_u + a_d_par[:, i-j-1] * d_v
+                        d_u = self.copulas[tree-1][cop-1].d_inv_vfun_d_u(b[:, j-1], a[:, j-1])
+                        d_v = self.copulas[tree-1][cop-1].d_inv_vfun_d_v(b[:, j-1], a[:, j-1])
+                        a_d_par[:, j] = b_d_par[:, j-1] * d_u + a_d_par[:, j-1] * d_v
                     else:
-                        a_d_par[:, i-j] = 0.
+                        a_d_par[:, j] = 0.
 
-                a[:, i-j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, i-j-1], a[:, i-j-1])
+                a[:, j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, j-1], a[:, j-1])
             u_d_par[:, i-1] = a_d_par[:, i-1]
             u[:, i-1] = a[:, i-1]
             if i < self.n_vars:
                 b_d_par[:, i-1] = a_d_par[:, i-1]
                 b[:, i-1] = a[:, i-1]
                 for j in np.arange(1, i):
-                    tree = j
-                    cop = i-j
+                    tree = i-j
+                    cop = j
 
                     if (tree == which_tree) & (cop == which_cop):
-                        d_par = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
-                        d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
-                        b_d_par[:, i-j-1] = d_par + a_d_par[:, i-j] * d_v
+                        d_par = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, j-1], a[:, j])
+                        d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, j-1], a[:, j])
+                        b_d_par[:, j-1] = d_par + a_d_par[:, j] * d_v
                     else:
                         if impacted_by_deriv:
-                            d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, i-j-1], a[:, i-j])
-                            d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
-                            b_d_par[:, i-j-1] = b_d_par[:, i-j-1] * d_u + a_d_par[:, i-j] * d_v
+                            d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, j-1], a[:, j])
+                            d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, j-1], a[:, j])
+                            b_d_par[:, j-1] = b_d_par[:, j-1] * d_u + a_d_par[:, j] * d_v
                         else:
-                            b_d_par[:, i-j-1] = 0.
+                            b_d_par[:, j-1] = 0.
 
-                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+                    b[:, j-1] = self.copulas[tree-1][cop-1].hfun(b[:, j-1], a[:, j])
         return u_d_par
 
     def sim_par_jacobian(self, n_obs=100, w=None):
@@ -199,67 +199,67 @@ class DVineCopula:
         for i in np.arange(2, self.n_vars+1):
             a_d_par[:, 0, :] = w_jacobian[:, i-1, :]
             a[:, 0] = w[:, i-1]
-            for j in np.arange(i-1, 0, -1):
-                tree = j
-                cop = i-j
+            for j in np.arange(1, i):
+                tree = i-j
+                cop = j
 
-                a_eval = self.copulas[tree-1][cop-1].inv_vfun(b[:, i-j-1], a[:, i-j-1])
+                a_eval = self.copulas[tree-1][cop-1].inv_vfun(b[:, j-1], a[:, j-1])
                 deriv_computed = False
                 d_u = np.nan
                 d_v = np.nan
                 for i_par in range(n_pars):
                     if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                        d_vfun_d_par_eval = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, i-j-1], a_eval)
-                        pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, i-j-1], a_eval)
+                        d_vfun_d_par_eval = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, j-1], a_eval)
+                        pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, j-1], a_eval)
                         d_par = - d_vfun_d_par_eval / pdf_eval
                         d_v = 1. / pdf_eval
-                        a_d_par[:, i-j, i_par] = d_par + a_d_par[:, i-j-1, i_par] * d_v
+                        a_d_par[:, j, i_par] = d_par + a_d_par[:, j-1, i_par] * d_v
                         impacted_by_deriv[i_par] = True
                     else:
                         if impacted_by_deriv[i_par] | \
-                                (np.abs(a_d_par[:, i-j-1, i_par]).sum() > 0.) | \
-                                (np.abs(b_d_par[:, i-j-1, i_par]).sum() > 0.):
+                                (np.abs(a_d_par[:, j-1, i_par]).sum() > 0.) | \
+                                (np.abs(b_d_par[:, j-1, i_par]).sum() > 0.):
                             if not deriv_computed:
-                                d_vfun_d_u_eval = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, i-j-1], a_eval)
-                                pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, i-j-1], a_eval)
+                                d_vfun_d_u_eval = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, j-1], a_eval)
+                                pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, j-1], a_eval)
                                 d_u = - d_vfun_d_u_eval / pdf_eval
                                 d_v = 1. / pdf_eval
                                 deriv_computed = True
-                            a_d_par[:, i-j, i_par] = b_d_par[:, i-j-1, i_par] * d_u + a_d_par[:, i-j-1, i_par] * d_v
+                            a_d_par[:, j, i_par] = b_d_par[:, j-1, i_par] * d_u + a_d_par[:, j-1, i_par] * d_v
                         else:
-                            a_d_par[:, i-j, i_par] = 0.
+                            a_d_par[:, j, i_par] = 0.
 
-                a[:, i-j] = a_eval
+                a[:, j] = a_eval
             u_d_par[:, i-1, :] = a_d_par[:, i-1, :]
             u[:, i-1] = a[:, i-1]
             if i < self.n_vars:
                 b_d_par[:, i-1, :] = a_d_par[:, i-1, :]
                 b[:, i-1] = a[:, i-1]
                 for j in np.arange(1, i):
-                    tree = j
-                    cop = i-j
+                    tree = i-j
+                    cop = j
 
                     deriv_computed = False
                     d_u = np.nan
                     d_v = np.nan
                     for i_par in range(n_pars):
                         if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                            d_par = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
-                            d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
-                            b_d_par[:, i-j-1, i_par] = d_par + a_d_par[:, i-j, i_par] * d_v
+                            d_par = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, j-1], a[:, j])
+                            d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, j-1], a[:, j])
+                            b_d_par[:, j-1, i_par] = d_par + a_d_par[:, j, i_par] * d_v
                         else:
                             if impacted_by_deriv[i_par] | \
-                                    (np.abs(a_d_par[:, i-j, i_par]).sum() > 0.) | \
-                                    (np.abs(b_d_par[:, i-j-1, i_par]).sum() > 0.):
+                                    (np.abs(a_d_par[:, j, i_par]).sum() > 0.) | \
+                                    (np.abs(b_d_par[:, j-1, i_par]).sum() > 0.):
                                 if not deriv_computed:
-                                    d_u = self.copulas[tree - 1][cop - 1].d_hfun_d_u(b[:, i - j - 1], a[:, i - j])
-                                    d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
+                                    d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, j-1], a[:, j])
+                                    d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, j-1], a[:, j])
                                     deriv_computed = True
-                                b_d_par[:, i-j-1, i_par] = b_d_par[:, i-j-1, i_par] * d_u + a_d_par[:, i-j, i_par] * d_v
+                                b_d_par[:, j-1, i_par] = b_d_par[:, j-1, i_par] * d_u + a_d_par[:, j, i_par] * d_v
                             else:
-                                b_d_par[:, i-j-1, i_par] = 0.
+                                b_d_par[:, j-1, i_par] = 0.
 
-                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+                    b[:, j-1] = self.copulas[tree-1][cop-1].hfun(b[:, j-1], a[:, j])
         if return_u:
             return u, u_d_par
         else:
@@ -276,17 +276,17 @@ class DVineCopula:
 
         for i in np.arange(2, self.n_vars+1):
             a[:, i-1] = u[:, i-1]
-            for j in np.arange(1, i):
-                tree = j
-                cop = i-j
-                a[:, i-j-1] = self.copulas[tree-1][cop-1].vfun(b[:, i-j-1], a[:, i-j])
+            for j in np.arange(i-1, 0, -1):
+                tree = i-j
+                cop = j
+                a[:, j-1] = self.copulas[tree-1][cop-1].vfun(b[:, j-1], a[:, j])
             w[:, i-1] = a[:, 0]
             if i < self.n_vars:
                 b[:, i-1] = a[:, i-1]
                 for j in np.arange(1, i):
-                    tree = j
-                    cop = i-j
-                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+                    tree = i-j
+                    cop = j
+                    b[:, j-1] = self.copulas[tree-1][cop-1].hfun(b[:, j-1], a[:, j])
         return w
 
     def compute_pits_d_par(self, which_tree, which_cop, u, return_w=False):
@@ -308,38 +308,38 @@ class DVineCopula:
         for i in np.arange(2, self.n_vars+1):
             a_d_par[:, i-1] = 0.
             a[:, i-1] = u[:, i-1]
-            for j in np.arange(1, i):
-                tree = j
-                cop = i-j
+            for j in np.arange(i-1, 0, -1):
+                tree = i-j
+                cop = j
                 if (tree == which_tree) & (cop == which_cop):
-                    a_d_par[:, i-j-1] = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, i-j-1], a[:, i-j])
+                    a_d_par[:, j-1] = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, j-1], a[:, j])
                     impacted_by_deriv = True
                 else:
                     if impacted_by_deriv:
-                        d_u = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, i-j-1], a[:, i-j])
-                        d_v = self.copulas[tree-1][cop-1].d_vfun_d_v(b[:, i-j-1], a[:, i-j])
-                        a_d_par[:, i-j-1] = b_d_par[:, i-j-1] * d_u + a_d_par[:, i-j] * d_v
+                        d_u = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, j-1], a[:, j])
+                        d_v = self.copulas[tree-1][cop-1].d_vfun_d_v(b[:, j-1], a[:, j])
+                        a_d_par[:, j-1] = b_d_par[:, j-1] * d_u + a_d_par[:, j] * d_v
                     else:
-                        a_d_par[:, i-j-1] = 0.
-                a[:, i-j-1] = self.copulas[tree-1][cop-1].vfun(b[:, i-j-1], a[:, i-j])
+                        a_d_par[:, j-1] = 0.
+                a[:, j-1] = self.copulas[tree-1][cop-1].vfun(b[:, j-1], a[:, j])
             w_d_par[:, i-1] = a_d_par[:, 0]
             w[:, i-1] = a[:, 0]
             if i < self.n_vars:
                 b_d_par[:, i-1] = a_d_par[:, i-1]
                 b[:, i-1] = a[:, i-1]
                 for j in np.arange(1, i):
-                    tree = j
-                    cop = i-j
+                    tree = i-j
+                    cop = j
                     if (tree == which_tree) & (cop == which_cop):
-                        b_d_par[:, i-j-1] = self.copulas[tree - 1][cop - 1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
+                        b_d_par[:, j-1] = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, j-1], a[:, j])
                     else:
                         if impacted_by_deriv:
-                            d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, i-j-1], a[:, i-j])
-                            d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
-                            b_d_par[:, i-j-1] = b_d_par[:, i-j-1] * d_u + a_d_par[:, i-j] * d_v
+                            d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, j-1], a[:, j])
+                            d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, j-1], a[:, j])
+                            b_d_par[:, j-1] = b_d_par[:, j-1] * d_u + a_d_par[:, j] * d_v
                         else:
-                            b_d_par[:, i-j-1] = 0.
-                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+                            b_d_par[:, j-1] = 0.
+                    b[:, j-1] = self.copulas[tree-1][cop-1].hfun(b[:, j-1], a[:, j])
         if return_w:
             return w, w_d_par
         else:
@@ -380,52 +380,52 @@ class DVineCopula:
         for i in np.arange(2, self.n_vars+1):
             a_d_par[:, i-1, :] = 0.
             a[:, i-1] = u[:, i-1]
-            for j in np.arange(1, i):
-                tree = j
-                cop = i-j
+            for j in np.arange(i-1, 0, -1):
+                tree = i-j
+                cop = j
 
                 deriv_computed = False
                 d_u = np.nan
                 d_v = np.nan
                 for i_par in range(n_pars):
                     if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                        a_d_par[:, i-j-1, i_par] = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, i-j-1], a[:, i-j])
+                        a_d_par[:, j-1, i_par] = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, j-1], a[:, j])
                         impacted_by_deriv = True
                     else:
                         if impacted_by_deriv:
                             if not deriv_computed:
-                                d_u = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, i-j-1], a[:, i-j])
-                                d_v = self.copulas[tree-1][cop-1].d_vfun_d_v(b[:, i-j-1], a[:, i-j])
+                                d_u = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, j-1], a[:, j])
+                                d_v = self.copulas[tree-1][cop-1].d_vfun_d_v(b[:, j-1], a[:, j])
                                 deriv_computed = True
-                            a_d_par[:, i-j-1, i_par] = b_d_par[:, i-j-1, i_par] * d_u + a_d_par[:, i-j, i_par] * d_v
+                            a_d_par[:, j-1, i_par] = b_d_par[:, j-1, i_par] * d_u + a_d_par[:, j, i_par] * d_v
                         else:
-                            a_d_par[:, i-j-1, i_par] = 0.
-                a[:, i-j-1] = self.copulas[tree-1][cop-1].vfun(b[:, i-j-1], a[:, i-j])
+                            a_d_par[:, j-1, i_par] = 0.
+                a[:, j-1] = self.copulas[tree-1][cop-1].vfun(b[:, j-1], a[:, j])
             w_d_par[:, i-1, :] = a_d_par[:, 0, :]
             w[:, i-1] = a[:, 0]
             if i < self.n_vars:
                 b_d_par[:, i-1, :] = a_d_par[:, i-1, :]
                 b[:, i-1] = a[:, i-1]
                 for j in np.arange(1, i):
-                    tree = j
-                    cop = i-j
+                    tree = i-j
+                    cop = j
 
                     deriv_computed = False
                     d_u = np.nan
                     d_v = np.nan
                     for i_par in range(n_pars):
                         if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                            b_d_par[:, i-j-1, i_par] = self.copulas[tree - 1][cop - 1].d_hfun_d_par(b[:, i-j-1], a[:, i-j])
+                            b_d_par[:, j-1, i_par] = self.copulas[tree-1][cop-1].d_hfun_d_par(b[:, j-1], a[:, j])
                         else:
                             if impacted_by_deriv:
                                 if not deriv_computed:
-                                    d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, i-j-1], a[:, i-j])
-                                    d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, i-j-1], a[:, i-j])
+                                    d_u = self.copulas[tree-1][cop-1].d_hfun_d_u(b[:, j-1], a[:, j])
+                                    d_v = self.copulas[tree-1][cop-1].d_hfun_d_v(b[:, j-1], a[:, j])
                                     deriv_computed = True
-                                b_d_par[:, i-j-1, i_par] = b_d_par[:, i-j-1, i_par] * d_u + a_d_par[:, i-j, i_par] * d_v
+                                b_d_par[:, j-1, i_par] = b_d_par[:, j-1, i_par] * d_u + a_d_par[:, j, i_par] * d_v
                             else:
-                                b_d_par[:, i-j-1, i_par] = 0.
-                    b[:, i-j-1] = self.copulas[tree-1][cop-1].hfun(b[:, i-j-1], a[:, i-j])
+                                b_d_par[:, j-1, i_par] = 0.
+                    b[:, j-1] = self.copulas[tree-1][cop-1].hfun(b[:, j-1], a[:, j])
         if return_w:
             return w, w_d_par
         else:
@@ -447,9 +447,9 @@ class DVineCopula:
             tree = j
             for i in np.arange(1, n_vars-j+1):
                 cop = i
-                xx = self.copulas[tree-1][cop-1].ll(b[:, i-1], a[:, i+j-1]).sum()
-                print(f'Tree: {tree}, copula: {cop}, LL: {xx}')
-                res += xx
+                this_cop_ll = self.copulas[tree-1][cop-1].ll(b[:, i-1], a[:, i+j-1]).sum()
+                print(f'Tree: {tree}, copula: {cop}, LL: {this_cop_ll}')
+                res += this_cop_ll
                 if i < n_vars-j:
                     xx = self.copulas[tree-1][cop-1].hfun(b[:, i-1], a[:, i+j-1])
                 if i > 1:
