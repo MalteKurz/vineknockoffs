@@ -203,14 +203,14 @@ class DVineCopula:
                 tree = i-j
                 cop = j
 
-                a_eval = self.copulas[tree-1][cop-1].inv_vfun(b[:, j-1], a[:, j-1])
+                a[:, j] = self.copulas[tree-1][cop-1].inv_vfun(b[:, j-1], a[:, j-1])
                 deriv_computed = False
                 d_u = np.nan
                 d_v = np.nan
                 for i_par in range(n_pars):
                     if (tree == which_tree[i_par]) & (cop == which_cop[i_par]):
-                        d_vfun_d_par_eval = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, j-1], a_eval)
-                        pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, j-1], a_eval)
+                        d_vfun_d_par_eval = self.copulas[tree-1][cop-1].d_vfun_d_par(b[:, j-1], a[:, j])
+                        pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, j-1], a[:, j])
                         d_par = - d_vfun_d_par_eval / pdf_eval
                         d_v = 1. / pdf_eval
                         a_d_par[:, j, i_par] = d_par + a_d_par[:, j-1, i_par] * d_v
@@ -220,16 +220,14 @@ class DVineCopula:
                                 (np.abs(a_d_par[:, j-1, i_par]).sum() > 0.) | \
                                 (np.abs(b_d_par[:, j-1, i_par]).sum() > 0.):
                             if not deriv_computed:
-                                d_vfun_d_u_eval = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, j-1], a_eval)
-                                pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, j-1], a_eval)
+                                d_vfun_d_u_eval = self.copulas[tree-1][cop-1].d_vfun_d_u(b[:, j-1], a[:, j])
+                                pdf_eval = self.copulas[tree-1][cop-1].pdf(b[:, j-1], a[:, j])
                                 d_u = - d_vfun_d_u_eval / pdf_eval
                                 d_v = 1. / pdf_eval
                                 deriv_computed = True
                             a_d_par[:, j, i_par] = b_d_par[:, j-1, i_par] * d_u + a_d_par[:, j-1, i_par] * d_v
                         else:
                             a_d_par[:, j, i_par] = 0.
-
-                a[:, j] = a_eval
             u_d_par[:, i-1, :] = a_d_par[:, i-1, :]
             u[:, i-1] = a[:, i-1]
             if i < self.n_vars:
