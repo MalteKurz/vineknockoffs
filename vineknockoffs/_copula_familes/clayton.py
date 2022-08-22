@@ -1,5 +1,14 @@
 import numpy as np
 
+# from ._utils_copula_families_sympy import sym_copula_derivs_one_par, write_sympy_expr, copula_derivs_one_par
+# from sympy import diff, log, exp, sqrt
+# u_sym, v_sym, par_sym = symbols('u v par')
+
+# clayton_cdf_sym = (u_sym**(-par_sym) + v_sym**(-par_sym) - 1)**(-1/par_sym)
+# clayton_cop_funs = copula_derivs_one_par(clayton_cdf_sym, u_sym, v_sym, par_sym)
+# clayton_sym_dict = sym_copula_derivs_one_par(clayton_cdf_sym, u_sym, v_sym, par_sym)
+# write_sympy_expr(clayton_sym_dict, './clayton.csv')
+
 
 def _cdf(par, u, v):
     # obtained with sympy

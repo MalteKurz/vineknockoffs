@@ -1,5 +1,16 @@
 import numpy as np
 
+# from ._utils_copula_families_sympy import sym_copula_derivs_one_par, write_sympy_expr, copula_derivs_one_par
+# from sympy import diff, log, exp, sqrt
+# u_sym, v_sym, par_sym = symbols('u v par')
+
+# frank_cdf_sym = - 1/par_sym * \
+#                 log(1/(1 - exp(-par_sym)) *
+#                     (1 - exp(-par_sym) - (1 - exp(-par_sym*u_sym)) * (1 - exp(-par_sym*v_sym))))
+# frank_cop_funs = copula_derivs_one_par(frank_cdf_sym, u_sym, v_sym, par_sym)
+# frank_sym_dict = sym_copula_derivs_one_par(frank_cdf_sym, u_sym, v_sym, par_sym)
+# write_sympy_expr(frank_sym_dict, './vineknockoffs/sym_copula_expr/frank.csv')
+
 
 def _cdf(par, u, v):
     # obtained with sympy

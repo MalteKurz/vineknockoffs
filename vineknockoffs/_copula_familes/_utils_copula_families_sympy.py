@@ -1,7 +1,13 @@
+try:
+    import sympy
+except ImportError:
+    ImportError('To the functions in module _utils_copula_families_sympy sympy is required.')
+
 from sympy.utilities.lambdify import lambdify
 from sympy.printing.numpy import SciPyPrinter
 from sympy.codegen.rewriting import optimize, optims_c99
 from sympy import diff, log
+
 import csv
 from importlib.resources import open_text
 

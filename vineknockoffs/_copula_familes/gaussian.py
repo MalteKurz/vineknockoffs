@@ -1,6 +1,21 @@
 import numpy as np
 from scipy.stats import norm, multivariate_normal
 
+# from ._utils_copula_families_sympy import sym_copula_derivs_one_par, write_sympy_expr, copula_derivs_one_par
+# from sympy import diff, log, exp, sqrt
+# x_sym, y_sym, par_sym = symbols('x y par')
+
+# gauss_cop_xy_funs = dict()
+# gauss_sym_dict = dict()
+# gauss_ll_sym = log(1/(sqrt(1-par_sym**2))) - (par_sym**2*(x_sym**2 + y_sym**2)
+#                                                 - 2*par_sym*x_sym*y_sym) / (2*(1-par_sym**2))
+# gauss_sym_dict['ll'], gauss_cop_xy_funs['ll'] = opt_and_lambdify(gauss_ll_sym, x_sym, y_sym, par_sym)
+#
+# gauss_d_ll_d_par_sym = diff(gauss_ll_sym, par_sym)
+# gauss_sym_dict['d_ll_d_par'], gauss_cop_xy_funs['d_ll_d_par'] = opt_and_lambdify(gauss_d_ll_d_par_sym,
+#                                                                                      x_sym, y_sym, par_sym)
+# write_sympy_expr(gauss_sym_dict, './gaussian.csv')
+
 
 def _pdf_xy(par, x, y):
     # obtained with sympy
