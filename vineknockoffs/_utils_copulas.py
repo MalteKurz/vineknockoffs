@@ -44,19 +44,19 @@ def copula_derivs_one_par(cdf_sym, u_sym, v_sym, par_sym):
 
     d_ll_d_par_sym = diff(ll_sym, par_sym)
     d_ll_d_par_sym, ufuns['d_ll_d_par'] = opt_and_lambdify(d_ll_d_par_sym,
-                                                               u_sym, v_sym, par_sym)
+                                                           u_sym, v_sym, par_sym)
 
     d_cdf_d_par_sym = diff(cdf_sym, par_sym)
     d_cdf_d_par_sym, ufuns['d_cdf_d_par'] = opt_and_lambdify(d_cdf_d_par_sym,
-                                                                 u_sym, v_sym, par_sym)
+                                                             u_sym, v_sym, par_sym)
 
     d_hfun_d_par_sym = diff(hfun_sym, par_sym)
     d_hfun_d_par_sym, ufuns['d_hfun_d_par'] = opt_and_lambdify(d_hfun_d_par_sym,
-                                                                   u_sym, v_sym, par_sym)
+                                                               u_sym, v_sym, par_sym)
 
     d_vfun_d_par_sym = diff(vfun_sym, par_sym)
     d_vfun_d_par_sym, ufuns['d_vfun_d_par'] = opt_and_lambdify(d_vfun_d_par_sym,
-                                                                   u_sym, v_sym, par_sym)
+                                                               u_sym, v_sym, par_sym)
 
     d_hfun_d_v_sym = diff(hfun_sym, v_sym)
     d_hfun_d_v_sym, ufuns['d_hfun_d_v'] = opt_and_lambdify(d_hfun_d_v_sym,

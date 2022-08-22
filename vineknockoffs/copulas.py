@@ -7,7 +7,11 @@ import scipy.integrate as integrate
 from scipy.optimize import fmin_l_bfgs_b, root_scalar
 from scipy.stats import norm, kendalltau
 
-from ._utils_copula_families import clayton_cop_funs, frank_cop_funs, gaussian_cop_funs, gumbel_cop_funs, indep_cop_funs
+from ._copula_familes.clayton import clayton_cop_funs
+from ._copula_familes.frank import frank_cop_funs
+from ._copula_familes.gaussian import gaussian_cop_funs
+from ._copula_familes.gumbel import gumbel_cop_funs
+from ._copula_familes.indep import indep_cop_funs
 
 
 class Copula(ABC):

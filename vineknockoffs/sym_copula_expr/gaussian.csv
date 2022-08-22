@@ -1,4 +1,0 @@
-fun_name,lambdarepr
-pdf,exp((-par**2*(x**2 + y**2) + 2*par*x*y)/(2 - 2*par**2))/sqrt(1 - par**2)
-ll,-log(-(par - 1)*(par + 1))/2 - (par**2*(x**2 + y**2) - 2*par*x*y)/(2 - 2*par**2)
-d_ll_d_par,-(par**3 - par**2*x*y + par*x**2 + par*y**2 - par - x*y)/((par - 1)**2*(par + 1)**2)

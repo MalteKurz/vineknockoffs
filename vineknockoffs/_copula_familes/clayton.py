@@ -1,0 +1,107 @@
+import numpy as np
+
+
+def _cdf(par, u, v):
+    # obtained with sympy
+    res = (-1 + v**(-par) + u**(-par))**(-1/par)
+    return res
+
+
+def _hfun(par, u, v):
+    # obtained with sympy
+    res = v**(-par)*(-1 + v**(-par) + u**(-par))**(-1/par)/(v*(-1 + v**(-par) + u**(-par)))
+    return res
+
+
+def _vfun(par, u, v):
+    # obtained with sympy
+    res = u**(-par)*(-1 + v**(-par) + u**(-par))**(-1/par)/(u*(-1 + v**(-par) + u**(-par)))
+    return res
+
+
+def _pdf(par, u, v):
+    # obtained with sympy
+    res = u**par*v**par*(par + 1)*(-1 + v**(-par) + u**(-par))**(-1/par)/(u*v*(u**par*v**par - u**par - v**par)**2)
+    return res
+
+
+def _ll(par, u, v):
+    # obtained with sympy
+    res = np.log(u**par*v**par*(par + 1)*(-1 + v**(-par) + u**(-par))**(-1/par) /
+                 (u*v*(u**par*v**par - u**par - v**par)**2))
+    return res
+
+
+def _d_ll_d_par(par, u, v):
+    # obtained with sympy
+    res = (-par**3*u**par*v**par*np.log(u) - par**3*u**par*v**par*np.log(v) + par**3*u**par*np.log(u)
+           - par**3*u**par*np.log(v) - par**3*v**par*np.log(u) + par**3*v**par*np.log(v)
+           - par**2*u**par*v**par*np.log(u) - par**2*u**par*v**par*np.log(v) + par**2*u**par*v**par
+           + par**2*u**par*np.log(u) - 2*par**2*u**par*np.log(v) - par**2*u**par - 2*par**2*v**par*np.log(u)
+           + par**2*v**par*np.log(v) - par**2*v**par + par*u**par*v**par *
+           np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par)) - par*u**par*np.log(v)
+           - par*u**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par)) - par*v**par*np.log(u)
+           - par*v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+           + u**par*v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+           - u**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+           - v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par)))\
+          /(par**2*(par + 1)*(u**par*v**par - u**par - v**par))
+    return res
+
+
+def _d_cdf_d_par(par, u, v):
+    # obtained with sympy
+    res = (-(-v**(-par)*np.log(v) - u**(-par)*np.log(u))/(par*(-1 + v**(-par) + u**(-par)))
+           + np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))/par**2)\
+          * (-1 + v**(-par) + u**(-par))**(-1/par)
+    return res
+
+
+def _d_hfun_d_par(par, u, v):
+    # obtained with sympy
+    res = -u**par*(-1 + v**(-par) + u**(-par))**(-1/par)\
+          * (-par**2*u**par*v**par*np.log(v) - par**2*v**par*np.log(u) + par**2*v**par*np.log(v) - par*u**par*np.log(v)
+             - par*v**par*np.log(u) + u**par*v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+             - u**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+             - v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par)))\
+          / (par**2*v*(u**par*v**par - u**par - v**par)**2)
+    return res
+
+
+def _d_vfun_d_par(par, u, v):
+    # obtained with sympy
+    res = -v**par*(-1 + v**(-par) + u**(-par))**(-1/par)\
+          * (-par**2*u**par*v**par*np.log(u) + par**2*u**par*np.log(u) - par**2*u**par*np.log(v) - par*u**par*np.log(v)
+             - par*v**par*np.log(u) + u**par*v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+             - u**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par))
+             - v**par*np.log(-u**(-par)*v**(-par)*(u**par*v**par - u**par - v**par)))\
+          / (par**2*u*(u**par*v**par - u**par - v**par)**2)
+    return res
+
+
+def _d_hfun_d_v(par, u, v):
+    # obtained with sympy
+    res = u**par*v**par*(par + 1)*(u**par - 1)*(-1 + v**(-par) + u**(-par))**(-1/par)\
+          / (v**2*(u**par*v**par - u**par - v**par)**2)
+    return res
+
+
+def _d_vfun_d_u(par, u, v):
+    # obtained with sympy
+    res = u**par*v**par*(par + 1)*(v**par - 1)*(-1 + v**(-par) + u**(-par))**(-1/par)\
+          / (u**2*(u**par*v**par - u**par - v**par)**2)
+    return res
+
+
+clayton_cop_funs = {'cdf': _cdf,
+                    'pdf': _pdf,
+                    'll': _ll,
+                    'd_ll_d_par': _d_ll_d_par,
+                    'd_cdf_d_par': _d_cdf_d_par,
+                    'hfun': _hfun,
+                    'vfun': _vfun,
+                    'd_hfun_d_par': _d_hfun_d_par,
+                    'd_vfun_d_par': _d_vfun_d_par,
+                    'd_hfun_d_v': _d_hfun_d_v,
+                    'd_vfun_d_u': _d_vfun_d_u
+                    }
