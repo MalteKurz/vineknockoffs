@@ -113,6 +113,16 @@ def _d_vfun_d_u(par, u, v):
     return res
 
 
+def _inv_hfun(par, u, v):
+    res = -1/par * np.log(1 + np.expm1(-par)/(np.exp(-par*v) * (1/u-1) + 1))
+    return res
+
+
+def _inv_vfun(par, u, v):
+    res = -1/par * np.log(1 + np.expm1(-par)/(np.exp(-par*u) * (1/v-1) + 1))
+    return res
+
+
 frank_cop_funs = {'cdf': _cdf,
                   'pdf': _pdf,
                   'll': _ll,
@@ -123,5 +133,7 @@ frank_cop_funs = {'cdf': _cdf,
                   'd_hfun_d_par': _d_hfun_d_par,
                   'd_vfun_d_par': _d_vfun_d_par,
                   'd_hfun_d_v': _d_hfun_d_v,
-                  'd_vfun_d_u': _d_vfun_d_u
+                  'd_vfun_d_u': _d_vfun_d_u,
+                  'inv_hfun': _inv_hfun,
+                  'inv_vfun': _inv_vfun,
                   }

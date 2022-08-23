@@ -102,6 +102,20 @@ def _d_vfun_d_u(par, u, v):
     return res
 
 
+def _inv_hfun(par, u, v):
+    h1 = -1 / par
+    h2 = -par / (1 + par)
+    res = np.power(np.power(v, -par) * (np.power(u, h2) - 1) + 1, h1)
+    return res
+
+
+def _inv_vfun(par, u, v):
+    h1 = -1 / par
+    h2 = -par / (1 + par)
+    res = np.power(np.power(u, -par) * (np.power(v, h2) - 1) + 1, h1)
+    return res
+
+
 clayton_cop_funs = {'cdf': _cdf,
                     'pdf': _pdf,
                     'll': _ll,
@@ -112,5 +126,7 @@ clayton_cop_funs = {'cdf': _cdf,
                     'd_hfun_d_par': _d_hfun_d_par,
                     'd_vfun_d_par': _d_vfun_d_par,
                     'd_hfun_d_v': _d_hfun_d_v,
-                    'd_vfun_d_u': _d_vfun_d_u
+                    'd_vfun_d_u': _d_vfun_d_u,
+                    'inv_hfun': _inv_hfun,
+                    'inv_vfun': _inv_vfun,
                     }

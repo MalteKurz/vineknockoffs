@@ -337,6 +337,31 @@ class ClaytonCopula(Copula):
             tau *= -1.
         return tau
 
+    def inv_hfun(self, u, v):
+        if self.rotation == 0:
+            res = self._cop_funs['inv_hfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = self._cop_funs['inv_vfun'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = 1. - self._cop_funs['inv_hfun'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = 1. - self._cop_funs['inv_vfun'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+
+        return self._trim_obs(res)
+
+    def inv_vfun(self, u, v):
+        if self.rotation == 0:
+            res = self._cop_funs['inv_vfun'](self.par, self._trim_obs(u), self._trim_obs(v))
+        elif self.rotation == 90:
+            res = 1. - self._cop_funs['inv_hfun'](self.par, self._trim_obs(1.-v), self._trim_obs(u))
+        elif self.rotation == 180:
+            res = 1. - self._cop_funs['inv_vfun'](self.par, self._trim_obs(1.-u), self._trim_obs(1.-v))
+        else:
+            assert self.rotation == 270
+            res = self._cop_funs['inv_hfun'](self.par, self._trim_obs(v), self._trim_obs(1.-u))
+        return self._trim_obs(res)
+
 
 class FrankCopula(Copula):
     n_pars = 1
@@ -370,6 +395,18 @@ class FrankCopula(Copula):
             par = root_res.root
         return par
 
+    def inv_hfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
+        res = self._cop_funs['inv_hfun'](self.par, u, v)
+        return self._trim_obs(res)
+
+    def inv_vfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
+        res = self._cop_funs['inv_vfun'](self.par, u, v)
+        return self._trim_obs(res)
+
 
 class GaussianCopula(Copula):
     n_pars = 1
@@ -385,12 +422,16 @@ class GaussianCopula(Copula):
         return 2/np.pi * np.arcsin(par)
 
     def inv_hfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
         res = self._cop_funs['inv_hfun'](self.par, u, v)
-        return res
+        return self._trim_obs(res)
 
     def inv_vfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
         res = self._cop_funs['inv_vfun'](self.par, u, v)
-        return res
+        return self._trim_obs(res)
 
 
 class GumbelCopula(Copula):
@@ -440,6 +481,18 @@ class IndepCopula(Copula):
 
     def mle_est(self, u, v):
         return None
+
+    def inv_hfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
+        res = self._cop_funs['inv_hfun'](self.par, u, v)
+        return self._trim_obs(res)
+
+    def inv_vfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
+        res = self._cop_funs['inv_vfun'](self.par, u, v)
+        return self._trim_obs(res)
 
 
 def cop_select(u, v, families='all', rotations=True, indep_test=True):
