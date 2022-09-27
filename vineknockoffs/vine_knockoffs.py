@@ -2,8 +2,6 @@ from copy import deepcopy
 import numpy as np
 from scipy.stats import norm, bernoulli
 
-from latentcor import latentcor
-
 from .copulas import cop_select, GaussianCopula, IndepCopula, FrankCopula
 from .knockoffs import KnockoffsLoss
 from .vine_copulas import DVineCopula
