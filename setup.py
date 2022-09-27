@@ -23,10 +23,13 @@ setup(
         'pandas',
         'scipy',
         'statsmodels',
-        'sympy',
+        'cvxpy',
+        'cvxopt',
+        'python_tsp'
     ],
     extras_require={
         'KDE1D': ['rpy2'],
+        'SYMPY': ['sympy'],
         # 'KDE1D': ['pykde1d @ git+https://github.com/vinecopulib/pykde1d.git@main#egg=pykde1d'],
     },
     classifiers=[
