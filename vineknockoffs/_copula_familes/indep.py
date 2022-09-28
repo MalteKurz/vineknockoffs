@@ -1,17 +1,37 @@
 import numpy as np
 
 
-indep_cop_funs = {'cdf': lambda par, u, v: u * v,
-                  'pdf': lambda par, u, v: np.ones_like(u),
-                  'll': lambda par, u, v: np.zeros_like(u),
-                  'd_ll_d_par': lambda par, u, v: np.zeros_like(u),
-                  'd_cdf_d_par': lambda par, u, v: np.zeros_like(u),
-                  'hfun': lambda par, u, v: u,
-                  'vfun': lambda par, u, v: v,
-                  'd_hfun_d_par': lambda par, u, v: np.zeros_like(u),
-                  'd_vfun_d_par': lambda par, u, v: np.zeros_like(u),
-                  'd_hfun_d_v': lambda par, u, v: np.zeros_like(u),
-                  'd_vfun_d_u': lambda par, u, v: np.zeros_like(u),
-                  'inv_hfun': lambda par, u, v: u,
-                  'inv_vfun': lambda par, u, v: v,
+def _uv(par, u, v):
+    return u * v
+
+
+def _u(par, u, v):
+    return u
+
+
+def _v(par, u, v):
+    return v
+
+
+def _ones(par, u, v):
+    return np.ones_like(u)
+
+
+def _zeros(par, u, v):
+    return np.zeros_like(u)
+
+
+indep_cop_funs = {'cdf': _uv,
+                  'pdf': _ones,
+                  'll': _zeros,
+                  'd_ll_d_par': _zeros,
+                  'd_cdf_d_par': _zeros,
+                  'hfun': _u,
+                  'vfun': _v,
+                  'd_hfun_d_par': _zeros,
+                  'd_vfun_d_par': _zeros,
+                  'd_hfun_d_v': _zeros,
+                  'd_vfun_d_u': _zeros,
+                  'inv_hfun': _u,
+                  'inv_vfun': _v,
                   }
