@@ -377,12 +377,19 @@ class KnockoffsDiagnostics:
         corr_mat = np.corrcoef(x, x_knockoffs, rowvar=False)
         abs_corr_avg = np.mean(np.diag(corr_mat, dim_x))
 
+        # diagnostics = pd.DataFrame({'metric': ['abs_corr_avg',
+        #                                        'cov', 'mmd', 'energy',
+        #                                        'cov', 'mmd', 'energy'],
+        #                             'swap': [None,
+        #                                      'full', 'full', 'full',
+        #                                      'partial', 'partial', 'partial'],
+        #                             'value': [abs_corr_avg,
+        #                                       cov_full, loss_mmd_full, energy_full,
+        #                                       cov_partial, loss_mmd_partial, energy_partial]})
+
         diagnostics = pd.DataFrame({'metric': ['abs_corr_avg',
-                                               'cov', 'mmd', 'energy',
-                                               'cov', 'mmd', 'energy'],
-                                    'swap': [None,
-                                             'full', 'full', 'full',
-                                             'partial', 'partial', 'partial'],
+                                               'cov_full', 'mmd_full', 'energy_full',
+                                               'cov_partial', 'mmd_partial', 'energy_partial'],
                                     'value': [abs_corr_avg,
                                               cov_full, loss_mmd_full, energy_full,
                                               cov_partial, loss_mmd_partial, energy_partial]})
