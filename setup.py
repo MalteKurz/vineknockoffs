@@ -32,6 +32,7 @@ setup(
         'KDE1D': ['rpy2'],
         'SYMPY': ['sympy'],
         # 'KDE1D': ['pykde1d @ git+https://github.com/vinecopulib/pykde1d.git@main#egg=pykde1d'],
+        # 'PYCONCORDE': ['pyconcorde @ git+https://github.com/jvkersch/pyconcorde.git@master#egg=pyconcorde'],
     },
     classifiers=[
         'Programming Language :: Python :: 3',

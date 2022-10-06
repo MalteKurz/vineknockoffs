@@ -1,6 +1,17 @@
 import numpy as np
 from scipy.stats import kendalltau
-from python_tsp.exact import solve_tsp_dynamic_programming
+# from python_tsp.exact import solve_tsp_dynamic_programming
+from rpy2 import robjects
+
+
+r_solve_tsp = robjects.r('''
+        solve_tsp <- function(one_m_tau_mat) {
+            hamilton = TSP::insert_dummy(TSP::TSP(one_m_tau_mat), label = "cut")
+            sol = TSP::solve_TSP(hamilton, method = "repetitive_nn")
+            order = TSP::cut_tour(sol, "cut")
+          return(order)
+        }
+        ''')
 
 
 def dvine_pcorr(corr_mat):
@@ -28,5 +39,6 @@ def kendall_tau_mat(x):
 
 def d_vine_structure_select(u):
     tau_mat = 1. - np.abs(kendall_tau_mat(u))
-    permutation, _ = solve_tsp_dynamic_programming(tau_mat)
+    # permutation, _ = solve_tsp_dynamic_programming(tau_mat)
+    permutation = r_solve_tsp(tau_mat)-1
     return permutation
