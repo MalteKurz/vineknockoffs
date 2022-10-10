@@ -462,6 +462,47 @@ class GumbelCopula(Copula):
             tau *= -1.
         return tau
 
+    def inv_hfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
+        f_a = self._hfun(par=self.par, u=1e-12, v=v) - u
+        f_b = self._hfun(par=self.par, u=1-1e-12, v=v) - u
+        if (f_a * f_b < 0.).all():
+            res = super(GumbelCopula, self).inv_hfun(u, v)
+        else:
+            ind_sign_change = (f_a * f_b < 0.)
+            res = np.full_like(u, np.nan)
+            res[ind_sign_change] = super(GumbelCopula, self).inv_hfun(u[ind_sign_change], v[ind_sign_change])
+
+            res[not ind_sign_change] = 1e-12 * np.abs(f_a[not ind_sign_change]) < np.abs(f_b[not ind_sign_change]) +\
+                                       (1-1e-12) * np.abs(f_b[not ind_sign_change]) < np.abs(f_a[not ind_sign_change])
+
+            xx = self._hfun(par=self.par, u=res[not ind_sign_change], v=v) - u
+            if np.abs(xx).min() > 1e-6:
+                ValueError(f'inv_hfun: Root search failed')
+        return self._trim_obs(res)
+
+    def inv_vfun(self, u, v):
+        u = self._trim_obs(u)
+        v = self._trim_obs(v)
+        f_a = self._vfun(par=self.par, u=u, v=1e-12) - v
+        f_b = self._vfun(par=self.par, u=u, v=1-1e-12) - v
+        if (f_a * f_b < 0.).all():
+            res = super(GumbelCopula, self).inv_vfun(u, v)
+        else:
+            ind_sign_change = (f_a * f_b < 0.)
+            no_sign_change = np.logical_not(ind_sign_change)
+            res = np.full_like(u, np.nan)
+            res[ind_sign_change] = super(GumbelCopula, self).inv_vfun(u[ind_sign_change], v[ind_sign_change])
+
+            res[no_sign_change] = 1e-12 * np.abs(f_a[no_sign_change]) < np.abs(f_b[no_sign_change]) +\
+                                  (1-1e-12) * np.abs(f_b[no_sign_change]) < np.abs(f_a[no_sign_change])
+
+            xx = self._vfun(par=self.par, u=u, v=res[no_sign_change]) - v
+            if np.abs(xx).min() > 1e-6:
+                ValueError(f'inv_vfun: Root search failed')
+        return self._trim_obs(res)
+
 
 class IndepCopula(Copula):
     n_pars = 0
