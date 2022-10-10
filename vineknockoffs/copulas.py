@@ -471,13 +471,14 @@ class GumbelCopula(Copula):
             res = super(GumbelCopula, self).inv_hfun(u, v)
         else:
             ind_sign_change = (f_a * f_b < 0.)
+            no_sign_change = np.logical_not(ind_sign_change)
             res = np.full_like(u, np.nan)
             res[ind_sign_change] = super(GumbelCopula, self).inv_hfun(u[ind_sign_change], v[ind_sign_change])
 
-            res[not ind_sign_change] = 1e-12 * np.abs(f_a[not ind_sign_change]) < np.abs(f_b[not ind_sign_change]) +\
-                                       (1-1e-12) * np.abs(f_b[not ind_sign_change]) < np.abs(f_a[not ind_sign_change])
+            res[no_sign_change] = 1e-12 * np.abs(f_a[no_sign_change]) < np.abs(f_b[no_sign_change]) +\
+                (1-1e-12) * np.abs(f_b[no_sign_change]) < np.abs(f_a[no_sign_change])
 
-            xx = self._hfun(par=self.par, u=res[not ind_sign_change], v=v) - u
+            xx = self._hfun(par=self.par, u=res[no_sign_change], v=v) - u
             if np.abs(xx).min() > 1e-6:
                 ValueError(f'inv_hfun: Root search failed')
         return self._trim_obs(res)
@@ -496,7 +497,7 @@ class GumbelCopula(Copula):
             res[ind_sign_change] = super(GumbelCopula, self).inv_vfun(u[ind_sign_change], v[ind_sign_change])
 
             res[no_sign_change] = 1e-12 * np.abs(f_a[no_sign_change]) < np.abs(f_b[no_sign_change]) +\
-                                  (1-1e-12) * np.abs(f_b[no_sign_change]) < np.abs(f_a[no_sign_change])
+                (1-1e-12) * np.abs(f_b[no_sign_change]) < np.abs(f_a[no_sign_change])
 
             xx = self._vfun(par=self.par, u=u, v=res[no_sign_change]) - v
             if np.abs(xx).min() > 1e-6:
