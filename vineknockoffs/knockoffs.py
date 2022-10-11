@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from scipy.stats import bernoulli
+from scipy.stats import bernoulli, kstest
 from scipy.spatial.distance import cdist
 
 from ._utils_gaussian_knockoffs import sdp_solver
@@ -377,6 +377,12 @@ class KnockoffsDiagnostics:
         corr_mat = np.corrcoef(x, x_knockoffs, rowvar=False)
         abs_corr_avg = np.mean(np.diag(corr_mat, dim_x))
 
+        # avg ks test stat
+        ks_test_stats = np.full(dim_x, np.nan)
+        for i in range(dim_x):
+            ks_test_stats[i] = kstest(x_knockoffs[:, i], x[:, i]).statistic
+        avg_ks_test_stat = np.mean(ks_test_stats)
+
         # diagnostics = pd.DataFrame({'metric': ['abs_corr_avg',
         #                                        'cov', 'mmd', 'energy',
         #                                        'cov', 'mmd', 'energy'],
@@ -387,10 +393,10 @@ class KnockoffsDiagnostics:
         #                                       cov_full, loss_mmd_full, energy_full,
         #                                       cov_partial, loss_mmd_partial, energy_partial]})
 
-        diagnostics = pd.DataFrame({'metric': ['abs_corr_avg',
+        diagnostics = pd.DataFrame({'metric': ['abs_corr_avg', 'avg_ks_test_stat',
                                                'cov_full', 'mmd_full', 'energy_full',
                                                'cov_partial', 'mmd_partial', 'energy_partial'],
-                                    'value': [abs_corr_avg,
+                                    'value': [abs_corr_avg, avg_ks_test_stat,
                                               cov_full, loss_mmd_full, energy_full,
                                               cov_partial, loss_mmd_partial, energy_partial]})
 
