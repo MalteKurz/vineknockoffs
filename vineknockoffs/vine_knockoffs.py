@@ -8,8 +8,13 @@ from .vine_copulas import DVineCopula
 
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_kde import KDEMultivariateWithInvCdf
-from ._utils_kde1d import KDE1D
 from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
+try:
+    from ._utils_kde1d import KDE1D
+except ImportError:
+    _has_kde1d = False
+else:
+    _has_kde1d = True
 
 
 class VineKnockoffs:
@@ -359,8 +364,12 @@ class VineKnockoffs:
         # ToDo May add alternative methods for the marginals (like parameteric distributions)
         n_vars = x_train.shape[1]
         if model == 'kde1d':
-            self._marginals = [KDE1D().fit(x_train[:, i_var])
-                               for i_var in range(n_vars)]
+            if _has_kde1d:
+                self._marginals = [KDE1D().fit(x_train[:, i_var])
+                                   for i_var in range(n_vars)]
+            else:
+                ImportError(
+                    'To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
         else:
             assert model == 'kde_statsmodels'
             self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')
