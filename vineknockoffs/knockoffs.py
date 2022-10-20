@@ -40,12 +40,12 @@ class KnockoffFilter:
             if _has_cv_glmnet_r:
                 coefs = cv_glmnet_r(np.hstack((x, x_knockoff)), y, s)
             else:
-                ImportError(
+                raise ImportError(
                     'To apply the knockoff filter with method cv_glmnet_r the python package rpy2 and the R package '
                     'glmnet are required.')
         else:
             # ToDo: LassoCV from scikit-learn
-            NotImplementedError()
+            raise NotImplementedError()
         coefs = coefs[1:]  # remove intercept
         test_stats = np.abs(coefs[:n_vars]) - np.abs(coefs[n_vars:])
 

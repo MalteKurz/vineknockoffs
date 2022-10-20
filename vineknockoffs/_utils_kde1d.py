@@ -2,13 +2,13 @@ import numpy as np
 try:
     import rpy2
 except ImportError:
-    ImportError('To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
+    raise ImportError('To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
 from rpy2 import robjects
 import rpy2.robjects.numpy2ri
 rpy2.robjects.numpy2ri.activate()
 r_kde1d_available = robjects.r('require("kde1d", quietly=TRUE)')[0]
 if not r_kde1d_available:
-    ImportError('To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
+    raise ImportError('To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
 
 
 r_kde1d_fit = robjects.r('''

@@ -368,7 +368,7 @@ class VineKnockoffs:
                 self._marginals = [KDE1D().fit(x_train[:, i_var])
                                    for i_var in range(n_vars)]
             else:
-                ImportError(
+                raise ImportError(
                     'To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
         else:
             assert model == 'kde_statsmodels'

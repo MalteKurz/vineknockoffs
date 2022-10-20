@@ -482,7 +482,7 @@ class GumbelCopula(Copula):
 
             xx = self._hfun(par=self.par, u=res[no_sign_change], v=v[no_sign_change]) - u[no_sign_change]
             if np.abs(xx).min() > 1e-6:
-                ValueError(f'inv_hfun: Root search failed')
+                raise ValueError(f'inv_hfun: Root search failed')
         return self._trim_obs(res)
 
     def inv_vfun(self, u, v):
@@ -505,7 +505,7 @@ class GumbelCopula(Copula):
 
             xx = self._vfun(par=self.par, u=u[no_sign_change], v=res[no_sign_change]) - v[no_sign_change]
             if np.abs(xx).min() > 1e-6:
-                ValueError(f'inv_vfun: Root search failed')
+                raise ValueError(f'inv_vfun: Root search failed')
         return self._trim_obs(res)
 
 
