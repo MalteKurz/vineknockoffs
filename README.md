@@ -1,2 +1,2 @@
-# vineknockoffs - Vine copula based knockoffs 
+# vineknockoffs: Vine copula based knockoffs 
 
