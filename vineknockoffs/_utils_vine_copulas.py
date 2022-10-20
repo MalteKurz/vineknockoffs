@@ -50,10 +50,7 @@ def d_vine_structure_select(u, tsp_method='r_tsp'):
     tau_mat = 1. - np.abs(kendall_tau_mat(u))
 
     if tsp_method == 'r_tsp':
-        print(_has_rpy2)
-        print(_has_r_tsp)
         if not (_has_rpy2 and _has_r_tsp):
-            print('hello import error')
             raise ImportError('To determine the D-vine structure with method r_tsp the python package rpy2 and the R '
                               'package TSP are required.')
         permutation = r_solve_tsp(tau_mat)-1
