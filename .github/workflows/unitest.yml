@@ -47,7 +47,7 @@ jobs:
         matrix.config.os != 'ubuntu-latest' ||
         matrix.config.python-version != '3.8'
       run: |
-        pytest -m ci
+        pytest
     - name: Test with pytest and coverage
       if: |
         matrix.config.os == 'ubuntu-latest' &&
