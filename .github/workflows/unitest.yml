@@ -53,7 +53,7 @@ jobs:
       run: |
         curl -OLs https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_focal.sh
         chmod 0755 add_cranapt_focal.sh
-        ./add_cranapt_focal.sh
+        sudo ./add_cranapt_focal.sh
     - name: Intall R packages
       if: matrix.config.rpy2 == 'true'
       run: |
