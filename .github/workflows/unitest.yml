@@ -48,9 +48,12 @@ jobs:
       if: matrix.config.rpy2 == 'true'
       run: |
         pip install rpy2
-    - name: Set up R
+    - name: Set up R (with r-ci & r2u)
       if: matrix.config.rpy2 == 'true'
-      uses: r-lib/actions/setup-r@v1
+      run: |
+        curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
+        chmod 0755 run.sh
+        ./run.sh bootstrap
     - name: Intall R packages
       if: matrix.config.rpy2 == 'true'
       run: |
