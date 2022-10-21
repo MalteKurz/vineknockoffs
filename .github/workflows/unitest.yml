@@ -48,12 +48,9 @@ jobs:
       if: matrix.config.rpy2 == 'true'
       run: |
         pip install rpy2
-    - name: Set up R (with r2u)
+    - name: Set up R
       if: matrix.config.rpy2 == 'true'
-      run: |
-        curl -OLs https://raw.githubusercontent.com/eddelbuettel/r2u/master/inst/scripts/add_cranapt_focal.sh
-        chmod 0755 add_cranapt_focal.sh
-        sudo ./add_cranapt_focal.sh
+      uses: r-lib/actions/setup-r@v1
     - name: Intall R packages
       if: matrix.config.rpy2 == 'true'
       run: |
