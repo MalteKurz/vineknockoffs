@@ -8,8 +8,13 @@ from .vine_copulas import DVineCopula
 
 from ._utils_gaussian_knockoffs import sdp_solver, ecorr_solver
 from ._utils_kde import KDEMultivariateWithInvCdf
-from ._utils_kde1d import KDE1D
 from ._utils_vine_copulas import dvine_pcorr, d_vine_structure_select
+try:
+    from ._utils_kde1d import KDE1D
+except ImportError:
+    _has_kde1d = False
+else:
+    _has_kde1d = True
 
 
 class VineKnockoffs:
@@ -143,7 +148,7 @@ class VineKnockoffs:
     def fit_vine_copula_knockoffs(self, x_train,
                                   marginals='kde1d',
                                   families='all', rotations=True, indep_test=True,
-                                  vine_structure='select_tsp',
+                                  vine_structure='select_tsp_r',  # 'select_tsp_r', 'select_tsp_py', '1:n'
                                   upper_tree_cop_fam_heuristic='lower tree families',
                                   sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
                                   sgd_which_par='all',
@@ -299,8 +304,10 @@ class VineKnockoffs:
                                       algo='sdp', vine_structure='1:n'):
         # determine dvine structure / variable order
         n_vars = x_train.shape[1]
-        if vine_structure == 'select_tsp':
-            self.dvine_structure = d_vine_structure_select(x_train)
+        if vine_structure == 'select_tsp_r':
+            self.dvine_structure = d_vine_structure_select(x_train, tsp_method='r_tsp')
+        elif vine_structure == 'select_tsp_py':
+            self.dvine_structure = d_vine_structure_select(x_train, tsp_method='py_tsp')
         else:
             assert vine_structure == '1:n'
             self.dvine_structure = np.arange(n_vars)
@@ -359,8 +366,12 @@ class VineKnockoffs:
         # ToDo May add alternative methods for the marginals (like parameteric distributions)
         n_vars = x_train.shape[1]
         if model == 'kde1d':
-            self._marginals = [KDE1D().fit(x_train[:, i_var])
-                               for i_var in range(n_vars)]
+            if _has_kde1d:
+                self._marginals = [KDE1D().fit(x_train[:, i_var])
+                                   for i_var in range(n_vars)]
+            else:
+                raise ImportError(
+                    'To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
         else:
             assert model == 'kde_statsmodels'
             self._marginals = [KDEMultivariateWithInvCdf(x_train[:, i_var], 'c')

@@ -1,7 +1,7 @@
 try:
     import sympy
 except ImportError:
-    ImportError('To the functions in module _utils_copula_families_sympy sympy is required.')
+    raise ImportError('To the functions in module _utils_copula_families_sympy sympy is required.')
 
 from sympy.utilities.lambdify import lambdify
 from sympy.printing.numpy import SciPyPrinter

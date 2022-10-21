@@ -1,17 +1,26 @@
 import numpy as np
 from scipy.stats import kendalltau
-# from python_tsp.exact import solve_tsp_dynamic_programming
-from rpy2 import robjects
+from python_tsp.exact import solve_tsp_dynamic_programming
 
+try:
+    from rpy2 import robjects
+except ImportError:
+    _has_rpy2 = False
+else:
+    _has_rpy2 = True
 
-r_solve_tsp = robjects.r('''
-        solve_tsp <- function(one_m_tau_mat) {
-            hamilton = TSP::insert_dummy(TSP::TSP(one_m_tau_mat), label = "cut")
-            sol = TSP::solve_TSP(hamilton, method = "repetitive_nn")
-            order = TSP::cut_tour(sol, "cut")
-          return(order)
-        }
-        ''')
+if _has_rpy2:
+    _has_r_tsp = robjects.r('require("TSP", quietly=TRUE)')[0]
+    r_solve_tsp = robjects.r('''
+            solve_tsp <- function(one_m_tau_mat) {
+                hamilton = TSP::insert_dummy(TSP::TSP(one_m_tau_mat), label = "cut")
+                sol = TSP::solve_TSP(hamilton, method = "repetitive_nn")
+                order = TSP::cut_tour(sol, "cut")
+              return(order)
+            }
+            ''')
+else:
+    _has_r_tsp = False
 
 
 def dvine_pcorr(corr_mat):
@@ -37,8 +46,15 @@ def kendall_tau_mat(x):
     return tau_mat
 
 
-def d_vine_structure_select(u):
+def d_vine_structure_select(u, tsp_method='r_tsp'):
     tau_mat = 1. - np.abs(kendall_tau_mat(u))
-    # permutation, _ = solve_tsp_dynamic_programming(tau_mat)
-    permutation = r_solve_tsp(tau_mat)-1
+
+    if tsp_method == 'r_tsp':
+        if not (_has_rpy2 and _has_r_tsp):
+            raise ImportError('To determine the D-vine structure with method r_tsp the python package rpy2 and the R '
+                              'package TSP are required.')
+        permutation = r_solve_tsp(tau_mat)-1
+    else:
+        assert tsp_method == 'py_tsp'
+        permutation, _ = solve_tsp_dynamic_programming(tau_mat)
     return permutation

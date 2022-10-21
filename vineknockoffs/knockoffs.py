@@ -5,7 +5,12 @@ from scipy.stats import bernoulli, kstest
 from scipy.spatial.distance import cdist
 
 from ._utils_gaussian_knockoffs import sdp_solver
-from ._utils_knockoffs import cv_glmnet_r
+try:
+    from ._utils_knockoffs import cv_glmnet_r
+except ImportError:
+    _has_cv_glmnet_r = False
+else:
+    _has_cv_glmnet_r = True
 
 
 class KnockoffFilter:
@@ -26,12 +31,21 @@ class KnockoffFilter:
             threshold = t[ind[0]]
         return threshold
 
-    def apply(self, x, x_knockoff, y, s='lambda.min'):
+    def apply(self, x, x_knockoff, y, s='lambda.min', method='cv_glmnet_r'):
         n_vars = x.shape[1]
         assert s in ['lambda.min', 'lambda.1se']
 
         # check whether a random permutation of the covariates is necessary
-        coefs = cv_glmnet_r(np.hstack((x, x_knockoff)), y, s)
+        if method == 'cv_glmnet_r':
+            if _has_cv_glmnet_r:
+                coefs = cv_glmnet_r(np.hstack((x, x_knockoff)), y, s)
+            else:
+                raise ImportError(
+                    'To apply the knockoff filter with method cv_glmnet_r the python package rpy2 and the R package '
+                    'glmnet are required.')
+        else:
+            # ToDo: LassoCV from scikit-learn
+            raise NotImplementedError()
         coefs = coefs[1:]  # remove intercept
         test_stats = np.abs(coefs[:n_vars]) - np.abs(coefs[n_vars:])
 

@@ -38,9 +38,10 @@ def _d_ll_d_par_xy(par, x, y):
 def _cdf(par, u, v):
     x = norm.ppf(u)
     y = norm.ppf(v)
+    assert len(par) == 1
     return multivariate_normal.cdf(np.column_stack((x, y)),
-                                   mean=[0., 0.],
-                                   cov=[[1., par], [par, 1.]])
+                                   mean=np.array([0., 0.]),
+                                   cov=np.array([[1., par[0]], [par[0], 1.]]))
 
 
 def _pdf(par, u, v):
