@@ -277,6 +277,75 @@ class VineKnockoffs:
             to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
         """
 
+        if (not isinstance(marginals, str)) | (marginals not in ['kde1d', 'kde_statsmodels']):
+            raise ValueError('marginals must be "kde1d" or "kde_statsmodels". '
+                             f'Got {str(marginals)}.')
+
+        if (not isinstance(families, str)) | (families not in ['all']):
+            raise ValueError('families must be "all". '
+                             f'Got {str(families)}.')
+
+        if not isinstance(rotations, bool):
+            raise TypeError('rotations must be True or False. '
+                            f'Got {str(rotations)}.')
+
+        if not isinstance(indep_test, bool):
+            raise TypeError('indep_test must be True or False. '
+                            f'Got {str(indep_test)}.')
+
+        if (not isinstance(vine_structure, str)) | (vine_structure not in ['select_tsp_r', 'select_tsp_py', '1:n']):
+            raise ValueError('vine_structure must be "select_tsp_r", "select_tsp_py" or "1:n". '
+                             f'Got {str(vine_structure)}.')
+
+        if (not isinstance(upper_tree_cop_fam_heuristic, str)) | (upper_tree_cop_fam_heuristic not in
+                                                                  ['Gaussian', 'lower tree families']):
+            raise ValueError('upper_tree_cop_fam_heuristic must be "Gaussian" or "lower tree families". '
+                             f'Got {str(upper_tree_cop_fam_heuristic)}.')
+
+        if not isinstance(sgd, bool):
+            raise TypeError('sgd must be True or False. '
+                            f'Got {str(sgd)}.')
+
+        if not isinstance(sgd_lr, float):
+            raise TypeError('sgd_lr must be of float type. '
+                            f'{str(sgd_lr)} of type {str(type(sgd_lr))} was passed.')
+
+        if not isinstance(sgd_gamma, float):
+            raise TypeError('sgd_gamma must be of float type. '
+                            f'{str(sgd_gamma)} of type {str(type(sgd_gamma))} was passed.')
+
+        if not isinstance(sgd_n_batches, int):
+            raise TypeError('sgd_n_batches must be of int type. '
+                            f'{str(sgd_n_batches)} of type {str(type(sgd_n_batches))} was passed.')
+
+        if not isinstance(sgd_n_iter, int):
+            raise TypeError('sgd_n_iter must be of int type. '
+                            f'{str(sgd_n_iter)} of type {str(type(sgd_n_iter))} was passed.')
+
+        if (not isinstance(sgd_which_par, str)) | (sgd_which_par not in ['all', 'upper only']):
+            raise ValueError('sgd_which_par must be "all" or "upper only". '
+                             f'Got {str(sgd_which_par)}.')
+
+        if not isinstance(loss_alpha, float):
+            raise TypeError('loss_alpha must be of float type. '
+                            f'{str(loss_alpha)} of type {str(type(loss_alpha))} was passed.')
+
+        if not isinstance(loss_delta_sdp_corr, float):
+            raise TypeError('loss_delta_sdp_corr must be of float type. '
+                            f'{str(loss_delta_sdp_corr)} of type {str(type(loss_delta_sdp_corr))} was passed.')
+
+        if not isinstance(loss_gamma, float):
+            raise TypeError('loss_gamma must be of float type. '
+                            f'{str(loss_gamma)} of type {str(type(loss_gamma))} was passed.')
+
+        if not isinstance(loss_delta_corr, float):
+            raise TypeError('loss_delta_corr must be of float type. '
+                            f'{str(loss_delta_corr)} of type {str(type(loss_delta_corr))} was passed.')
+
+        if (not isinstance(gau_cop_algo, str)) | (gau_cop_algo not in ['sdp', 'ecorr']):
+            raise ValueError('gau_cop_algo must be "sdp" or "ecorr". '
+                             f'Got {str(gau_cop_algo)}.')
+
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
         self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo=gau_cop_algo,
                                            vine_structure=vine_structure)
