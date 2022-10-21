@@ -59,13 +59,15 @@ jobs:
     - name: Test with pytest
       if: |
         matrix.config.os != 'ubuntu-latest' ||
-        matrix.config.python-version != '3.8'
+        matrix.config.python-version != '3.8' ||
+        matrix.config.rpy2 == 'false'
       run: |
         pytest
     - name: Test with pytest and coverage
       if: |
         matrix.config.os == 'ubuntu-latest' &&
-        matrix.config.python-version == '3.8'
+        matrix.config.python-version == '3.8' &&
+        matrix.config.rpy2 == 'true'
       run: |
         pip install pytest-cov
         pytest --cov=./ --cov-report=xml
