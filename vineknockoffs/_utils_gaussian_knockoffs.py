@@ -14,6 +14,7 @@ def sdp_solver(corr_mat, tol_psd=1e-4, tol_s=1e-4):
 
     prob = cp.Problem(obj_fun, constraints)
     prob.solve(solver='CVXOPT', verbose=True)
+    print(prob.status)
 
     assert prob.status == cp.OPTIMAL
     return s.value
