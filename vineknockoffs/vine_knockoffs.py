@@ -148,7 +148,7 @@ class VineKnockoffs:
     def fit_vine_copula_knockoffs(self, x_train,
                                   marginals='kde1d',
                                   families='all', rotations=True, indep_test=True,
-                                  vine_structure='select_tsp',
+                                  vine_structure='select_tsp_r',  # 'select_tsp_r', 'select_tsp_py', '1:n'
                                   upper_tree_cop_fam_heuristic='lower tree families',
                                   sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
                                   sgd_which_par='all',
@@ -304,8 +304,10 @@ class VineKnockoffs:
                                       algo='sdp', vine_structure='1:n'):
         # determine dvine structure / variable order
         n_vars = x_train.shape[1]
-        if vine_structure == 'select_tsp':
-            self.dvine_structure = d_vine_structure_select(x_train)
+        if vine_structure == 'select_tsp_r':
+            self.dvine_structure = d_vine_structure_select(x_train, tsp_method='r_tsp')
+        elif vine_structure == 'select_tsp_py':
+            self.dvine_structure = d_vine_structure_select(x_train, tsp_method='py_tsp')
         else:
             assert vine_structure == '1:n'
             self.dvine_structure = np.arange(n_vars)

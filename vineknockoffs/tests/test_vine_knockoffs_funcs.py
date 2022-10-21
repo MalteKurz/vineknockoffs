@@ -14,6 +14,21 @@ from vineknockoffs.knockoffs import KnockoffsLoss
 
 from vineknockoffs._utils_gaussian_knockoffs import sdp_solver
 
+try:
+    from rpy2 import robjects
+except ImportError:
+    _has_rpy2 = False
+else:
+    _has_rpy2 = True
+
+
+if _has_rpy2:
+    vine_structures = ['select_tsp_r', 'select_tsp_py']
+    marginal_models = ['kde1d', 'kde_statsmodels']
+else:
+    vine_structures = ['select_tsp_py']
+    marginal_models = ['kde_statsmodels']
+
 
 # @pytest.fixture(scope='module',
 #                 params=[DVineCopula([
@@ -33,7 +48,19 @@ def which_par(request):
     return request.param
 
 
-def test_generate_numdiff(which_par):
+@pytest.fixture(scope='module',
+                params=vine_structures)
+def vine_structure(request):
+    return request.param
+
+
+@pytest.fixture(scope='module',
+                params=marginal_models)
+def marginals(request):
+    return request.param
+
+
+def test_generate_numdiff(which_par, vine_structure, marginals):
     np.random.seed(3141)
     n_obs = 71
     n_vars = 4
@@ -44,7 +71,7 @@ def test_generate_numdiff(which_par):
     x_data = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
 
     vine_ko = VineKnockoffs()
-    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False)
+    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False, vine_structure=vine_structure, marginals=marginals)
     # vine_ko.fit_gaussian_knockoffs(x_data)
 
     # u_test = dvine.sim(n_obs)
@@ -78,7 +105,7 @@ def test_generate_numdiff(which_par):
                        rtol=1e-4, atol=1e-3)
 
 
-def test_loss_numdiff(which_par):
+def test_loss_numdiff(which_par, vine_structure, marginals):
     np.random.seed(3141)
     n_obs = 71
     n_vars = 4
@@ -87,7 +114,7 @@ def test_loss_numdiff(which_par):
     x_data = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
 
     vine_ko = VineKnockoffs()
-    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False)
+    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False, vine_structure=vine_structure, marginals=marginals)
     # vine_ko.fit_gaussian_knockoffs(x_data)
 
     x_test = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
