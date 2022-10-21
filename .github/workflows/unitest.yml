@@ -55,6 +55,7 @@ jobs:
       if: matrix.config.rpy2 == 'true'
       run: |
         install.packages(c('glmnet', 'kde1d', 'TSP'))
+      shell: Rscript {0}
     - name: Test with pytest
       if: |
         matrix.config.os != 'ubuntu-latest' ||
