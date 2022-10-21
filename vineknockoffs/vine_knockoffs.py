@@ -18,16 +18,46 @@ else:
 
 
 class VineKnockoffs:
+    """Vine copula knockoffs.
 
-    def __init__(self, dvine=None, marginals=None):
+    Parameters
+    ----------
+    dvine : None or :class:`DVineCopula` object
+        The :class:`DVineCopula` object specifies the vine copula model used to generate knockoffs. If it is set to None
+        the vine copula knockoff model can be learned from data with the methods ``fit_vine_copula_knockoffs()``,
+        ``fit_gaussian_copula_knockoffs()`` or ``fit_gaussian_knockoffs()``.
+        Default is ``None``.
+
+    marginals: list
+        The marginal distributions for the vine copula knockoff model. Must be a list of `n_vars` distributions which
+        implement the methods ``cdf()`` and ``ppf()``. If it is set to None the marginal distributions can be estimated
+        from data with the methods ``fit_marginals()``, which is also called by ``fit_vine_copula_knockoffs()``,
+        ``fit_gaussian_copula_knockoffs()`` or ``fit_gaussian_knockoffs()``.
+        Default is ``None``.
+
+    dvine_structure: :class:`numpy.array`
+        The D-vine structure (order of variables) for the vine copula knockoff model.
+        Default is ``None``.
+
+    Examples
+    --------
+    # ToDo: add an example here
+    """
+
+    def __init__(self, dvine=None, marginals=None, dvine_structure=None):
         if (dvine is not None) & (not isinstance(dvine, DVineCopula)):
             raise TypeError('dvine must be of DVineCopula type. '
                             f'{str(dvine)} of type {str(type(dvine))} was passed.')
+        # ToDo: add some more exception handling for the parameters
         self._dvine = dvine
         self._marginals = marginals
         if dvine is not None:
-            self._dvine_structure = np.arange(self._dvine.n_vars)
-            self._inv_dvine_structure = np.argsort(self._dvine_structure)
+            if dvine_structure is not None:
+                self._dvine_structure = dvine_structure
+                self._inv_dvine_structure = np.argsort(self._dvine_structure)
+            else:
+                self._dvine_structure = np.arange(self._dvine.n_vars)
+                self._inv_dvine_structure = np.argsort(self._dvine_structure)
         else:
             self._dvine_structure = np.array([])
             self._inv_dvine_structure = np.array([])
@@ -149,11 +179,103 @@ class VineKnockoffs:
                                   marginals='kde1d',
                                   families='all', rotations=True, indep_test=True,
                                   vine_structure='select_tsp_r',  # 'select_tsp_r', 'select_tsp_py', '1:n'
-                                  upper_tree_cop_fam_heuristic='lower tree families',
-                                  sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
+                                  upper_tree_cop_fam_heuristic='Gaussian',
+                                  sgd=False, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
                                   sgd_which_par='all',
                                   loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.,
                                   gau_cop_algo='sdp'):
+        """
+        Estimate a vine copula knockoff model.
+
+        Parameters
+        ----------
+        x_train : :class:`numpy.ndarray`
+            Array of covariates.
+
+        marginals : str
+            A str (``'kde1d'`` or ``'kde_statsmodels'``) specifying the estimator for the marginal distributions.
+            ``'kde1d'``: The univariate kernel density estimator implemented in the R package kde1d (via rpy2).
+            ``'kde_statsmodels'``: The univariate version of the kernel density estimator ``KDEMultivariate``
+            implemented in the Python package statsmodels.
+            Default is ``'kde1d'``.
+
+        families : str
+            The set of possible copula families explored via minimizing the AIC. Currently, the only implemented choice
+            is ``'all'`` (i.e., Clayton, Frank, Gaussian, and Gumbel).
+            Default is ``'all'``.
+
+        rotations : bool
+            Indicates whether rotated versions of the Clayton and Gumbel copula should be considered.
+            Default is ``True``.
+
+        indep_test : bool
+            Indicates whether an independence test should be performed before choosing a copula family with the AIC. If
+            independence cannot be rejected, an Independence copula is being assigned to the corresponding vine edge.
+            Default is ``True``.
+
+        vine_structure : str
+            A str (``'select_tsp_r'``, ``'select_tsp_py'`` or ``'1:n'``) specifying how the structure of the D-vine is
+            selected.
+            ``'select_tsp_r'``: Maximize the dependence in the first tree by solving a TSP with the R package TSP.
+            ``'select_tsp_py'``: Maximize the dependence in the first tree by solving a TSP with the Python package
+            python_tsp.
+            ``'1:n'``: Use the natural order of the variables X_1, X_2, ..., X_d-1, X_d.
+            Default is ``'select_tsp_r'``.
+
+        upper_tree_cop_fam_heuristic : str
+            A str (``'Gaussian'`` or ``'lower tree families'``) specifying the heuristic used to select the copula
+            families in the higher trees (from the (d+1)-th tree on).
+            ``'Gaussian'``: Gaussian copulas corresponding to the partial correlation vine are assigned to the edges in
+            the higher trees.
+            ``'lower tree families'``: The copula families from the lower trees are mirrored to the higher trees.
+            Default is ``'Gaussian'``.
+
+        sgd : bool
+            Indicates whether the parameters of the vine copula knockoff model should be tuned using a stochastic
+            gradient descent algorithm.
+            Default is ``False``.
+
+        sgd_lr : float
+            The learning rate for the SGD algorithm.
+            Default is ``0.01``.
+
+        sgd_gamma : float
+            SGD momentum parameter.
+            Default is ``0.9``.
+
+        sgd_n_batches : int
+            Number of batches in the SGD algorithm.
+            Default is ``5``.
+
+        sgd_n_iter : int
+            Maximum number of iterations of the SGD algorithm.
+            Default is ``20``.
+
+        sgd_which_par : str
+            A str (``''all''`` or ``''upper only''``) specifying whether all parameters or only the parameters of the
+            upper trees should be optimized with the SGD algorithm.
+            Default is ``''all''``.
+
+        loss_alpha : float
+            Parameter alpha in the SGD loss function.
+            Default is ``1.``.
+
+        loss_delta_sdp_corr : float
+            Parameter delta_sdp_corr in the SGD loss function.
+            Default is ``1.``.
+
+        loss_gamma : float
+            Parameter gamma in the SGD loss function.
+            Default is ``1.``.
+
+        loss_delta_corr : float
+            Parameter delta_corr in the SGD loss function.
+            Default is ``0.``.
+
+        gau_cop_algo : str
+            A str (``'sdp'`` or ``''ecorr''``) specifying the algorithm used (semidefinite program or equicorrelation)
+            to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+        """
 
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
         self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo=gau_cop_algo,
