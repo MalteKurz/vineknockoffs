@@ -17,18 +17,19 @@ jobs:
   build:
 
     runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (${{ matrix.config.python-version }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.python-version }}; rpy2 ${{ matrix.config.rpy2 }})
 
     strategy:
       matrix:
         config:
-          - {os: 'ubuntu-latest', python-version: '3.6'}
-          - {os: 'ubuntu-latest', python-version: '3.7'}
-          - {os: 'ubuntu-latest', python-version: '3.8'}
-          - {os: 'windows-latest', python-version: '3.8'}
-          - {os: 'macOS-latest', python-version: '3.8'}
-          - {os: 'ubuntu-latest', python-version: '3.9'}
-          - {os: 'ubuntu-latest', python-version: '3.10'}
+          - {os: 'ubuntu-latest', python-version: '3.6', rpy2: 'true'}
+          - {os: 'ubuntu-latest', python-version: '3.7', rpy2: 'true'}
+          - {os: 'ubuntu-latest', python-version: '3.8', rpy2: 'true'}
+          - {os: 'ubuntu-latest', python-version: '3.8', rpy2: 'false'}
+          - {os: 'windows-latest', python-version: '3.8', rpy2: 'true'}
+          - {os: 'macOS-latest', python-version: '3.8', rpy2: 'true'}
+          - {os: 'ubuntu-latest', python-version: '3.9', rpy2: 'true'}
+          - {os: 'ubuntu-latest', python-version: '3.10', rpy2: 'true'}
 
     steps:
     - uses: actions/checkout@v2
@@ -42,6 +43,17 @@ jobs:
       run: |
         pip install --editable .
         pip install pytest
+    - name: Install vineknockoffs and dependencies
+      if: matrix.config.rpy2 == 'true'
+      run: |
+        pip install rpy2
+    - name: Set up R
+      if: matrix.config.rpy2 == 'true'
+      uses: r-lib/actions/setup-r@v1
+    - name: Intall R packages
+      if: matrix.config.rpy2 == 'true'
+      run: |
+        install.packages(c('glmnet', 'kde1d', 'TSP'))
     - name: Test with pytest
       if: |
         matrix.config.os != 'ubuntu-latest' ||
