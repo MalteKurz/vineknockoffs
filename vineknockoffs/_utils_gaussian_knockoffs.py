@@ -10,9 +10,10 @@ def sdp_solver(corr_mat, tol_psd=1e-4, tol_s=1e-4):
     obj_fun = cp.Maximize(cp.sum(s))
     constraints = [cp.diag(s) + tol_mat << 2 * corr_mat]
     constraints += [tol_s <= s, s <= 1.-tol_s]
+    print(corr_mat)
 
     prob = cp.Problem(obj_fun, constraints)
-    prob.solve(solver='CVXOPT')
+    prob.solve(solver='CVXOPT', verbose=True)
 
     assert prob.status == cp.OPTIMAL
     return s.value
