@@ -48,12 +48,12 @@ jobs:
       if: matrix.config.rpy2 == 'true'
       run: |
         pip install rpy2
-    - name: Set up R (with r-ci & r2u)
+    - name: Set up R (with r2u)
       if: matrix.config.rpy2 == 'true'
       run: |
-        curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
-        chmod 0755 run.sh
-        ./run.sh bootstrap
+        curl -OLs https://github.com/eddelbuettel/r2u/blob/master/inst/scripts/add_cranapt_focal.sh
+        chmod 0755 add_cranapt_focal.sh
+        ./add_cranapt_focal.sh
     - name: Intall R packages
       if: matrix.config.rpy2 == 'true'
       run: |
