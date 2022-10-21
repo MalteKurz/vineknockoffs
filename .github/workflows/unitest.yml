@@ -54,7 +54,7 @@ jobs:
     - name: Intall R packages
       if: matrix.config.rpy2 == 'true'
       run: |
-        install.packages(c('glmnet', 'kde1d', 'TSP'))
+        install.packages(c('glmnet', 'kde1d', 'TSP', 'VineCopula'))
       shell: Rscript {0}
     - name: Test with pytest
       if: |
