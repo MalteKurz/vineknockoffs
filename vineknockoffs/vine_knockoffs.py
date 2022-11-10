@@ -306,41 +306,61 @@ class VineKnockoffs:
             raise TypeError('sgd must be True or False. '
                             f'Got {str(sgd)}.')
 
+        if isinstance(sgd_lr, int):
+            sgd_lr = float(sgd_lr)
         if not isinstance(sgd_lr, float):
             raise TypeError('sgd_lr must be of float type. '
                             f'{str(sgd_lr)} of type {str(type(sgd_lr))} was passed.')
+        # ToDo: Allowed values for the learning rate?
 
+        if isinstance(sgd_gamma, int):
+            sgd_gamma = float(sgd_gamma)
         if not isinstance(sgd_gamma, float):
             raise TypeError('sgd_gamma must be of float type. '
                             f'{str(sgd_gamma)} of type {str(type(sgd_gamma))} was passed.')
+        # ToDo: Allowed values for gamma / momentum?
 
         if not isinstance(sgd_n_batches, int):
             raise TypeError('sgd_n_batches must be of int type. '
                             f'{str(sgd_n_batches)} of type {str(type(sgd_n_batches))} was passed.')
+        # ToDo: Positive integers?
 
         if not isinstance(sgd_n_iter, int):
             raise TypeError('sgd_n_iter must be of int type. '
                             f'{str(sgd_n_iter)} of type {str(type(sgd_n_iter))} was passed.')
+        # ToDo: Positive integers?
 
         if (not isinstance(sgd_which_par, str)) | (sgd_which_par not in ['all', 'upper only']):
             raise ValueError('sgd_which_par must be "all" or "upper only". '
                              f'Got {str(sgd_which_par)}.')
 
+        if isinstance(loss_alpha, int):
+            loss_alpha = float(loss_alpha)
         if not isinstance(loss_alpha, float):
             raise TypeError('loss_alpha must be of float type. '
                             f'{str(loss_alpha)} of type {str(type(loss_alpha))} was passed.')
+        # ToDo: Allowed values for the loss alpha?
 
+        if isinstance(loss_delta_sdp_corr, int):
+            loss_delta_sdp_corr = float(loss_delta_sdp_corr)
         if not isinstance(loss_delta_sdp_corr, float):
             raise TypeError('loss_delta_sdp_corr must be of float type. '
                             f'{str(loss_delta_sdp_corr)} of type {str(type(loss_delta_sdp_corr))} was passed.')
+        # ToDo: Allowed values for the loss delta sdp corr?
 
+        if isinstance(loss_gamma, int):
+            loss_gamma = float(loss_gamma)
         if not isinstance(loss_gamma, float):
             raise TypeError('loss_gamma must be of float type. '
                             f'{str(loss_gamma)} of type {str(type(loss_gamma))} was passed.')
+        # ToDo: Allowed values for the loss gamma?
 
+        if isinstance(loss_delta_corr, int):
+            loss_delta_corr = float(loss_delta_corr)
         if not isinstance(loss_delta_corr, float):
             raise TypeError('loss_delta_corr must be of float type. '
                             f'{str(loss_delta_corr)} of type {str(type(loss_delta_corr))} was passed.')
+        # ToDo: Allowed values for the loss delta corr?
 
         if (not isinstance(gau_cop_algo, str)) | (gau_cop_algo not in ['sdp', 'ecorr']):
             raise ValueError('gau_cop_algo must be "sdp" or "ecorr". '
