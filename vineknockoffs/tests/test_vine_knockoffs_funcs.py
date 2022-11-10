@@ -71,7 +71,11 @@ def test_generate_numdiff(which_par, vine_structure, marginals):
     x_data = multivariate_normal(mean=np.zeros(n_vars), cov=cov_mat).rvs(n_obs)
 
     vine_ko = VineKnockoffs()
-    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False, vine_structure=vine_structure, marginals=marginals)
+    vine_ko.fit_vine_copula_knockoffs(x_data, sgd=False, vine_structure=vine_structure, marginals=marginals,
+                                      sgd_lr=1, sgd_gamma=1,
+                                      loss_alpha=1, loss_delta_sdp_corr=1, loss_gamma=1,
+                                      loss_delta_corr=0  # check cast to float
+                                      )
     # vine_ko.fit_gaussian_knockoffs(x_data)
 
     # u_test = dvine.sim(n_obs)
