@@ -1,0 +1,35 @@
+name: Deploy documentation
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 9 * * 1,3,5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - name: Install dependencies
+        run: |
+          pip install sphinx pydata-sphinx-theme
+          pip install --editable .
+      - name: Sphinx build
+        run: |
+          sphinx-build doc _build
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        with:
+          folder: _build # The folder the action should deploy.
+          branch: gh-pages
