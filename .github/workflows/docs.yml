@@ -23,6 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install sphinx pydata-sphinx-theme
+          pip install --editable .
       - name: Sphinx build
         run: |
           sphinx-build doc _build
