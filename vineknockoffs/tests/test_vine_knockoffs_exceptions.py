@@ -127,3 +127,102 @@ def test_fit_vine_copula_knockoffs_exceptions():
     with pytest.raises(ValueError, match=msg):
         vine_ko.fit_vine_copula_knockoffs(x_data, gau_cop_algo=True)
 
+
+def test_fit_sgd():
+    msg = 'lr must be of float type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, lr='1')
+    msg = r'lr must be in \[0., 1.\].'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, lr=-0.5)
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, lr=1.5)
+
+    msg = 'gamma must be of float type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, gamma='1')
+    msg = r'gamma must be in \[0., 1.\].'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, gamma=-0.5)
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, gamma=1.5)
+
+    msg = 'n_batches must be of int type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, n_batches='five')
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, n_batches=5.0)
+    msg = 'n_batches must be a positive integer.'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, n_batches=0)
+
+    msg = 'n_iter must be of int type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, n_iter='five')
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, n_iter=5.0)
+    msg = 'n_iter must be a positive integer.'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, n_iter=0)
+
+    msg = 'which_par must be "all" or "upper only".'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, which_par='par')
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, which_par=True)
+
+    msg = 'loss_alpha must be of float type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_alpha='1')
+    msg = 'loss_alpha must be non-negative.'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_alpha=-0.1)
+
+    msg = 'loss_delta_sdp_corr must be of float type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_delta_sdp_corr='1')
+    msg = 'loss_delta_sdp_corr must be non-negative.'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_delta_sdp_corr=-0.1)
+
+    msg = 'loss_gamma must be of float type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_gamma='1')
+    msg = 'loss_gamma must be non-negative.'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_gamma=-0.1)
+
+    msg = 'loss_delta_corr must be of float type.'
+    with pytest.raises(TypeError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_delta_corr='1')
+    msg = 'loss_delta_corr must be non-negative.'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_sgd(x_data, loss_delta_corr=-0.1)
+
+
+def test_fit_gaussian_copula_knockoffs_exceptions():
+    msg = 'algo must be "sdp" or "ecorr".'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_copula_knockoffs(x_data, algo='Gaussian')
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_copula_knockoffs(x_data, algo=True)
+
+    msg = 'marginals must be "kde1d" or "kde_statsmodels"'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_copula_knockoffs(x_data, marginals='kde')
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_copula_knockoffs(x_data, marginals=5)
+
+    msg = 'vine_structure must be "select_tsp_r", "select_tsp_py" or "1:n".'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_copula_knockoffs(x_data, vine_structure='select_tsp')
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_copula_knockoffs(x_data, vine_structure=5)
+
+
+def test_fit_gaussian_knockoffs_exceptions():
+    msg = 'algo must be "sdp" or "ecorr".'
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_knockoffs(x_data, algo='Gaussian')
+    with pytest.raises(ValueError, match=msg):
+        vine_ko.fit_gaussian_knockoffs(x_data, algo=True)
