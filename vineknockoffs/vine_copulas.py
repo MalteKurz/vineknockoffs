@@ -133,7 +133,7 @@ class DVineCopula:
                 if not isinstance(cop, IndepCopula):
                     assert cop.n_pars == 1
                     if assert_to_bounds:
-                        cop.set_par_w_bound_check(par_vec[ind_par])
+                        cop._set_par_w_bound_check(par_vec[ind_par])
                     else:
                         cop.par = par_vec[ind_par]
                     ind_par += 1

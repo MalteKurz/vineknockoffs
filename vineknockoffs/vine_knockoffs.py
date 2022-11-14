@@ -445,7 +445,7 @@ class VineKnockoffs:
                             this_copula = GaussianCopula(par_gaussian_ko)
                         else:
                             this_copula = deepcopy(lower_tree_cop)
-                            this_copula.set_par_w_bound_check(this_copula.tau2par(tau_gaussian_ko))
+                            this_copula._set_par_w_bound_check(this_copula.tau2par(tau_gaussian_ko))
 
                         self._dvine.copulas[tree - 1][cop - 1] = this_copula
 
@@ -703,7 +703,7 @@ class VineKnockoffs:
         g_mat = np.vstack((np.hstack((corr_mat, corr_mat - np.diag(s_vec))),
                            np.hstack((corr_mat - np.diag(s_vec), corr_mat))))
         pcorrs = dvine_pcorr(g_mat)
-        copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
+        copulas = [[GaussianCopula()._set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self._sdp_corr = 1. - s_vec
 
@@ -727,7 +727,7 @@ class VineKnockoffs:
         if (not isinstance(algo, str)) | (algo not in ['sdp', 'ecorr']):
             raise ValueError('algo must be "sdp" or "ecorr". '
                              f'Got {str(algo)}.')
-        
+
         n_vars = x_train.shape[1]
         mus = np.mean(x_train, axis=0)
         sigmas = np.std(x_train, axis=0)
@@ -745,7 +745,7 @@ class VineKnockoffs:
         g_mat = np.vstack((np.hstack((corr_mat, corr_mat - np.diag(s_vec))),
                            np.hstack((corr_mat - np.diag(s_vec), corr_mat))))
         pcorrs = dvine_pcorr(g_mat)
-        copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
+        copulas = [[GaussianCopula()._set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
 
