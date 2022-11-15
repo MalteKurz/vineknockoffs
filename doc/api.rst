@@ -25,4 +25,13 @@ Bivariate copulas
     GumbelCopula
     IndepCopula
 
+Vine copulas
+------------
+
+.. currentmodule:: vineknockoffs.vine_copulas
+.. autosummary::
+    :toctree: generated/
+    :template: class.rst
+
+    DVineCopula
 

@@ -21,6 +21,33 @@ class DVineCopula:
         return np.sum([np.sum([cop.n_pars for cop in tree]) for tree in self.copulas])
 
     def sim(self, n_obs=100, w=None):
+        """
+        Simulate random observations from a simplified D-vine copula.
+
+        Parameters
+        ----------
+        n_obs :
+            The number of observations to simulate.
+            Default is 100.
+        w : None or :class:`numpy.ndarray`
+            Array of iid standard uniform observations. If None, iid standard uniform observations are drawn.
+            Default is None.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+
+        Notes
+        -----
+        Implements Algorithm 2 from Kurz (2022) to simulate from a simplified D-vine copula based on standard uniform
+        random variables.
+
+        References
+        ----------
+        Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+        arXiv:`2210.11196 <https://arxiv.org/abs/2210.11196>`__ [stat.ME].
+        """
         if w is None:
             w = np.random.uniform(size=(n_obs, self.n_vars))
 
@@ -48,6 +75,43 @@ class DVineCopula:
         return u
 
     def sim_d_par(self, which_tree, which_cop, n_obs=100, w=None):
+        """
+        Simulate random observations from a simplified D-vine copula and compute the derivative with respect to a
+        parameter :math:`\\theta_{k,l}`.
+
+        Parameters
+        ----------
+        which_tree : int
+            Determines :math:`\\theta_{k,l}` (copula in which tree?)
+        which_cop : int
+            Determines :math:`\\theta_{k,l}` (which copula within the tree?)
+        n_obs :
+            The number of observations to simulate.
+            Default is 100.
+        w : None or :class:`numpy.ndarray`
+            Array of iid standard uniform observations. If None, iid standard uniform observations are drawn.
+            Default is None.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array(s).
+
+        Notes
+        -----
+        Implements Algorithm 6 from Kurz (2022) to simulate from a simplified D-vine copula and compute the derivative
+        with respect to a parameter :math:`\\theta_{k,l}`.
+
+        .. math::
+            U_{1:d} &\\sim C_{1:d},
+
+            \\check{U}_{1:d} &:= \\big(\\partial_{\\theta_{k,l}}U_1, \\ldots, \\partial_{\\theta_{k,l}}U_d)
+
+        References
+        ----------
+        Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+        arXiv:`2210.11196 <https://arxiv.org/abs/2210.11196>`__ [stat.ME].
+        """
         if w is None:
             w = np.random.uniform(size=(n_obs, self.n_vars))
 
@@ -264,6 +328,34 @@ class DVineCopula:
             return u_d_par
 
     def compute_pits(self, u):
+        """
+        Compute probability integral transforms (PITs) from a simplified D-vine copula.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of copula observations.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+
+        Notes
+        -----
+        Implements Algorithm 1 from Kurz (2022) to compute the probability integral transforms
+
+        .. math::
+            W_{1:d} &:= \\big( U_1, U_{2|1}, U_{3|1:2}, \\ldots, U_{d|1:d-1}\\big)
+
+            &:= \\big( F_1(U_1), F_{2|1}(U_2|U_1), F_{3|1:2}(U_3|U_{1:2}), \\ldots, F_{d|1:d-1}(U_d|U_{1:d-1}) \\big).
+
+
+        References
+        ----------
+        Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+        arXiv:`2210.11196 <https://arxiv.org/abs/2210.11196>`__ [stat.ME].
+        """
         a = np.full_like(u, np.nan)
         b = np.full_like(u, np.nan)
         w = np.full_like(u, np.nan)
@@ -288,6 +380,42 @@ class DVineCopula:
         return w
 
     def compute_pits_d_par(self, which_tree, which_cop, u, return_w=False):
+        """
+        Compute probability integral transforms (PITs) and their derivative with respect to a parameter
+        :math:`\\theta_{k,l}`.
+
+        Parameters
+        ----------
+        which_tree : int
+            Determines :math:`\\theta_{k,l}` (copula in which tree?)
+        which_cop : int
+            Determines :math:`\\theta_{k,l}` (which copula within the tree?)
+        u : :class:`numpy.ndarray`
+            Array of copula observations.
+        return_w : boolean
+            Whether the PITs should also be returned (in addition to the derivatives).
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array(s).
+
+        Notes
+        -----
+        Implements Algorithm 5 from Kurz (2022) to compute the probability integral transforms and their derivative with
+        respect to a parameter :math:`\\theta_{k,l}`
+
+        .. math::
+            W_{1:d} &:= \\big( U_1, U_{2|1}, U_{3|1:2}, \\ldots, U_{d|1:d-1}\\big),
+
+            \\check{W}_{1:d} &:= \\big( \\partial_{\\theta_{k,l}} U_{1}, \\partial_{\\theta_{k,l}} U_{2|1},
+            \\partial_{\\theta_{k,l}} U_{3|1:2}, \\ldots, \\partial_{\\theta_{k,l}} U_{d|1:d-1} \\big)
+
+        References
+        ----------
+        Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+        arXiv:`2210.11196 <https://arxiv.org/abs/2210.11196>`__ [stat.ME].
+        """
         a = np.full_like(u, np.nan)
         b = np.full_like(u, np.nan)
         w = np.full_like(u, np.nan)
