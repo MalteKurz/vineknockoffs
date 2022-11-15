@@ -1,0 +1,6 @@
+﻿vineknockoffs.copulas.ClaytonCopula
+===================================
+
+.. currentmodule:: vineknockoffs.copulas
+
+.. autoclass:: ClaytonCopula

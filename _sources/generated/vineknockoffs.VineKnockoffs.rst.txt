@@ -1,0 +1,6 @@
+﻿vineknockoffs.VineKnockoffs
+===========================
+
+.. currentmodule:: vineknockoffs
+
+.. autoclass:: VineKnockoffs

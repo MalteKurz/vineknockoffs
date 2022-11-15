@@ -1,0 +1,6 @@
+﻿vineknockoffs.copulas.GumbelCopula
+==================================
+
+.. currentmodule:: vineknockoffs.copulas
+
+.. autoclass:: GumbelCopula

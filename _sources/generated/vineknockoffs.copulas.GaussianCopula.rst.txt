@@ -1,0 +1,6 @@
+﻿vineknockoffs.copulas.GaussianCopula
+====================================
+
+.. currentmodule:: vineknockoffs.copulas
+
+.. autoclass:: GaussianCopula
