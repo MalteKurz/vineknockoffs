@@ -310,8 +310,241 @@ Default is <code class="docutils literal notranslate"><span class="pre">None</sp
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>
 <p># ToDo: add an example here</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.fit_gaussian_copula_knockoffs" title="vineknockoffs.VineKnockoffs.fit_gaussian_copula_knockoffs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_gaussian_copula_knockoffs</span></code></a>(x_train[, ...])</p></td>
+<td><p>Estimate a Gaussian copula knockoff model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.fit_gaussian_knockoffs" title="vineknockoffs.VineKnockoffs.fit_gaussian_knockoffs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_gaussian_knockoffs</span></code></a>(x_train[, algo])</p></td>
+<td><p>Estimate a Gaussian knockoff model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.fit_marginals" title="vineknockoffs.VineKnockoffs.fit_marginals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_marginals</span></code></a>(x_train[, model])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.fit_sgd" title="vineknockoffs.VineKnockoffs.fit_sgd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_sgd</span></code></a>(x_train[, lr, gamma, n_batches, ...])</p></td>
+<td><p>Optimize a vine copula knockoff model parameters using a SGD algorithm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.fit_vine_copula_knockoffs" title="vineknockoffs.VineKnockoffs.fit_vine_copula_knockoffs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_vine_copula_knockoffs</span></code></a>(x_train[, ...])</p></td>
+<td><p>Estimate a vine copula knockoff model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.generate" title="vineknockoffs.VineKnockoffs.generate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate</span></code></a>(x_test[, knockoff_eps])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.generate_par_jacobian" title="vineknockoffs.VineKnockoffs.generate_par_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_par_jacobian</span></code></a>(x_test[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.VineKnockoffs.ll" title="vineknockoffs.VineKnockoffs.ll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ll</span></code></a>(x, x_knockoffs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dvine_structure</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_dvine_structure</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_pars_upper_trees</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.fit_gaussian_copula_knockoffs">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">fit_gaussian_copula_knockoffs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marginals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kde1d'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sdp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vine_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1:n'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.fit_gaussian_copula_knockoffs" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimate a Gaussian copula knockoff model.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>x_train<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of covariates.</p>
+</dd>
+<dt>marginals<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'kde1d'</span></code> or <code class="docutils literal notranslate"><span class="pre">'kde_statsmodels'</span></code>) specifying the estimator for the marginal distributions.
+<code class="docutils literal notranslate"><span class="pre">'kde1d'</span></code>: The univariate kernel density estimator implemented in the R package kde1d (via rpy2).
+<code class="docutils literal notranslate"><span class="pre">'kde_statsmodels'</span></code>: The univariate version of the kernel density estimator <code class="docutils literal notranslate"><span class="pre">KDEMultivariate</span></code>
+implemented in the Python package statsmodels.
+Default is <code class="docutils literal notranslate"><span class="pre">'kde1d'</span></code>.</p>
+</dd>
+<dt>algo<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'sdp'</span></code> or <code class="docutils literal notranslate"><span class="pre">''ecorr''</span></code>) specifying the algorithm used (semidefinite program or equicorrelation)
+to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+Default is <code class="docutils literal notranslate"><span class="pre">''sdp''</span></code>.</p>
+</dd>
+<dt>vine_structure<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'select_tsp_r'</span></code>, <code class="docutils literal notranslate"><span class="pre">'select_tsp_py'</span></code> or <code class="docutils literal notranslate"><span class="pre">'1:n'</span></code>) specifying how the structure of the D-vine is
+selected.
+<code class="docutils literal notranslate"><span class="pre">'select_tsp_r'</span></code>: Maximize the dependence in the first tree by solving a TSP with the R package TSP.
+<code class="docutils literal notranslate"><span class="pre">'select_tsp_py'</span></code>: Maximize the dependence in the first tree by solving a TSP with the Python package
+python_tsp.
+<code class="docutils literal notranslate"><span class="pre">'1:n'</span></code>: Use the natural order of the variables X_1, X_2, …, X_d-1, X_d.
+Default is <code class="docutils literal notranslate"><span class="pre">'select_tsp_r'</span></code>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.fit_gaussian_knockoffs">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">fit_gaussian_knockoffs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sdp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.fit_gaussian_knockoffs" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimate a Gaussian knockoff model.</p>
+<section id="id2">
+<h2>Parameters<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>x_train<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of covariates.</p>
+</dd>
+<dt>algo<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'sdp'</span></code> or <code class="docutils literal notranslate"><span class="pre">''ecorr''</span></code>) specifying the algorithm used (semidefinite program or equicorrelation)
+to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+Default is <code class="docutils literal notranslate"><span class="pre">''sdp''</span></code>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.fit_marginals">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">fit_marginals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kde1d'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.fit_marginals" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.fit_sgd">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">fit_sgd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_par</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_delta_sdp_corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_delta_corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.fit_sgd" title="Permalink to this definition">#</a></dt>
+<dd><p>Optimize a vine copula knockoff model parameters using a SGD algorithm.</p>
+<section id="id3">
+<h2>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>x_train<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of covariates.</p>
+</dd>
+<dt>lr<span class="classifier">float</span></dt><dd><p>The learning rate for the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">0.01</span></code>.</p>
+</dd>
+<dt>gamma<span class="classifier">float</span></dt><dd><p>SGD momentum parameter.
+Default is <code class="docutils literal notranslate"><span class="pre">0.9</span></code>.</p>
+</dd>
+<dt>n_batches<span class="classifier">int</span></dt><dd><p>Number of batches in the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p>
+</dd>
+<dt>n_iter<span class="classifier">int</span></dt><dd><p>Maximum number of iterations of the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">20</span></code>.</p>
+</dd>
+<dt>which_par<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">''all''</span></code> or <code class="docutils literal notranslate"><span class="pre">''upper</span> <span class="pre">only''</span></code>) specifying whether all parameters or only the parameters of the
+upper trees should be optimized with the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">''all''</span></code>.</p>
+</dd>
+<dt>loss_alpha<span class="classifier">float</span></dt><dd><p>Parameter alpha in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">1.</span></code>.</p>
+</dd>
+<dt>loss_delta_sdp_corr<span class="classifier">float</span></dt><dd><p>Parameter delta_sdp_corr in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">1.</span></code>.</p>
+</dd>
+<dt>loss_gamma<span class="classifier">float</span></dt><dd><p>Parameter gamma in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">1.</span></code>.</p>
+</dd>
+<dt>loss_delta_corr<span class="classifier">float</span></dt><dd><p>Parameter delta_corr in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">0.</span></code>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.fit_vine_copula_knockoffs">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">fit_vine_copula_knockoffs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marginals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kde1d'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">families</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indep_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vine_structure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'select_tsp_r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_tree_cop_fam_heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_n_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sgd_which_par</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_delta_sdp_corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_delta_corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gau_cop_algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sdp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.fit_vine_copula_knockoffs" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimate a vine copula knockoff model.</p>
+<section id="id4">
+<h2>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>x_train<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of covariates.</p>
+</dd>
+<dt>marginals<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'kde1d'</span></code> or <code class="docutils literal notranslate"><span class="pre">'kde_statsmodels'</span></code>) specifying the estimator for the marginal distributions.
+<code class="docutils literal notranslate"><span class="pre">'kde1d'</span></code>: The univariate kernel density estimator implemented in the R package kde1d (via rpy2).
+<code class="docutils literal notranslate"><span class="pre">'kde_statsmodels'</span></code>: The univariate version of the kernel density estimator <code class="docutils literal notranslate"><span class="pre">KDEMultivariate</span></code>
+implemented in the Python package statsmodels.
+Default is <code class="docutils literal notranslate"><span class="pre">'kde1d'</span></code>.</p>
+</dd>
+<dt>families<span class="classifier">str</span></dt><dd><p>The set of possible copula families explored via minimizing the AIC. Currently, the only implemented choice
+is <code class="docutils literal notranslate"><span class="pre">'all'</span></code> (i.e., Clayton, Frank, Gaussian, and Gumbel).
+Default is <code class="docutils literal notranslate"><span class="pre">'all'</span></code>.</p>
+</dd>
+<dt>rotations<span class="classifier">bool</span></dt><dd><p>Indicates whether rotated versions of the Clayton and Gumbel copula should be considered.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+<dt>indep_test<span class="classifier">bool</span></dt><dd><p>Indicates whether an independence test should be performed before choosing a copula family with the AIC. If
+independence cannot be rejected, an Independence copula is being assigned to the corresponding vine edge.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd>
+<dt>vine_structure<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'select_tsp_r'</span></code>, <code class="docutils literal notranslate"><span class="pre">'select_tsp_py'</span></code> or <code class="docutils literal notranslate"><span class="pre">'1:n'</span></code>) specifying how the structure of the D-vine is
+selected.
+<code class="docutils literal notranslate"><span class="pre">'select_tsp_r'</span></code>: Maximize the dependence in the first tree by solving a TSP with the R package TSP.
+<code class="docutils literal notranslate"><span class="pre">'select_tsp_py'</span></code>: Maximize the dependence in the first tree by solving a TSP with the Python package
+python_tsp.
+<code class="docutils literal notranslate"><span class="pre">'1:n'</span></code>: Use the natural order of the variables X_1, X_2, …, X_d-1, X_d.
+Default is <code class="docutils literal notranslate"><span class="pre">'select_tsp_r'</span></code>.</p>
+</dd>
+<dt>upper_tree_cop_fam_heuristic<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'Gaussian'</span></code> or <code class="docutils literal notranslate"><span class="pre">'lower</span> <span class="pre">tree</span> <span class="pre">families'</span></code>) specifying the heuristic used to select the copula
+families in the higher trees (from the (d+1)-th tree on).
+<code class="docutils literal notranslate"><span class="pre">'Gaussian'</span></code>: Gaussian copulas corresponding to the partial correlation vine are assigned to the edges in
+the higher trees.
+<code class="docutils literal notranslate"><span class="pre">'lower</span> <span class="pre">tree</span> <span class="pre">families'</span></code>: The copula families from the lower trees are mirrored to the higher trees.
+Default is <code class="docutils literal notranslate"><span class="pre">'Gaussian'</span></code>.</p>
+</dd>
+<dt>sgd<span class="classifier">bool</span></dt><dd><p>Indicates whether the parameters of the vine copula knockoff model should be tuned using a stochastic
+gradient descent algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt>sgd_lr<span class="classifier">float</span></dt><dd><p>The learning rate for the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">0.01</span></code>.</p>
+</dd>
+<dt>sgd_gamma<span class="classifier">float</span></dt><dd><p>SGD momentum parameter.
+Default is <code class="docutils literal notranslate"><span class="pre">0.9</span></code>.</p>
+</dd>
+<dt>sgd_n_batches<span class="classifier">int</span></dt><dd><p>Number of batches in the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">5</span></code>.</p>
+</dd>
+<dt>sgd_n_iter<span class="classifier">int</span></dt><dd><p>Maximum number of iterations of the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">20</span></code>.</p>
+</dd>
+<dt>sgd_which_par<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">''all''</span></code> or <code class="docutils literal notranslate"><span class="pre">''upper</span> <span class="pre">only''</span></code>) specifying whether all parameters or only the parameters of the
+upper trees should be optimized with the SGD algorithm.
+Default is <code class="docutils literal notranslate"><span class="pre">''all''</span></code>.</p>
+</dd>
+<dt>loss_alpha<span class="classifier">float</span></dt><dd><p>Parameter alpha in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">1.</span></code>.</p>
+</dd>
+<dt>loss_delta_sdp_corr<span class="classifier">float</span></dt><dd><p>Parameter delta_sdp_corr in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">1.</span></code>.</p>
+</dd>
+<dt>loss_gamma<span class="classifier">float</span></dt><dd><p>Parameter gamma in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">1.</span></code>.</p>
+</dd>
+<dt>loss_delta_corr<span class="classifier">float</span></dt><dd><p>Parameter delta_corr in the SGD loss function.
+Default is <code class="docutils literal notranslate"><span class="pre">0.</span></code>.</p>
+</dd>
+<dt>gau_cop_algo<span class="classifier">str</span></dt><dd><p>A str (<code class="docutils literal notranslate"><span class="pre">'sdp'</span></code> or <code class="docutils literal notranslate"><span class="pre">''ecorr''</span></code>) specifying the algorithm used (semidefinite program or equicorrelation)
+to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+Default is <code class="docutils literal notranslate"><span class="pre">''sdp''</span></code>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.generate">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knockoff_eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.generate" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.generate_par_jacobian">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">generate_par_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knockoff_eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_par</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'upper</span> <span class="pre">only'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_x_knockoffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.generate_par_jacobian" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.VineKnockoffs.ll">
+<span class="sig-prename descclassname"><span class="pre">VineKnockoffs.</span></span><span class="sig-name descname"><span class="pre">ll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_knockoffs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.VineKnockoffs.ll" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </section>
 
@@ -361,6 +594,80 @@ Default is <code class="docutils literal notranslate"><span class="pre">None</sp
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.fit_gaussian_copula_knockoffs">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.fit_gaussian_copula_knockoffs()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.fit_gaussian_knockoffs">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.fit_gaussian_knockoffs()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.fit_marginals">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.fit_marginals()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.fit_sgd">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.fit_sgd()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.fit_vine_copula_knockoffs">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.fit_vine_copula_knockoffs()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.generate">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.generate()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.generate_par_jacobian">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.generate_par_jacobian()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.VineKnockoffs.ll">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VineKnockoffs.ll()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 

@@ -297,6 +297,641 @@
 <p>The cdf of the independence / product copula is given by</p>
 <div class="math notranslate nohighlight">
 \[C(u, v) = u v.\]</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.aic" title="vineknockoffs.copulas.IndepCopula.aic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aic</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the copula AIC.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.cdf" title="vineknockoffs.copulas.IndepCopula.cdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cdf</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the copula cdf.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_cdf_d_par" title="vineknockoffs.copulas.IndepCopula.d_cdf_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_cdf_d_par</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula cdf wrt the parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_par" title="vineknockoffs.copulas.IndepCopula.d_hfun_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_hfun_d_par</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula hfun wrt the parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_u" title="vineknockoffs.copulas.IndepCopula.d_hfun_d_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_hfun_d_u</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula hfun wrt u.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_v" title="vineknockoffs.copulas.IndepCopula.d_hfun_d_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_hfun_d_v</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula hfun wrt v.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_par" title="vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_inv_hfun_d_par</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the inverse of the copula hfun wrt the parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_u" title="vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_inv_hfun_d_u</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the inverse of the copula hfun wrt u.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_v" title="vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_inv_hfun_d_v</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the inverse of the copula hfun wrt v.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_par" title="vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_inv_vfun_d_par</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the inverse of the copula vfun wrt the parameter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_u" title="vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_inv_vfun_d_u</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the inverse of the copula vfun wrt u.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_v" title="vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_inv_vfun_d_v</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the inverse of the copula vfun wrt v.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_par" title="vineknockoffs.copulas.IndepCopula.d_vfun_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_vfun_d_par</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula vfun wrt the parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_u" title="vineknockoffs.copulas.IndepCopula.d_vfun_d_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_vfun_d_u</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula vfun wrt u.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_v" title="vineknockoffs.copulas.IndepCopula.d_vfun_d_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">d_vfun_d_v</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the derivative of the copula vfun wrt v.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.hfun" title="vineknockoffs.copulas.IndepCopula.hfun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hfun</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the copula hfun.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.inv_hfun" title="vineknockoffs.copulas.IndepCopula.inv_hfun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_hfun</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the inverse of the copula hfun.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.inv_vfun" title="vineknockoffs.copulas.IndepCopula.inv_vfun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inv_vfun</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the inverse of the copula vfun.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.ll" title="vineknockoffs.copulas.IndepCopula.ll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ll</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the copula log-likelihood.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.mle_est" title="vineknockoffs.copulas.IndepCopula.mle_est"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mle_est</span></code></a>(u, v)</p></td>
+<td><p>Estimation of the copula parameter with maximum likelihood.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.par2tau" title="vineknockoffs.copulas.IndepCopula.par2tau"><code class="xref py py-obj docutils literal notranslate"><span class="pre">par2tau</span></code></a>(par)</p></td>
+<td><p>Compute Kendall's tau associated with the given value for the copula parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.pdf" title="vineknockoffs.copulas.IndepCopula.pdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdf</span></code></a>(u, v)</p></td>
+<td><p>Evaluate the copula pdf.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.sim" title="vineknockoffs.copulas.IndepCopula.sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim</span></code></a>([n_obs])</p></td>
+<td><p>Simulate random observations from the copula.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.tau2par" title="vineknockoffs.copulas.IndepCopula.tau2par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tau2par</span></code></a>(tau)</p></td>
+<td><p>Compute the copula parameter associated with the given value for Kendall's tau.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.copulas.IndepCopula.vfun" title="vineknockoffs.copulas.IndepCopula.vfun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vfun</span></code></a>(u, v[, u_])</p></td>
+<td><p>Evaluate the copula vfun.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_pars</span></code></p></td>
+<td><p>The number of copula parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">par</span></code></p></td>
+<td><p>Parameter of the copula.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation</span></code></p></td>
+<td><p>Rotation of the copula (0, 90, 180 or 270).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.aic">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">aic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.aic" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the copula AIC.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.cdf">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.cdf" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the copula cdf.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_cdf_d_par">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_cdf_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_cdf_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula cdf wrt the parameter.</p>
+<section id="id3">
+<h2>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Returns<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_hfun_d_par">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_hfun_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula hfun wrt the parameter.</p>
+<section id="id5">
+<h2>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Returns<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_hfun_d_u">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_hfun_d_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_u" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula hfun wrt u.</p>
+<section id="id7">
+<h2>Parameters<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h2>Returns<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_hfun_d_v">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_hfun_d_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_v" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula hfun wrt v.</p>
+<section id="id9">
+<h2>Parameters<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h2>Returns<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_par">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_inv_hfun_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the inverse of the copula hfun wrt the parameter.</p>
+<section id="id11">
+<h2>Parameters<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h2>Returns<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_u">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_inv_hfun_d_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_u" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the inverse of the copula hfun wrt u.</p>
+<section id="id13">
+<h2>Parameters<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id14">
+<h2>Returns<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_v">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_inv_hfun_d_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_v" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the inverse of the copula hfun wrt v.</p>
+<section id="id15">
+<h2>Parameters<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id16">
+<h2>Returns<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_par">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_inv_vfun_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the inverse of the copula vfun wrt the parameter.</p>
+<section id="id17">
+<h2>Parameters<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h2>Returns<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_u">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_inv_vfun_d_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_u" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the inverse of the copula vfun wrt u.</p>
+<section id="id19">
+<h2>Parameters<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id20">
+<h2>Returns<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_v">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_inv_vfun_d_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_v" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the inverse of the copula vfun wrt v.</p>
+<section id="id21">
+<h2>Parameters<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id22">
+<h2>Returns<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_vfun_d_par">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_vfun_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula vfun wrt the parameter.</p>
+<section id="id23">
+<h2>Parameters<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id24">
+<h2>Returns<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_vfun_d_u">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_vfun_d_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_u" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula vfun wrt u.</p>
+<section id="id25">
+<h2>Parameters<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id26">
+<h2>Returns<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.d_vfun_d_v">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">d_vfun_d_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_v" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the derivative of the copula vfun wrt v.</p>
+<section id="id27">
+<h2>Parameters<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id28">
+<h2>Returns<a class="headerlink" href="#id28" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.hfun">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">hfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.hfun" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the copula hfun.</p>
+<section id="id29">
+<h2>Parameters<a class="headerlink" href="#id29" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id30">
+<h2>Returns<a class="headerlink" href="#id30" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.inv_hfun">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">inv_hfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.inv_hfun" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the inverse of the copula hfun.</p>
+<section id="id31">
+<h2>Parameters<a class="headerlink" href="#id31" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id32">
+<h2>Returns<a class="headerlink" href="#id32" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.inv_vfun">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">inv_vfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.inv_vfun" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the inverse of the copula vfun.</p>
+<section id="id33">
+<h2>Parameters<a class="headerlink" href="#id33" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id34">
+<h2>Returns<a class="headerlink" href="#id34" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.ll">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">ll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.ll" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the copula log-likelihood.</p>
+<section id="id35">
+<h2>Parameters<a class="headerlink" href="#id35" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id36">
+<h2>Returns<a class="headerlink" href="#id36" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.mle_est">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">mle_est</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.mle_est" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimation of the copula parameter with maximum likelihood.</p>
+<section id="id37">
+<h2>Parameters<a class="headerlink" href="#id37" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id38">
+<h2>Returns<a class="headerlink" href="#id38" title="Permalink to this heading">#</a></h2>
+<p>self : object</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.par2tau">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">par2tau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.par2tau" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute Kendall’s tau associated with the given value for the copula parameter.</p>
+<section id="id39">
+<h2>Parameters<a class="headerlink" href="#id39" title="Permalink to this heading">#</a></h2>
+<dl class="simple">
+<dt>par<span class="classifier">float</span></dt><dd><p>The copula parameter</p>
+</dd>
+</dl>
+</section>
+<section id="id40">
+<h2>Returns<a class="headerlink" href="#id40" title="Permalink to this heading">#</a></h2>
+<dl class="simple">
+<dt>tau<span class="classifier">float</span></dt><dd><p>Kendall’s tau.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.pdf">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.pdf" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the copula pdf.</p>
+<section id="id41">
+<h2>Parameters<a class="headerlink" href="#id41" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id42">
+<h2>Returns<a class="headerlink" href="#id42" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.sim">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.sim" title="Permalink to this definition">#</a></dt>
+<dd><p>Simulate random observations from the copula.</p>
+<section id="id43">
+<h2>Parameters<a class="headerlink" href="#id43" title="Permalink to this heading">#</a></h2>
+<dl class="simple">
+<dt>n_obs :</dt><dd><p>The number of observations to simulate.</p>
+</dd>
+</dl>
+</section>
+<section id="id44">
+<h2>Returns<a class="headerlink" href="#id44" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.tau2par">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">tau2par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.tau2par" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute the copula parameter associated with the given value for Kendall’s tau.</p>
+<section id="id45">
+<h2>Parameters<a class="headerlink" href="#id45" title="Permalink to this heading">#</a></h2>
+<dl class="simple">
+<dt>tau<span class="classifier">float</span></dt><dd><p>Kendall’s tau.</p>
+</dd>
+</dl>
+</section>
+<section id="id46">
+<h2>Returns<a class="headerlink" href="#id46" title="Permalink to this heading">#</a></h2>
+<dl class="simple">
+<dt>par<span class="classifier">float</span></dt><dd><p>The copula parameter.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.copulas.IndepCopula.vfun">
+<span class="sig-prename descclassname"><span class="pre">IndepCopula.</span></span><span class="sig-name descname"><span class="pre">vfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.copulas.IndepCopula.vfun" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate the copula vfun.</p>
+<section id="id47">
+<h2>Parameters<a class="headerlink" href="#id47" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the first variable.</p>
+</dd>
+<dt>v<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of observations for the second variable.</p>
+</dd>
+</dl>
+</section>
+<section id="id48">
+<h2>Returns<a class="headerlink" href="#id48" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
 </section>
 </dd></dl>
 
@@ -341,6 +976,233 @@
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.aic">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.aic()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.cdf">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.cdf()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_cdf_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_cdf_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_hfun_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_u">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_hfun_d_u()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_hfun_d_v">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_hfun_d_v()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_inv_hfun_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_u">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_inv_hfun_d_u()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_inv_hfun_d_v">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_inv_hfun_d_v()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_inv_vfun_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_u">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_inv_vfun_d_u()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_inv_vfun_d_v">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_inv_vfun_d_v()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_vfun_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_u">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_vfun_d_u()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.d_vfun_d_v">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.d_vfun_d_v()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.hfun">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.hfun()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.inv_hfun">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.inv_hfun()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.inv_vfun">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.inv_vfun()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.ll">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.ll()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.mle_est">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.mle_est()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.par2tau">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.par2tau()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.pdf">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.pdf()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.sim">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.sim()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.tau2par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.tau2par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.copulas.IndepCopula.vfun">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       IndepCopula.vfun()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 

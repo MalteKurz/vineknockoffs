@@ -4,3 +4,103 @@
 .. currentmodule:: vineknockoffs.copulas
 
 .. autoclass:: GumbelCopula
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~GumbelCopula.aic
+    ~GumbelCopula.cdf
+    ~GumbelCopula.d_cdf_d_par
+    ~GumbelCopula.d_hfun_d_par
+    ~GumbelCopula.d_hfun_d_u
+    ~GumbelCopula.d_hfun_d_v
+    ~GumbelCopula.d_inv_hfun_d_par
+    ~GumbelCopula.d_inv_hfun_d_u
+    ~GumbelCopula.d_inv_hfun_d_v
+    ~GumbelCopula.d_inv_vfun_d_par
+    ~GumbelCopula.d_inv_vfun_d_u
+    ~GumbelCopula.d_inv_vfun_d_v
+    ~GumbelCopula.d_vfun_d_par
+    ~GumbelCopula.d_vfun_d_u
+    ~GumbelCopula.d_vfun_d_v
+    ~GumbelCopula.hfun
+    ~GumbelCopula.inv_hfun
+    ~GumbelCopula.inv_vfun
+    ~GumbelCopula.ll
+    ~GumbelCopula.mle_est
+    ~GumbelCopula.par2tau
+    ~GumbelCopula.pdf
+    ~GumbelCopula.sim
+    ~GumbelCopula.tau2par
+    ~GumbelCopula.vfun
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GumbelCopula.n_pars
+      ~GumbelCopula.par
+      ~GumbelCopula.rotation
+   
+   
+
+
+
+
+.. automethod:: GumbelCopula.aic
+
+.. automethod:: GumbelCopula.cdf
+
+.. automethod:: GumbelCopula.d_cdf_d_par
+
+.. automethod:: GumbelCopula.d_hfun_d_par
+
+.. automethod:: GumbelCopula.d_hfun_d_u
+
+.. automethod:: GumbelCopula.d_hfun_d_v
+
+.. automethod:: GumbelCopula.d_inv_hfun_d_par
+
+.. automethod:: GumbelCopula.d_inv_hfun_d_u
+
+.. automethod:: GumbelCopula.d_inv_hfun_d_v
+
+.. automethod:: GumbelCopula.d_inv_vfun_d_par
+
+.. automethod:: GumbelCopula.d_inv_vfun_d_u
+
+.. automethod:: GumbelCopula.d_inv_vfun_d_v
+
+.. automethod:: GumbelCopula.d_vfun_d_par
+
+.. automethod:: GumbelCopula.d_vfun_d_u
+
+.. automethod:: GumbelCopula.d_vfun_d_v
+
+.. automethod:: GumbelCopula.hfun
+
+.. automethod:: GumbelCopula.inv_hfun
+
+.. automethod:: GumbelCopula.inv_vfun
+
+.. automethod:: GumbelCopula.ll
+
+.. automethod:: GumbelCopula.mle_est
+
+.. automethod:: GumbelCopula.par2tau
+
+.. automethod:: GumbelCopula.pdf
+
+.. automethod:: GumbelCopula.sim
+
+.. automethod:: GumbelCopula.tau2par
+
+.. automethod:: GumbelCopula.vfun
+

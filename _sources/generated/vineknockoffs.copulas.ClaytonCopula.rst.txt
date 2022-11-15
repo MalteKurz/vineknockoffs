@@ -4,3 +4,103 @@
 .. currentmodule:: vineknockoffs.copulas
 
 .. autoclass:: ClaytonCopula
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~ClaytonCopula.aic
+    ~ClaytonCopula.cdf
+    ~ClaytonCopula.d_cdf_d_par
+    ~ClaytonCopula.d_hfun_d_par
+    ~ClaytonCopula.d_hfun_d_u
+    ~ClaytonCopula.d_hfun_d_v
+    ~ClaytonCopula.d_inv_hfun_d_par
+    ~ClaytonCopula.d_inv_hfun_d_u
+    ~ClaytonCopula.d_inv_hfun_d_v
+    ~ClaytonCopula.d_inv_vfun_d_par
+    ~ClaytonCopula.d_inv_vfun_d_u
+    ~ClaytonCopula.d_inv_vfun_d_v
+    ~ClaytonCopula.d_vfun_d_par
+    ~ClaytonCopula.d_vfun_d_u
+    ~ClaytonCopula.d_vfun_d_v
+    ~ClaytonCopula.hfun
+    ~ClaytonCopula.inv_hfun
+    ~ClaytonCopula.inv_vfun
+    ~ClaytonCopula.ll
+    ~ClaytonCopula.mle_est
+    ~ClaytonCopula.par2tau
+    ~ClaytonCopula.pdf
+    ~ClaytonCopula.sim
+    ~ClaytonCopula.tau2par
+    ~ClaytonCopula.vfun
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ClaytonCopula.n_pars
+      ~ClaytonCopula.par
+      ~ClaytonCopula.rotation
+   
+   
+
+
+
+
+.. automethod:: ClaytonCopula.aic
+
+.. automethod:: ClaytonCopula.cdf
+
+.. automethod:: ClaytonCopula.d_cdf_d_par
+
+.. automethod:: ClaytonCopula.d_hfun_d_par
+
+.. automethod:: ClaytonCopula.d_hfun_d_u
+
+.. automethod:: ClaytonCopula.d_hfun_d_v
+
+.. automethod:: ClaytonCopula.d_inv_hfun_d_par
+
+.. automethod:: ClaytonCopula.d_inv_hfun_d_u
+
+.. automethod:: ClaytonCopula.d_inv_hfun_d_v
+
+.. automethod:: ClaytonCopula.d_inv_vfun_d_par
+
+.. automethod:: ClaytonCopula.d_inv_vfun_d_u
+
+.. automethod:: ClaytonCopula.d_inv_vfun_d_v
+
+.. automethod:: ClaytonCopula.d_vfun_d_par
+
+.. automethod:: ClaytonCopula.d_vfun_d_u
+
+.. automethod:: ClaytonCopula.d_vfun_d_v
+
+.. automethod:: ClaytonCopula.hfun
+
+.. automethod:: ClaytonCopula.inv_hfun
+
+.. automethod:: ClaytonCopula.inv_vfun
+
+.. automethod:: ClaytonCopula.ll
+
+.. automethod:: ClaytonCopula.mle_est
+
+.. automethod:: ClaytonCopula.par2tau
+
+.. automethod:: ClaytonCopula.pdf
+
+.. automethod:: ClaytonCopula.sim
+
+.. automethod:: ClaytonCopula.tau2par
+
+.. automethod:: ClaytonCopula.vfun
+

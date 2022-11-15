@@ -4,3 +4,103 @@
 .. currentmodule:: vineknockoffs.copulas
 
 .. autoclass:: FrankCopula
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~FrankCopula.aic
+    ~FrankCopula.cdf
+    ~FrankCopula.d_cdf_d_par
+    ~FrankCopula.d_hfun_d_par
+    ~FrankCopula.d_hfun_d_u
+    ~FrankCopula.d_hfun_d_v
+    ~FrankCopula.d_inv_hfun_d_par
+    ~FrankCopula.d_inv_hfun_d_u
+    ~FrankCopula.d_inv_hfun_d_v
+    ~FrankCopula.d_inv_vfun_d_par
+    ~FrankCopula.d_inv_vfun_d_u
+    ~FrankCopula.d_inv_vfun_d_v
+    ~FrankCopula.d_vfun_d_par
+    ~FrankCopula.d_vfun_d_u
+    ~FrankCopula.d_vfun_d_v
+    ~FrankCopula.hfun
+    ~FrankCopula.inv_hfun
+    ~FrankCopula.inv_vfun
+    ~FrankCopula.ll
+    ~FrankCopula.mle_est
+    ~FrankCopula.par2tau
+    ~FrankCopula.pdf
+    ~FrankCopula.sim
+    ~FrankCopula.tau2par
+    ~FrankCopula.vfun
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FrankCopula.n_pars
+      ~FrankCopula.par
+      ~FrankCopula.rotation
+   
+   
+
+
+
+
+.. automethod:: FrankCopula.aic
+
+.. automethod:: FrankCopula.cdf
+
+.. automethod:: FrankCopula.d_cdf_d_par
+
+.. automethod:: FrankCopula.d_hfun_d_par
+
+.. automethod:: FrankCopula.d_hfun_d_u
+
+.. automethod:: FrankCopula.d_hfun_d_v
+
+.. automethod:: FrankCopula.d_inv_hfun_d_par
+
+.. automethod:: FrankCopula.d_inv_hfun_d_u
+
+.. automethod:: FrankCopula.d_inv_hfun_d_v
+
+.. automethod:: FrankCopula.d_inv_vfun_d_par
+
+.. automethod:: FrankCopula.d_inv_vfun_d_u
+
+.. automethod:: FrankCopula.d_inv_vfun_d_v
+
+.. automethod:: FrankCopula.d_vfun_d_par
+
+.. automethod:: FrankCopula.d_vfun_d_u
+
+.. automethod:: FrankCopula.d_vfun_d_v
+
+.. automethod:: FrankCopula.hfun
+
+.. automethod:: FrankCopula.inv_hfun
+
+.. automethod:: FrankCopula.inv_vfun
+
+.. automethod:: FrankCopula.ll
+
+.. automethod:: FrankCopula.mle_est
+
+.. automethod:: FrankCopula.par2tau
+
+.. automethod:: FrankCopula.pdf
+
+.. automethod:: FrankCopula.sim
+
+.. automethod:: FrankCopula.tau2par
+
+.. automethod:: FrankCopula.vfun
+

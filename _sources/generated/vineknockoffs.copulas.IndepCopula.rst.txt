@@ -4,3 +4,103 @@
 .. currentmodule:: vineknockoffs.copulas
 
 .. autoclass:: IndepCopula
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~IndepCopula.aic
+    ~IndepCopula.cdf
+    ~IndepCopula.d_cdf_d_par
+    ~IndepCopula.d_hfun_d_par
+    ~IndepCopula.d_hfun_d_u
+    ~IndepCopula.d_hfun_d_v
+    ~IndepCopula.d_inv_hfun_d_par
+    ~IndepCopula.d_inv_hfun_d_u
+    ~IndepCopula.d_inv_hfun_d_v
+    ~IndepCopula.d_inv_vfun_d_par
+    ~IndepCopula.d_inv_vfun_d_u
+    ~IndepCopula.d_inv_vfun_d_v
+    ~IndepCopula.d_vfun_d_par
+    ~IndepCopula.d_vfun_d_u
+    ~IndepCopula.d_vfun_d_v
+    ~IndepCopula.hfun
+    ~IndepCopula.inv_hfun
+    ~IndepCopula.inv_vfun
+    ~IndepCopula.ll
+    ~IndepCopula.mle_est
+    ~IndepCopula.par2tau
+    ~IndepCopula.pdf
+    ~IndepCopula.sim
+    ~IndepCopula.tau2par
+    ~IndepCopula.vfun
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IndepCopula.n_pars
+      ~IndepCopula.par
+      ~IndepCopula.rotation
+   
+   
+
+
+
+
+.. automethod:: IndepCopula.aic
+
+.. automethod:: IndepCopula.cdf
+
+.. automethod:: IndepCopula.d_cdf_d_par
+
+.. automethod:: IndepCopula.d_hfun_d_par
+
+.. automethod:: IndepCopula.d_hfun_d_u
+
+.. automethod:: IndepCopula.d_hfun_d_v
+
+.. automethod:: IndepCopula.d_inv_hfun_d_par
+
+.. automethod:: IndepCopula.d_inv_hfun_d_u
+
+.. automethod:: IndepCopula.d_inv_hfun_d_v
+
+.. automethod:: IndepCopula.d_inv_vfun_d_par
+
+.. automethod:: IndepCopula.d_inv_vfun_d_u
+
+.. automethod:: IndepCopula.d_inv_vfun_d_v
+
+.. automethod:: IndepCopula.d_vfun_d_par
+
+.. automethod:: IndepCopula.d_vfun_d_u
+
+.. automethod:: IndepCopula.d_vfun_d_v
+
+.. automethod:: IndepCopula.hfun
+
+.. automethod:: IndepCopula.inv_hfun
+
+.. automethod:: IndepCopula.inv_vfun
+
+.. automethod:: IndepCopula.ll
+
+.. automethod:: IndepCopula.mle_est
+
+.. automethod:: IndepCopula.par2tau
+
+.. automethod:: IndepCopula.pdf
+
+.. automethod:: IndepCopula.sim
+
+.. automethod:: IndepCopula.tau2par
+
+.. automethod:: IndepCopula.vfun
+

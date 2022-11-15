@@ -4,3 +4,103 @@
 .. currentmodule:: vineknockoffs.copulas
 
 .. autoclass:: GaussianCopula
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~GaussianCopula.aic
+    ~GaussianCopula.cdf
+    ~GaussianCopula.d_cdf_d_par
+    ~GaussianCopula.d_hfun_d_par
+    ~GaussianCopula.d_hfun_d_u
+    ~GaussianCopula.d_hfun_d_v
+    ~GaussianCopula.d_inv_hfun_d_par
+    ~GaussianCopula.d_inv_hfun_d_u
+    ~GaussianCopula.d_inv_hfun_d_v
+    ~GaussianCopula.d_inv_vfun_d_par
+    ~GaussianCopula.d_inv_vfun_d_u
+    ~GaussianCopula.d_inv_vfun_d_v
+    ~GaussianCopula.d_vfun_d_par
+    ~GaussianCopula.d_vfun_d_u
+    ~GaussianCopula.d_vfun_d_v
+    ~GaussianCopula.hfun
+    ~GaussianCopula.inv_hfun
+    ~GaussianCopula.inv_vfun
+    ~GaussianCopula.ll
+    ~GaussianCopula.mle_est
+    ~GaussianCopula.par2tau
+    ~GaussianCopula.pdf
+    ~GaussianCopula.sim
+    ~GaussianCopula.tau2par
+    ~GaussianCopula.vfun
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GaussianCopula.n_pars
+      ~GaussianCopula.par
+      ~GaussianCopula.rotation
+   
+   
+
+
+
+
+.. automethod:: GaussianCopula.aic
+
+.. automethod:: GaussianCopula.cdf
+
+.. automethod:: GaussianCopula.d_cdf_d_par
+
+.. automethod:: GaussianCopula.d_hfun_d_par
+
+.. automethod:: GaussianCopula.d_hfun_d_u
+
+.. automethod:: GaussianCopula.d_hfun_d_v
+
+.. automethod:: GaussianCopula.d_inv_hfun_d_par
+
+.. automethod:: GaussianCopula.d_inv_hfun_d_u
+
+.. automethod:: GaussianCopula.d_inv_hfun_d_v
+
+.. automethod:: GaussianCopula.d_inv_vfun_d_par
+
+.. automethod:: GaussianCopula.d_inv_vfun_d_u
+
+.. automethod:: GaussianCopula.d_inv_vfun_d_v
+
+.. automethod:: GaussianCopula.d_vfun_d_par
+
+.. automethod:: GaussianCopula.d_vfun_d_u
+
+.. automethod:: GaussianCopula.d_vfun_d_v
+
+.. automethod:: GaussianCopula.hfun
+
+.. automethod:: GaussianCopula.inv_hfun
+
+.. automethod:: GaussianCopula.inv_vfun
+
+.. automethod:: GaussianCopula.ll
+
+.. automethod:: GaussianCopula.mle_est
+
+.. automethod:: GaussianCopula.par2tau
+
+.. automethod:: GaussianCopula.pdf
+
+.. automethod:: GaussianCopula.sim
+
+.. automethod:: GaussianCopula.tau2par
+
+.. automethod:: GaussianCopula.vfun
+

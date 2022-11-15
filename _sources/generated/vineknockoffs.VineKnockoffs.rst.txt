@@ -4,3 +4,52 @@
 .. currentmodule:: vineknockoffs
 
 .. autoclass:: VineKnockoffs
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~VineKnockoffs.fit_gaussian_copula_knockoffs
+    ~VineKnockoffs.fit_gaussian_knockoffs
+    ~VineKnockoffs.fit_marginals
+    ~VineKnockoffs.fit_sgd
+    ~VineKnockoffs.fit_vine_copula_knockoffs
+    ~VineKnockoffs.generate
+    ~VineKnockoffs.generate_par_jacobian
+    ~VineKnockoffs.ll
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VineKnockoffs.dvine_structure
+      ~VineKnockoffs.inv_dvine_structure
+      ~VineKnockoffs.n_pars_upper_trees
+   
+   
+
+
+
+
+.. automethod:: VineKnockoffs.fit_gaussian_copula_knockoffs
+
+.. automethod:: VineKnockoffs.fit_gaussian_knockoffs
+
+.. automethod:: VineKnockoffs.fit_marginals
+
+.. automethod:: VineKnockoffs.fit_sgd
+
+.. automethod:: VineKnockoffs.fit_vine_copula_knockoffs
+
+.. automethod:: VineKnockoffs.generate
+
+.. automethod:: VineKnockoffs.generate_par_jacobian
+
+.. automethod:: VineKnockoffs.ll
+
