@@ -3,7 +3,7 @@
 [![Unit tests](https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml/badge.svg)](https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml)
 <!--- [![PyPI version](https://badge.fury.io/py/DoubleML.svg)](https://badge.fury.io/py/DoubleML) --->
 [![codecov](https://codecov.io/gh/MalteKurz/vineknockoffs/branch/main/graph/badge.svg?token=E3O3ZOLLBE)](https://codecov.io/gh/MalteKurz/vineknockoffs)
-[![Python version](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)](https://www.python.org/)
+[![Python version](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue)](https://www.python.org/)
 
 
 This repo contains an implementation of vine copula knockoffs for high-dimensional controlled variable selection, see 
