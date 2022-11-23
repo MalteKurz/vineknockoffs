@@ -17,6 +17,9 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.mathjax',
+    'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive',
+    'matplotlib.sphinxext.plot_directive',
 ]
 
 templates_path = ['_templates']

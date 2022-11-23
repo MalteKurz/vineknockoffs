@@ -1,6 +1,6 @@
 vineknockoffs: Vine copula based knockoffs
 ==========================================
-|Unit tests| |PyPI version| |codecov| |Python version|
+|Unit tests| |codecov| |Python version|
 
 .. |Unit tests| image:: https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml/badge.svg
    :target: https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml
