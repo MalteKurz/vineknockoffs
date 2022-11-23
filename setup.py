@@ -10,7 +10,7 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='vineknockoffs',
-    version='0.0.dev0',
+    version='0.1.0',
     author='Kurz, M. S.',
     maintainer='Malte S. Kurz',
     maintainer_email='malte.kurz@tum.de',
