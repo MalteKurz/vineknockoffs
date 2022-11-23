@@ -1,0 +1,70 @@
+﻿vineknockoffs.vine\_copulas.DVineCopula
+=======================================
+
+.. currentmodule:: vineknockoffs.vine_copulas
+
+.. autoclass:: DVineCopula
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+    ~DVineCopula.compute_pits
+    ~DVineCopula.compute_pits_d_par
+    ~DVineCopula.compute_pits_par_jacobian
+    ~DVineCopula.compute_pits_par_jacobian_fast
+    ~DVineCopula.cop_select
+    ~DVineCopula.get_par_vec
+    ~DVineCopula.get_par_vec_w_info
+    ~DVineCopula.ll
+    ~DVineCopula.set_par_vec
+    ~DVineCopula.sim
+    ~DVineCopula.sim_d_par
+    ~DVineCopula.sim_par_jacobian
+    ~DVineCopula.sim_par_jacobian_fast
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DVineCopula.copulas
+      ~DVineCopula.n_pars
+      ~DVineCopula.n_vars
+   
+   
+
+
+
+
+.. automethod:: DVineCopula.compute_pits
+
+.. automethod:: DVineCopula.compute_pits_d_par
+
+.. automethod:: DVineCopula.compute_pits_par_jacobian
+
+.. automethod:: DVineCopula.compute_pits_par_jacobian_fast
+
+.. automethod:: DVineCopula.cop_select
+
+.. automethod:: DVineCopula.get_par_vec
+
+.. automethod:: DVineCopula.get_par_vec_w_info
+
+.. automethod:: DVineCopula.ll
+
+.. automethod:: DVineCopula.set_par_vec
+
+.. automethod:: DVineCopula.sim
+
+.. automethod:: DVineCopula.sim_d_par
+
+.. automethod:: DVineCopula.sim_par_jacobian
+
+.. automethod:: DVineCopula.sim_par_jacobian_fast
+

@@ -1,0 +1,809 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>vineknockoffs.vine_copulas.DVineCopula &#8212; vineknockoffs 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/vineknockoffs.vine_copulas.DVineCopula';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="vineknockoffs.copulas.IndepCopula" href="vineknockoffs.copulas.IndepCopula.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+    <p class="title logo__title">vineknockoffs 0.1.0 documentation</p>
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../intro.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../api.html">
+                        API documenation
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MalteKurz/vineknockoffs" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../intro.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../api.html">
+                        API documenation
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MalteKurz/vineknockoffs" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="vineknockoffs.VineKnockoffs.html">vineknockoffs.VineKnockoffs</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="vineknockoffs.copulas.ClaytonCopula.html">vineknockoffs.copulas.ClaytonCopula</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vineknockoffs.copulas.FrankCopula.html">vineknockoffs.copulas.FrankCopula</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vineknockoffs.copulas.GaussianCopula.html">vineknockoffs.copulas.GaussianCopula</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vineknockoffs.copulas.GumbelCopula.html">vineknockoffs.copulas.GumbelCopula</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vineknockoffs.copulas.IndepCopula.html">vineknockoffs.copulas.IndepCopula</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">vineknockoffs.vine_copulas.DVineCopula</a></li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="vineknockoffs-vine-copulas-dvinecopula">
+<h1>vineknockoffs.vine_copulas.DVineCopula<a class="headerlink" href="#vineknockoffs-vine-copulas-dvinecopula" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vineknockoffs.vine_copulas.</span></span><span class="sig-name descname"><span class="pre">DVineCopula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">copulas</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula" title="Permalink to this definition">#</a></dt>
+<dd><p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits" title="vineknockoffs.vine_copulas.DVineCopula.compute_pits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pits</span></code></a>(u)</p></td>
+<td><p>Compute probability integral transforms (PITs) from a simplified D-vine copula.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_d_par" title="vineknockoffs.vine_copulas.DVineCopula.compute_pits_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pits_d_par</span></code></a>(which_tree, which_cop, u)</p></td>
+<td><p>Compute probability integral transforms (PITs) and their derivative with respect to a parameter <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian" title="vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pits_par_jacobian</span></code></a>(u)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian_fast" title="vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian_fast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pits_par_jacobian_fast</span></code></a>(u[, return_w])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.cop_select" title="vineknockoffs.vine_copulas.DVineCopula.cop_select"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cop_select</span></code></a>(u[, families, rotations, indep_test])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.get_par_vec" title="vineknockoffs.vine_copulas.DVineCopula.get_par_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_par_vec</span></code></a>([from_tree])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.get_par_vec_w_info" title="vineknockoffs.vine_copulas.DVineCopula.get_par_vec_w_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_par_vec_w_info</span></code></a>([from_tree])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.ll" title="vineknockoffs.vine_copulas.DVineCopula.ll"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ll</span></code></a>(u)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.set_par_vec" title="vineknockoffs.vine_copulas.DVineCopula.set_par_vec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_par_vec</span></code></a>(par_vec[, from_tree, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.sim" title="vineknockoffs.vine_copulas.DVineCopula.sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim</span></code></a>([n_obs, w])</p></td>
+<td><p>Simulate random observations from a simplified D-vine copula.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.sim_d_par" title="vineknockoffs.vine_copulas.DVineCopula.sim_d_par"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_d_par</span></code></a>(which_tree, which_cop[, n_obs, w])</p></td>
+<td><p>Simulate random observations from a simplified D-vine copula and compute the derivative with respect to a parameter <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian" title="vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_par_jacobian</span></code></a>([n_obs, w])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian_fast" title="vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian_fast"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_par_jacobian_fast</span></code></a>([n_obs, w, ...])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copulas</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_pars</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_vars</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.compute_pits">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">compute_pits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute probability integral transforms (PITs) from a simplified D-vine copula.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of copula observations.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this heading">#</a></h2>
+<p>Implements Algorithm 1 from Kurz (2022) to compute the probability integral transforms</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}W_{1:d} &amp;:= \big( U_1, U_{2|1}, U_{3|1:2}, \ldots, U_{d|1:d-1}\big)\\&amp;:= \big( F_1(U_1), F_{2|1}(U_2|U_1), F_{3|1:2}(U_3|U_{1:2}), \ldots, F_{d|1:d-1}(U_d|U_{1:d-1}) \big).\end{aligned}\end{align} \]</div>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
+<p>Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+arXiv:<a class="reference external" href="https://arxiv.org/abs/2210.11196">2210.11196</a> [stat.ME].</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.compute_pits_d_par">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">compute_pits_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">which_tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_cop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute probability integral transforms (PITs) and their derivative with respect to a parameter
+<span class="math notranslate nohighlight">\(\theta_{k,l}\)</span>.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>which_tree<span class="classifier">int</span></dt><dd><p>Determines <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span> (copula in which tree?)</p>
+</dd>
+<dt>which_cop<span class="classifier">int</span></dt><dd><p>Determines <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span> (which copula within the tree?)</p>
+</dd>
+<dt>u<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of copula observations.</p>
+</dd>
+<dt>return_w<span class="classifier">boolean</span></dt><dd><p>Whether the PITs should also be returned (in addition to the derivatives).</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array(s).</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h2>Notes<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<p>Implements Algorithm 5 from Kurz (2022) to compute the probability integral transforms and their derivative with
+respect to a parameter <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}W_{1:d} &amp;:= \big( U_1, U_{2|1}, U_{3|1:2}, \ldots, U_{d|1:d-1}\big),\\\check{W}_{1:d} &amp;:= \big( \partial_{\theta_{k,l}} U_{1}, \partial_{\theta_{k,l}} U_{2|1},
+\partial_{\theta_{k,l}} U_{3|1:2}, \ldots, \partial_{\theta_{k,l}} U_{d|1:d-1} \big)\end{aligned}\end{align} \]</div>
+</section>
+<section id="id4">
+<h2>References<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<p>Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+arXiv:<a class="reference external" href="https://arxiv.org/abs/2210.11196">2210.11196</a> [stat.ME].</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">compute_pits_par_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian_fast">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">compute_pits_par_jacobian_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian_fast" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.cop_select">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">cop_select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">families</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indep_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.cop_select" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.get_par_vec">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">get_par_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.get_par_vec" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.get_par_vec_w_info">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">get_par_vec_w_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.get_par_vec_w_info" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.ll">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">ll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.ll" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.set_par_vec">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">set_par_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assert_to_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.set_par_vec" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.sim">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.sim" title="Permalink to this definition">#</a></dt>
+<dd><p>Simulate random observations from a simplified D-vine copula.</p>
+<section id="id5">
+<h2>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>n_obs :</dt><dd><p>The number of observations to simulate.
+Default is 100.</p>
+</dd>
+<dt>w<span class="classifier">None or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of iid standard uniform observations. If None, iid standard uniform observations are drawn.
+Default is None.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Returns<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array.</p>
+</dd>
+</dl>
+</section>
+<section id="id7">
+<h2>Notes<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h2>
+<p>Implements Algorithm 2 from Kurz (2022) to simulate from a simplified D-vine copula based on standard uniform
+random variables.</p>
+</section>
+<section id="id8">
+<h2>References<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h2>
+<p>Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+arXiv:<a class="reference external" href="https://arxiv.org/abs/2210.11196">2210.11196</a> [stat.ME].</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.sim_d_par">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">sim_d_par</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">which_tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_cop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.sim_d_par" title="Permalink to this definition">#</a></dt>
+<dd><p>Simulate random observations from a simplified D-vine copula and compute the derivative with respect to a
+parameter <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span>.</p>
+<section id="id9">
+<h2>Parameters<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>which_tree<span class="classifier">int</span></dt><dd><p>Determines <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span> (copula in which tree?)</p>
+</dd>
+<dt>which_cop<span class="classifier">int</span></dt><dd><p>Determines <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span> (which copula within the tree?)</p>
+</dd>
+<dt>n_obs :</dt><dd><p>The number of observations to simulate.
+Default is 100.</p>
+</dd>
+<dt>w<span class="classifier">None or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Array of iid standard uniform observations. If None, iid standard uniform observations are drawn.
+Default is None.</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h2>Returns<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h2>
+<dl>
+<dt>res<span class="classifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></span></dt><dd><p>Result array(s).</p>
+</dd>
+</dl>
+</section>
+<section id="id11">
+<h2>Notes<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h2>
+<p>Implements Algorithm 6 from Kurz (2022) to simulate from a simplified D-vine copula and compute the derivative
+with respect to a parameter <span class="math notranslate nohighlight">\(\theta_{k,l}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}U_{1:d} &amp;\sim C_{1:d},\\\check{U}_{1:d} &amp;:= \big(\partial_{\theta_{k,l}}U_1, \ldots, \partial_{\theta_{k,l}}U_d)\end{aligned}\end{align} \]</div>
+</section>
+<section id="id12">
+<h2>References<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h2>
+<p>Kurz, M. S. (2022), Vine copula based knockoff generation for high-dimensional controlled variable selection.
+arXiv:<a class="reference external" href="https://arxiv.org/abs/2210.11196">2210.11196</a> [stat.ME].</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">sim_par_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian_fast">
+<span class="sig-prename descclassname"><span class="pre">DVineCopula.</span></span><span class="sig-name descname"><span class="pre">sim_par_jacobian_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_jacobian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian_fast" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="vineknockoffs.copulas.IndepCopula.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">vineknockoffs.copulas.IndepCopula</p>
+      </div>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     DVineCopula
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.compute_pits()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.compute_pits_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.compute_pits_par_jacobian()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.compute_pits_par_jacobian_fast">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.compute_pits_par_jacobian_fast()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.cop_select">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.cop_select()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.get_par_vec">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.get_par_vec()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.get_par_vec_w_info">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.get_par_vec_w_info()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.ll">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.ll()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.set_par_vec">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.set_par_vec()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.sim">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.sim()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.sim_d_par">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.sim_d_par()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.sim_par_jacobian()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#vineknockoffs.vine_copulas.DVineCopula.sim_par_jacobian_fast">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DVineCopula.sim_par_jacobian_fast()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../_sources/generated/vineknockoffs.vine_copulas.DVineCopula.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, Malte S. Kurz.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>
