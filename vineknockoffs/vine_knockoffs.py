@@ -18,16 +18,46 @@ else:
 
 
 class VineKnockoffs:
+    """Vine copula knockoffs.
 
-    def __init__(self, dvine=None, marginals=None):
+    Parameters
+    ----------
+    dvine : None or :class:`DVineCopula` object
+        The :class:`DVineCopula` object specifies the vine copula model used to generate knockoffs. If it is set to None
+        the vine copula knockoff model can be learned from data with the methods ``fit_vine_copula_knockoffs()``,
+        ``fit_gaussian_copula_knockoffs()`` or ``fit_gaussian_knockoffs()``.
+        Default is ``None``.
+
+    marginals: list
+        The marginal distributions for the vine copula knockoff model. Must be a list of `n_vars` distributions which
+        implement the methods ``cdf()`` and ``ppf()``. If it is set to None the marginal distributions can be estimated
+        from data with the methods ``fit_marginals()``, which is also called by ``fit_vine_copula_knockoffs()``,
+        ``fit_gaussian_copula_knockoffs()`` or ``fit_gaussian_knockoffs()``.
+        Default is ``None``.
+
+    dvine_structure: :class:`numpy.array`
+        The D-vine structure (order of variables) for the vine copula knockoff model.
+        Default is ``None``.
+
+    Examples
+    --------
+    # ToDo: add an example here
+    """
+
+    def __init__(self, dvine=None, marginals=None, dvine_structure=None):
         if (dvine is not None) & (not isinstance(dvine, DVineCopula)):
             raise TypeError('dvine must be of DVineCopula type. '
                             f'{str(dvine)} of type {str(type(dvine))} was passed.')
+        # ToDo: add some more exception handling for the parameters
         self._dvine = dvine
         self._marginals = marginals
         if dvine is not None:
-            self._dvine_structure = np.arange(self._dvine.n_vars)
-            self._inv_dvine_structure = np.argsort(self._dvine_structure)
+            if dvine_structure is not None:
+                self._dvine_structure = dvine_structure
+                self._inv_dvine_structure = np.argsort(self._dvine_structure)
+            else:
+                self._dvine_structure = np.arange(self._dvine.n_vars)
+                self._inv_dvine_structure = np.argsort(self._dvine_structure)
         else:
             self._dvine_structure = np.array([])
             self._inv_dvine_structure = np.array([])
@@ -149,11 +179,201 @@ class VineKnockoffs:
                                   marginals='kde1d',
                                   families='all', rotations=True, indep_test=True,
                                   vine_structure='select_tsp_r',  # 'select_tsp_r', 'select_tsp_py', '1:n'
-                                  upper_tree_cop_fam_heuristic='lower tree families',
-                                  sgd=True, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
+                                  upper_tree_cop_fam_heuristic='Gaussian',
+                                  sgd=False, sgd_lr=0.01, sgd_gamma=0.9, sgd_n_batches=5, sgd_n_iter=20,
                                   sgd_which_par='all',
                                   loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.,
                                   gau_cop_algo='sdp'):
+        """
+        Estimate a vine copula knockoff model.
+
+        Parameters
+        ----------
+        x_train : :class:`numpy.ndarray`
+            Array of covariates.
+
+        marginals : str
+            A str (``'kde1d'`` or ``'kde_statsmodels'``) specifying the estimator for the marginal distributions.
+            ``'kde1d'``: The univariate kernel density estimator implemented in the R package kde1d (via rpy2).
+            ``'kde_statsmodels'``: The univariate version of the kernel density estimator ``KDEMultivariate``
+            implemented in the Python package statsmodels.
+            Default is ``'kde1d'``.
+
+        families : str
+            The set of possible copula families explored via minimizing the AIC. Currently, the only implemented choice
+            is ``'all'`` (i.e., Clayton, Frank, Gaussian, and Gumbel).
+            Default is ``'all'``.
+
+        rotations : bool
+            Indicates whether rotated versions of the Clayton and Gumbel copula should be considered.
+            Default is ``True``.
+
+        indep_test : bool
+            Indicates whether an independence test should be performed before choosing a copula family with the AIC. If
+            independence cannot be rejected, an Independence copula is being assigned to the corresponding vine edge.
+            Default is ``True``.
+
+        vine_structure : str
+            A str (``'select_tsp_r'``, ``'select_tsp_py'`` or ``'1:n'``) specifying how the structure of the D-vine is
+            selected.
+            ``'select_tsp_r'``: Maximize the dependence in the first tree by solving a TSP with the R package TSP.
+            ``'select_tsp_py'``: Maximize the dependence in the first tree by solving a TSP with the Python package
+            python_tsp.
+            ``'1:n'``: Use the natural order of the variables X_1, X_2, ..., X_d-1, X_d.
+            Default is ``'select_tsp_r'``.
+
+        upper_tree_cop_fam_heuristic : str
+            A str (``'Gaussian'`` or ``'lower tree families'``) specifying the heuristic used to select the copula
+            families in the higher trees (from the (d+1)-th tree on).
+            ``'Gaussian'``: Gaussian copulas corresponding to the partial correlation vine are assigned to the edges in
+            the higher trees.
+            ``'lower tree families'``: The copula families from the lower trees are mirrored to the higher trees.
+            Default is ``'Gaussian'``.
+
+        sgd : bool
+            Indicates whether the parameters of the vine copula knockoff model should be tuned using a stochastic
+            gradient descent algorithm.
+            Default is ``False``.
+
+        sgd_lr : float
+            The learning rate for the SGD algorithm.
+            Default is ``0.01``.
+
+        sgd_gamma : float
+            SGD momentum parameter.
+            Default is ``0.9``.
+
+        sgd_n_batches : int
+            Number of batches in the SGD algorithm.
+            Default is ``5``.
+
+        sgd_n_iter : int
+            Maximum number of iterations of the SGD algorithm.
+            Default is ``20``.
+
+        sgd_which_par : str
+            A str (``''all''`` or ``''upper only''``) specifying whether all parameters or only the parameters of the
+            upper trees should be optimized with the SGD algorithm.
+            Default is ``''all''``.
+
+        loss_alpha : float
+            Parameter alpha in the SGD loss function.
+            Default is ``1.``.
+
+        loss_delta_sdp_corr : float
+            Parameter delta_sdp_corr in the SGD loss function.
+            Default is ``1.``.
+
+        loss_gamma : float
+            Parameter gamma in the SGD loss function.
+            Default is ``1.``.
+
+        loss_delta_corr : float
+            Parameter delta_corr in the SGD loss function.
+            Default is ``0.``.
+
+        gau_cop_algo : str
+            A str (``'sdp'`` or ``''ecorr''``) specifying the algorithm used (semidefinite program or equicorrelation)
+            to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+            Default is ``''sdp''``.
+        """
+
+        if (not isinstance(marginals, str)) | (marginals not in ['kde1d', 'kde_statsmodels']):
+            raise ValueError('marginals must be "kde1d" or "kde_statsmodels". '
+                             f'Got {str(marginals)}.')
+
+        if (not isinstance(families, str)) | (families not in ['all']):
+            raise ValueError('families must be "all". '
+                             f'Got {str(families)}.')
+
+        if not isinstance(rotations, bool):
+            raise TypeError('rotations must be True or False. '
+                            f'Got {str(rotations)}.')
+
+        if not isinstance(indep_test, bool):
+            raise TypeError('indep_test must be True or False. '
+                            f'Got {str(indep_test)}.')
+
+        if (not isinstance(vine_structure, str)) | (vine_structure not in ['select_tsp_r', 'select_tsp_py', '1:n']):
+            raise ValueError('vine_structure must be "select_tsp_r", "select_tsp_py" or "1:n". '
+                             f'Got {str(vine_structure)}.')
+
+        if (not isinstance(upper_tree_cop_fam_heuristic, str)) | (upper_tree_cop_fam_heuristic not in
+                                                                  ['Gaussian', 'lower tree families']):
+            raise ValueError('upper_tree_cop_fam_heuristic must be "Gaussian" or "lower tree families". '
+                             f'Got {str(upper_tree_cop_fam_heuristic)}.')
+
+        if not isinstance(sgd, bool):
+            raise TypeError('sgd must be True or False. '
+                            f'Got {str(sgd)}.')
+
+        if isinstance(sgd_lr, int):
+            sgd_lr = float(sgd_lr)
+        if not isinstance(sgd_lr, float):
+            raise TypeError('sgd_lr must be of float type. '
+                            f'{str(sgd_lr)} of type {str(type(sgd_lr))} was passed.')
+        if (sgd_lr < 0.) or (sgd_lr > 1.):
+            raise ValueError('sgd_lr must be in [0., 1.].')
+
+        if isinstance(sgd_gamma, int):
+            sgd_gamma = float(sgd_gamma)
+        if not isinstance(sgd_gamma, float):
+            raise TypeError('sgd_gamma must be of float type. '
+                            f'{str(sgd_gamma)} of type {str(type(sgd_gamma))} was passed.')
+        if (sgd_gamma < 0.) or (sgd_gamma > 1.):
+            raise ValueError('sgd_gamma must be in [0., 1.].')
+
+        if not isinstance(sgd_n_batches, int):
+            raise TypeError('sgd_n_batches must be of int type. '
+                            f'{str(sgd_n_batches)} of type {str(type(sgd_n_batches))} was passed.')
+        if sgd_n_batches < 1:
+            raise ValueError('sgd_n_batches must be a positive integer.')
+
+        if not isinstance(sgd_n_iter, int):
+            raise TypeError('sgd_n_iter must be of int type. '
+                            f'{str(sgd_n_iter)} of type {str(type(sgd_n_iter))} was passed.')
+        if sgd_n_iter < 1:
+            raise ValueError('sgd_n_iter must be a positive integer.')
+
+        if (not isinstance(sgd_which_par, str)) | (sgd_which_par not in ['all', 'upper only']):
+            raise ValueError('sgd_which_par must be "all" or "upper only". '
+                             f'Got {str(sgd_which_par)}.')
+
+        if isinstance(loss_alpha, int):
+            loss_alpha = float(loss_alpha)
+        if not isinstance(loss_alpha, float):
+            raise TypeError('loss_alpha must be of float type. '
+                            f'{str(loss_alpha)} of type {str(type(loss_alpha))} was passed.')
+        if loss_alpha < 0.:
+            raise ValueError('loss_alpha must be non-negative.')
+
+        if isinstance(loss_delta_sdp_corr, int):
+            loss_delta_sdp_corr = float(loss_delta_sdp_corr)
+        if not isinstance(loss_delta_sdp_corr, float):
+            raise TypeError('loss_delta_sdp_corr must be of float type. '
+                            f'{str(loss_delta_sdp_corr)} of type {str(type(loss_delta_sdp_corr))} was passed.')
+        if loss_delta_sdp_corr < 0.:
+            raise ValueError('loss_delta_sdp_corr must be non-negative.')
+
+        if isinstance(loss_gamma, int):
+            loss_gamma = float(loss_gamma)
+        if not isinstance(loss_gamma, float):
+            raise TypeError('loss_gamma must be of float type. '
+                            f'{str(loss_gamma)} of type {str(type(loss_gamma))} was passed.')
+        if loss_gamma < 0.:
+            raise ValueError('loss_gamma must be non-negative.')
+
+        if isinstance(loss_delta_corr, int):
+            loss_delta_corr = float(loss_delta_corr)
+        if not isinstance(loss_delta_corr, float):
+            raise TypeError('loss_delta_corr must be of float type. '
+                            f'{str(loss_delta_corr)} of type {str(type(loss_delta_corr))} was passed.')
+        if loss_delta_corr < 0.:
+            raise ValueError('loss_delta_corr must be non-negative.')
+
+        if (not isinstance(gau_cop_algo, str)) | (gau_cop_algo not in ['sdp', 'ecorr']):
+            raise ValueError('gau_cop_algo must be "sdp" or "ecorr". '
+                             f'Got {str(gau_cop_algo)}.')
 
         # fit gaussian copula knockoffs (marginals are fitted and parameters for the decorrelation tree are determined)
         self.fit_gaussian_copula_knockoffs(x_train, marginals=marginals, algo=gau_cop_algo,
@@ -225,7 +445,7 @@ class VineKnockoffs:
                             this_copula = GaussianCopula(par_gaussian_ko)
                         else:
                             this_copula = deepcopy(lower_tree_cop)
-                            this_copula.set_par_w_bound_check(this_copula.tau2par(tau_gaussian_ko))
+                            this_copula._set_par_w_bound_check(this_copula.tau2par(tau_gaussian_ko))
 
                         self._dvine.copulas[tree - 1][cop - 1] = this_copula
 
@@ -242,6 +462,116 @@ class VineKnockoffs:
                 lr=0.01, gamma=0.9, n_batches=5, n_iter=20,
                 which_par='all',
                 loss_alpha=1., loss_delta_sdp_corr=1., loss_gamma=1., loss_delta_corr=0.):
+        """
+        Optimize a vine copula knockoff model parameters using a SGD algorithm.
+
+        Parameters
+        ----------
+        x_train : :class:`numpy.ndarray`
+            Array of covariates.
+
+        lr : float
+            The learning rate for the SGD algorithm.
+            Default is ``0.01``.
+
+        gamma : float
+            SGD momentum parameter.
+            Default is ``0.9``.
+
+        n_batches : int
+            Number of batches in the SGD algorithm.
+            Default is ``5``.
+
+        n_iter : int
+            Maximum number of iterations of the SGD algorithm.
+            Default is ``20``.
+
+        which_par : str
+            A str (``''all''`` or ``''upper only''``) specifying whether all parameters or only the parameters of the
+            upper trees should be optimized with the SGD algorithm.
+            Default is ``''all''``.
+
+        loss_alpha : float
+            Parameter alpha in the SGD loss function.
+            Default is ``1.``.
+
+        loss_delta_sdp_corr : float
+            Parameter delta_sdp_corr in the SGD loss function.
+            Default is ``1.``.
+
+        loss_gamma : float
+            Parameter gamma in the SGD loss function.
+            Default is ``1.``.
+
+        loss_delta_corr : float
+            Parameter delta_corr in the SGD loss function.
+            Default is ``0.``.
+        """
+
+        if isinstance(lr, int):
+            lr = float(lr)
+        if not isinstance(lr, float):
+            raise TypeError('lr must be of float type. '
+                            f'{str(lr)} of type {str(type(lr))} was passed.')
+        if (lr < 0.) or (lr > 1.):
+            raise ValueError('lr must be in [0., 1.].')
+
+        if isinstance(gamma, int):
+            gamma = float(gamma)
+        if not isinstance(gamma, float):
+            raise TypeError('gamma must be of float type. '
+                            f'{str(gamma)} of type {str(type(gamma))} was passed.')
+        if (gamma < 0.) or (gamma > 1.):
+            raise ValueError('gamma must be in [0., 1.].')
+
+        if not isinstance(n_batches, int):
+            raise TypeError('n_batches must be of int type. '
+                            f'{str(n_batches)} of type {str(type(n_batches))} was passed.')
+        if n_batches < 1:
+            raise ValueError('n_batches must be a positive integer.')
+
+        if not isinstance(n_iter, int):
+            raise TypeError('n_iter must be of int type. '
+                            f'{str(n_iter)} of type {str(type(n_iter))} was passed.')
+        if n_iter < 1:
+            raise ValueError('n_iter must be a positive integer.')
+
+        if (not isinstance(which_par, str)) | (which_par not in ['all', 'upper only']):
+            raise ValueError('which_par must be "all" or "upper only". '
+                             f'Got {str(which_par)}.')
+
+        if isinstance(loss_alpha, int):
+            loss_alpha = float(loss_alpha)
+        if not isinstance(loss_alpha, float):
+            raise TypeError('loss_alpha must be of float type. '
+                            f'{str(loss_alpha)} of type {str(type(loss_alpha))} was passed.')
+        if loss_alpha < 0.:
+            raise ValueError('loss_alpha must be non-negative.')
+
+        if isinstance(loss_delta_sdp_corr, int):
+            loss_delta_sdp_corr = float(loss_delta_sdp_corr)
+        if not isinstance(loss_delta_sdp_corr, float):
+            raise TypeError('loss_delta_sdp_corr must be of float type. '
+                            f'{str(loss_delta_sdp_corr)} of type {str(type(loss_delta_sdp_corr))} was passed.')
+        if loss_delta_sdp_corr < 0.:
+            raise ValueError('loss_delta_sdp_corr must be non-negative.')
+
+        if isinstance(loss_gamma, int):
+            loss_gamma = float(loss_gamma)
+        if not isinstance(loss_gamma, float):
+            raise TypeError('loss_gamma must be of float type. '
+                            f'{str(loss_gamma)} of type {str(type(loss_gamma))} was passed.')
+        if loss_gamma < 0.:
+            raise ValueError('loss_gamma must be non-negative.')
+
+        if isinstance(loss_delta_corr, int):
+            loss_delta_corr = float(loss_delta_corr)
+        if not isinstance(loss_delta_corr, float):
+            raise TypeError('loss_delta_corr must be of float type. '
+                            f'{str(loss_delta_corr)} of type {str(type(loss_delta_corr))} was passed.')
+        if loss_delta_corr < 0.:
+            raise ValueError('loss_delta_corr must be non-negative.')
+
         n_obs = x_train.shape[0]
         n_vars = x_train.shape[1]
         loss_obj = KnockoffsLoss(alpha=loss_alpha, delta_sdp_corr=loss_delta_sdp_corr,
@@ -302,6 +632,47 @@ class VineKnockoffs:
 
     def fit_gaussian_copula_knockoffs(self, x_train, marginals='kde1d',
                                       algo='sdp', vine_structure='1:n'):
+        """
+        Estimate a Gaussian copula knockoff model.
+
+        Parameters
+        ----------
+        x_train : :class:`numpy.ndarray`
+            Array of covariates.
+
+        marginals : str
+            A str (``'kde1d'`` or ``'kde_statsmodels'``) specifying the estimator for the marginal distributions.
+            ``'kde1d'``: The univariate kernel density estimator implemented in the R package kde1d (via rpy2).
+            ``'kde_statsmodels'``: The univariate version of the kernel density estimator ``KDEMultivariate``
+            implemented in the Python package statsmodels.
+            Default is ``'kde1d'``.
+
+        algo : str
+            A str (``'sdp'`` or ``''ecorr''``) specifying the algorithm used (semidefinite program or equicorrelation)
+            to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+            Default is ``''sdp''``.
+
+        vine_structure : str
+            A str (``'select_tsp_r'``, ``'select_tsp_py'`` or ``'1:n'``) specifying how the structure of the D-vine is
+            selected.
+            ``'select_tsp_r'``: Maximize the dependence in the first tree by solving a TSP with the R package TSP.
+            ``'select_tsp_py'``: Maximize the dependence in the first tree by solving a TSP with the Python package
+            python_tsp.
+            ``'1:n'``: Use the natural order of the variables X_1, X_2, ..., X_d-1, X_d.
+            Default is ``'select_tsp_r'``.
+        """
+
+        if (not isinstance(marginals, str)) | (marginals not in ['kde1d', 'kde_statsmodels']):
+            raise ValueError('marginals must be "kde1d" or "kde_statsmodels". '
+                             f'Got {str(marginals)}.')
+
+        if (not isinstance(algo, str)) | (algo not in ['sdp', 'ecorr']):
+            raise ValueError('algo must be "sdp" or "ecorr". '
+                             f'Got {str(algo)}.')
+
+        if (not isinstance(vine_structure, str)) | (vine_structure not in ['select_tsp_r', 'select_tsp_py', '1:n']):
+            raise ValueError('vine_structure must be "select_tsp_r", "select_tsp_py" or "1:n". '
+                             f'Got {str(vine_structure)}.')
         # determine dvine structure / variable order
         n_vars = x_train.shape[1]
         if vine_structure == 'select_tsp_r':
@@ -332,13 +703,31 @@ class VineKnockoffs:
         g_mat = np.vstack((np.hstack((corr_mat, corr_mat - np.diag(s_vec))),
                            np.hstack((corr_mat - np.diag(s_vec), corr_mat))))
         pcorrs = dvine_pcorr(g_mat)
-        copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
+        copulas = [[GaussianCopula()._set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self._sdp_corr = 1. - s_vec
 
         return self
 
     def fit_gaussian_knockoffs(self, x_train, algo='sdp'):
+        """
+        Estimate a Gaussian knockoff model.
+
+        Parameters
+        ----------
+        x_train : :class:`numpy.ndarray`
+            Array of covariates.
+
+        algo : str
+            A str (``'sdp'`` or ``''ecorr''``) specifying the algorithm used (semidefinite program or equicorrelation)
+            to obtain the parameters (the partial correlation vine) of the Gaussian copula knockoffs.
+            Default is ``''sdp''``.
+        """
+
+        if (not isinstance(algo, str)) | (algo not in ['sdp', 'ecorr']):
+            raise ValueError('algo must be "sdp" or "ecorr". '
+                             f'Got {str(algo)}.')
+
         n_vars = x_train.shape[1]
         mus = np.mean(x_train, axis=0)
         sigmas = np.std(x_train, axis=0)
@@ -356,14 +745,13 @@ class VineKnockoffs:
         g_mat = np.vstack((np.hstack((corr_mat, corr_mat - np.diag(s_vec))),
                            np.hstack((corr_mat - np.diag(s_vec), corr_mat))))
         pcorrs = dvine_pcorr(g_mat)
-        copulas = [[GaussianCopula().set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
+        copulas = [[GaussianCopula()._set_par_w_bound_check(rho) for rho in xx] for xx in pcorrs]
         self._dvine = DVineCopula(copulas)
         self.dvine_structure = np.arange(int(self._dvine.n_vars/2))
 
         return self
 
     def fit_marginals(self, x_train, model='kde1d'):
-        # ToDo May add alternative methods for the marginals (like parameteric distributions)
         n_vars = x_train.shape[1]
         if model == 'kde1d':
             if _has_kde1d:

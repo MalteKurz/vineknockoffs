@@ -22,8 +22,15 @@ jobs:
       - uses: actions/setup-python@v4
       - name: Install dependencies
         run: |
-          pip install sphinx pydata-sphinx-theme
+          pip install sphinx pydata-sphinx-theme seaborn ipython
+          pip install rpy2
           pip install --editable .
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+      - name: Install R packages
+        run: |
+          install.packages(c('glmnet', 'kde1d', 'TSP', 'VineCopula'))
+        shell: Rscript {0}
       - name: Sphinx build
         run: |
           sphinx-build doc _build

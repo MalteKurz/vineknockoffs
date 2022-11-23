@@ -14,7 +14,7 @@ def sdp_solver(corr_mat, tol_psd=1e-4, tol_s=1e-4):
 
     prob = cp.Problem(obj_fun, constraints)
     try:
-        prob.solve(solver='CVXOPT', verbose=True)
+        prob.solve(solver='CVXOPT', verbose=False)
     except error.SolverError:
         # use alternative solver
         prob.solve()

@@ -16,7 +16,10 @@ from ._copula_familes.indep import indep_cop_funs
 
 class Copula(ABC):
     n_pars = 0
-    trim_thres = 1e-12
+    """
+    The number of copula parameters.
+    """
+    _trim_thres = 1e-12
 
     def __init__(self, par, cop_funs, par_bounds, rotation=0):
         self._par = np.full(self.n_pars, np.nan)
@@ -30,6 +33,9 @@ class Copula(ABC):
 
     @property
     def par(self):
+        """
+        Parameter of the copula.
+        """
         return self._par
 
     @par.setter
@@ -45,7 +51,7 @@ class Copula(ABC):
             else:
                 self._par[i_par] = value[i_par]
 
-    def set_par_w_bound_check(self, value, tol=1e-4):
+    def _set_par_w_bound_check(self, value, tol=1e-4):
         if np.isscalar(value):
             value = np.array([value])
         if len(value) != self.n_pars:
@@ -65,9 +71,26 @@ class Copula(ABC):
 
     @property
     def rotation(self):
+        """
+        Rotation of the copula (0, 90, 180 or 270).
+        """
         return self._rotation
 
     def mle_est(self, u, v):
+        """
+        Estimation of the copula parameter with maximum likelihood.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        self : object
+        """
         tau, _ = kendalltau(u, v)
         par_0 = self.tau2par(tau)
         par_hat, _, _ = fmin_l_bfgs_b(self._neg_ll,
@@ -80,16 +103,42 @@ class Copula(ABC):
 
     @abstractmethod
     def tau2par(self, tau):
+        """
+        Compute the copula parameter associated with the given value for Kendall's tau.
+
+        Parameters
+        ----------
+        tau : float
+            Kendall's tau.
+
+        Returns
+        -------
+        par : float
+            The copula parameter.
+        """
         pass
 
     @abstractmethod
     def par2tau(self, par):
+        """
+        Compute Kendall's tau associated with the given value for the copula parameter.
+
+        Parameters
+        ----------
+        par : float
+            The copula parameter
+
+        Returns
+        -------
+        tau : float
+            Kendall's tau.
+        """
         pass
 
     def _trim_obs(self, u):
         u = np.array(u)
-        u[u < self.trim_thres] = self.trim_thres
-        u[u > 1. - self.trim_thres] = 1. - self.trim_thres
+        u[u < self._trim_thres] = self._trim_thres
+        u[u > 1. - self._trim_thres] = 1. - self._trim_thres
         return u
 
     def _cdf(self, par, u, v):
@@ -105,6 +154,21 @@ class Copula(ABC):
         return res
 
     def cdf(self, u, v):
+        """
+        Evaluate the copula cdf.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._cdf(par=self.par, u=u, v=v)
 
     def _d_cdf_d_par(self, par, u, v):
@@ -120,6 +184,21 @@ class Copula(ABC):
         return res
 
     def d_cdf_d_par(self, u, v):
+        """
+        Evaluate the derivative of the copula cdf wrt the parameter.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._d_cdf_d_par(par=self.par, u=u, v=v)
 
     def _pdf_cc(self, par, u, v):
@@ -139,12 +218,42 @@ class Copula(ABC):
         return res
 
     def pdf(self, u, v):
+        """
+        Evaluate the copula pdf.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._pdf(par=self.par, u=u, v=v)
 
     def _ll(self, par, u, v):
         return np.log(self._pdf(par=par, u=u, v=v))
 
     def ll(self, u, v):
+        """
+        Evaluate the copula log-likelihood.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._ll(par=self.par, u=u, v=v)
 
     def _neg_ll(self, par, u, v):
@@ -167,6 +276,21 @@ class Copula(ABC):
         return res
 
     def aic(self, u, v):
+        """
+        Evaluate the copula AIC.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         res = 2 * self.n_pars + 2 * self._neg_ll(self.par, u=u, v=v)
         return res
 
@@ -184,6 +308,21 @@ class Copula(ABC):
         return self._trim_obs(res)
 
     def hfun(self, u, v):
+        """
+        Evaluate the copula hfun.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._hfun(par=self.par, u=u, v=v)
 
     def _vfun(self, par, u, v):
@@ -199,6 +338,21 @@ class Copula(ABC):
         return self._trim_obs(res)
 
     def vfun(self, u, v, u_=None):
+        """
+        Evaluate the copula vfun.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._vfun(par=self.par, u=u, v=v)
 
     def _d_hfun_d_par(self, par, u, v):
@@ -214,6 +368,21 @@ class Copula(ABC):
         return res
 
     def d_hfun_d_par(self, u, v):
+        """
+        Evaluate the derivative of the copula hfun wrt the parameter.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._d_hfun_d_par(par=self.par, u=u, v=v)
 
     def _d_vfun_d_par(self, par, u, v):
@@ -229,9 +398,39 @@ class Copula(ABC):
         return res
 
     def d_vfun_d_par(self, u, v):
+        """
+        Evaluate the derivative of the copula vfun wrt the parameter.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self._d_vfun_d_par(par=self.par, u=u, v=v)
 
     def d_hfun_d_v(self, u, v):
+        """
+        Evaluate the derivative of the copula hfun wrt v.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         if self.rotation == 0:
             res = self._cop_funs['d_hfun_d_v'](self.par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
@@ -244,6 +443,21 @@ class Copula(ABC):
         return res
 
     def d_vfun_d_u(self, u, v):
+        """
+        Evaluate the derivative of the copula vfun wrt u.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         if self.rotation == 0:
             res = self._cop_funs['d_vfun_d_u'](self.par, self._trim_obs(u), self._trim_obs(v))
         elif self.rotation == 90:
@@ -256,6 +470,21 @@ class Copula(ABC):
         return res
 
     def inv_hfun(self, u, v):
+        """
+        Evaluate the inverse of the copula hfun.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
@@ -266,6 +495,21 @@ class Copula(ABC):
         return self._trim_obs(res)
 
     def inv_vfun(self, u, v):
+        """
+        Evaluate the inverse of the copula vfun.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         u = self._trim_obs(u)
         v = self._trim_obs(v)
         kwargs = {'bracket': [1e-12, 1-1e-12], 'method': 'brentq', 'xtol': 1e-12, 'rtol': 1e-12}
@@ -276,40 +520,197 @@ class Copula(ABC):
         return self._trim_obs(res)
 
     def d_hfun_d_u(self, u, v):
+        """
+        Evaluate the derivative of the copula hfun wrt u.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self.pdf(u, v)
 
     def d_vfun_d_v(self, u, v):
+        """
+        Evaluate the derivative of the copula vfun wrt v.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return self.pdf(u, v)
 
     def d_inv_hfun_d_u(self, u, v):
+        """
+        Evaluate the derivative of the inverse of the copula hfun wrt u.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return 1. / self.pdf(self.inv_hfun(u, v), v)
 
     def d_inv_vfun_d_v(self, u, v):
+        """
+        Evaluate the derivative of the inverse of the copula vfun wrt v.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         return 1. / self.pdf(u, self.inv_vfun(u, v))
 
     def d_inv_hfun_d_v(self, u, v):
+        """
+        Evaluate the derivative of the inverse of the copula hfun wrt v.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         xx = self.inv_hfun(u, v)
         return -1. * self.d_hfun_d_v(xx, v) / self.pdf(xx, v)
 
     def d_inv_vfun_d_u(self, u, v):
+        """
+        Evaluate the derivative of the inverse of the copula vfun wrt u.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         xx = self.inv_vfun(u, v)
         return -1. * self.d_vfun_d_u(u, xx) / self.pdf(u, xx)
 
     def d_inv_hfun_d_par(self, u, v):
+        """
+        Evaluate the derivative of the inverse of the copula hfun wrt the parameter.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         xx = self.inv_hfun(u, v)
         return -1. * self.d_hfun_d_par(xx, v) / self.pdf(xx, v)
 
     def d_inv_vfun_d_par(self, u, v):
+        """
+        Evaluate the derivative of the inverse of the copula vfun wrt the parameter.
+
+        Parameters
+        ----------
+        u : :class:`numpy.ndarray`
+            Array of observations for the first variable.
+        v : :class:`numpy.ndarray`
+            Array of observations for the second variable.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         xx = self.inv_vfun(u, v)
         return -1. * self.d_vfun_d_par(u, xx) / self.pdf(u, xx)
 
     def sim(self, n_obs=100):
+        """
+        Simulate random observations from the copula.
+
+        Parameters
+        ----------
+        n_obs :
+            The number of observations to simulate.
+
+        Returns
+        -------
+        res : :class:`numpy.ndarray`
+            Result array.
+        """
         u = np.random.uniform(size=(n_obs, 2))
         u[:, 0] = self.inv_hfun(u[:, 0], u[:, 1])
         return u
 
 
 class ClaytonCopula(Copula):
+    """Clayton copula (bivariate).
+
+    Parameters
+    ----------
+    par : float
+        Parameter of the Clayton copula.
+        Default is np.nan.
+
+    rotation: int
+        Rotation (0, 90, 180 or 270)
+        Default is 0.
+
+    Examples
+    --------
+    # ToDo: add an example here
+
+    Notes
+    -----
+    The cdf of the Clayton copula with parameter :math:`\\theta \\in (0, \\infty)` is given by
+
+    .. math::
+        C(u, v; \\theta) = (u^{-\\theta} + v^{-\\theta} - 1)^{-\\frac{1}{\\theta}}.
+
+    """
     n_pars = 1
 
     def __init__(self, par=np.nan, rotation=0):
@@ -364,6 +765,28 @@ class ClaytonCopula(Copula):
 
 
 class FrankCopula(Copula):
+    """Frank copula (bivariate).
+
+    Parameters
+    ----------
+    par : float
+        Parameter of the Frank copula.
+        Default is np.nan.
+
+    Examples
+    --------
+    # ToDo: add an example here
+
+    Notes
+    -----
+    The cdf of the Frank copula with parameter :math:`\\theta \\in (-\\infty, \\infty) \\setminus \\lbrace 0 \\rbrace`
+    is given by
+
+    .. math::
+        C(u, v; \\theta) = -\\frac{1}{\\theta} \\log\\bigg(\\frac{1}{1-\\exp(-\\theta)}
+        \\big[(1-\\exp(-\\theta)) - (1-\\exp(-\\theta u)) (1-\\exp(-\\theta v)) \\big] \\bigg).
+
+    """
     n_pars = 1
 
     def __init__(self, par=np.nan):
@@ -409,6 +832,28 @@ class FrankCopula(Copula):
 
 
 class GaussianCopula(Copula):
+    """Gaussian copula (bivariate).
+
+    Parameters
+    ----------
+    par : float
+        Parameter of the Gaussian copula.
+        Default is np.nan.
+
+    Examples
+    --------
+    # ToDo: add an example here
+
+    Notes
+    -----
+    The pdf of the Gaussian copula with parameter :math:`\\theta \\in (-1, 1)` is given by
+
+    .. math::
+        c(u, v; \\theta) = \\frac{1}{\\sqrt{1-\\theta^2}} \\exp\\bigg(-
+        \\frac{\\theta^2 (x^2 + y^2) - 2 \\theta x y}{2 (1-\\theta^2)}\\bigg),
+
+    with :math:`x = \\Phi^{-1}(u)` and :math:`y = \\Phi^{-1}(v)`.
+    """
     n_pars = 1
 
     def __init__(self, par=np.nan):
@@ -435,6 +880,30 @@ class GaussianCopula(Copula):
 
 
 class GumbelCopula(Copula):
+    """Gumbel copula (bivariate).
+
+    Parameters
+    ----------
+    par : float
+        Parameter of the Gumbel copula.
+        Default is np.nan.
+
+    rotation: int
+        Rotation (0, 90, 180 or 270)
+        Default is 0.
+
+    Examples
+    --------
+    # ToDo: add an example here
+
+    Notes
+    -----
+    The cdf of the Gumbel copula with parameter :math:`\\theta \\in (1, \\infty)` is given by
+
+    .. math::
+        C(u, v; \\theta) = \\exp\\big(-\\big[ (-\\log(u))^\\theta + (-\\log(v))^\\theta \\big]^{\\frac{1}{\\theta}} \\big).
+
+    """
     n_pars = 1
 
     def __init__(self, par=np.nan, rotation=0):
@@ -510,6 +979,20 @@ class GumbelCopula(Copula):
 
 
 class IndepCopula(Copula):
+    """Independence / product copula (bivariate).
+
+    Examples
+    --------
+    # ToDo: add an example here
+
+    Notes
+    -----
+    The cdf of the independence / product copula is given by
+
+    .. math::
+        C(u, v) = u v.
+
+    """
     n_pars = 0
 
     def __init__(self):
