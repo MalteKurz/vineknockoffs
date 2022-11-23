@@ -34,5 +34,5 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: DoubleML-pkg
+        name: vineknockoffs-pkg
         path: dist/
