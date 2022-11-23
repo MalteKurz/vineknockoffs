@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v4
       - name: Install dependencies
         run: |
-          pip install sphinx pydata-sphinx-theme
+          pip install sphinx pydata-sphinx-theme seaborn
           pip install --editable .
       - name: Sphinx build
         run: |
