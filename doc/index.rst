@@ -1,12 +1,16 @@
 vineknockoffs: Vine copula based knockoffs
 ==========================================
+|Unit tests| |PyPI version| |codecov| |Python version|
 
 .. |Unit tests| image:: https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml/badge.svg
    :target: https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml
+
 .. |PyPI version| image:: https://badge.fury.io/py/vineknockoffs.svg
    :target: https://badge.fury.io/py/vineknockoffs
+
 .. |codecov| image:: https://codecov.io/gh/MalteKurz/vineknockoffs/branch/main/graph/badge.svg?token=E3O3ZOLLBE
    :target: https://codecov.io/gh/MalteKurz/vineknockoffs
+
 .. |Python version| image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue
    :target: https://www.python.org
 
