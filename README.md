@@ -7,7 +7,7 @@
 
 
 This repo contains an implementation of vine copula knockoffs for high-dimensional controlled variable selection, see 
-Kurz (2022) for details. The documentation is work in progress.
+[Kurz (2022)](https://arxiv.org/abs/2210.11196) for details. The documentation is work in progress.
 
 ## Introduction and API documentation
 
@@ -16,7 +16,7 @@ A brief introduction to vineknockoffs and an API documentation is provided at
 
 ## Main features
 
-The python package vineknockoffs can be used to estimate (for details see Kurz (2022))
+The python package vineknockoffs can be used to estimate (for details see [Kurz (2022)](https://arxiv.org/abs/2210.11196))
 - Gaussian knockoff models,
 - Gaussian copula knockoffs models,
 - Vine copula knockoff models.
