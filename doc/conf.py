@@ -10,6 +10,8 @@ project = 'vineknockoffs'
 copyright = '2022, Malte S. Kurz'
 author = 'Malte S. Kurz'
 
+release = '0.2.dev0'
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
