@@ -7,7 +7,7 @@
 
 
 This repo contains an implementation of vine copula knockoffs for high-dimensional controlled variable selection, see 
-[Kurz (2022)](https://arxiv.org/abs/2210.11196) for details. The documentation is work in progress.
+[Kurz (2022)](https://arxiv.org/abs/2210.11196) for details.
 
 ## Introduction and API documentation
 

@@ -12,23 +12,25 @@ vineknockoffs: Vine copula based knockoffs
 
 
 The repo `<https://github.com/MalteKurz/vineknockoffs>`_ contains an implementation of vine copula knockoffs for
-high-dimensional controlled variable selection, see
-`Kurz (2022) <https://arxiv.org/abs/2210.11196>`_ for details. The documentation is work in progress.
+high-dimensional controlled variable selection, see `Kurz (2022) <https://arxiv.org/abs/2210.11196>`_ for details.
 
-## Main features
+Main features
+-------------
 
 The python package vineknockoffs can be used to estimate (for details see `Kurz (2022) <https://arxiv.org/abs/2210.11196>`_)
+
 - Gaussian knockoff models,
 - Gaussian copula knockoffs models,
 - Vine copula knockoff models.
 
 
-## Citation
+Citation
+--------
 
 If you use the vineknockoffs package a citation is highly appreciated:
 
 Kurz, M. S. (2022). Vine copula based knockoff generation for high-dimensional controlled variable selection,
-arXiv:`2210.11196<https://arxiv.org/abs/2210.11196>`_.
+arXiv:`2210.11196 <https://arxiv.org/abs/2210.11196>`_.
 
 .. code-block:: TeX
 
@@ -42,15 +44,17 @@ arXiv:`2210.11196<https://arxiv.org/abs/2210.11196>`_.
           note={arXiv:\href{https://arxiv.org/abs/2210.11196}{2210.11196} [stat.ME]}
     }
 
-## Acknowledgements
+Acknowledgements
+----------------
 
 Funding by the Deutsche Forschungsgemeinschaft (DFG, German Research
 Foundation) is acknowledged – Project Number 431701914.
 
-## References
+References
+----------
 
 Kurz, M. S. (2022). Vine copula based knockoff generation for high-dimensional controlled variable selection,
-arXiv:`2210.11196<https://arxiv.org/abs/2210.11196>`_.
+arXiv:`2210.11196 <https://arxiv.org/abs/2210.11196>`_.
 
 .. toctree::
    :hidden:
