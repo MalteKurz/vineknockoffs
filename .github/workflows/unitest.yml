@@ -38,7 +38,7 @@ jobs:
       with:
         fetch-depth: 2
     - name: Set up Python ${{ matrix.config.python-version }}
-      uses: actions/setup-python@v45
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
     - name: Install vineknockoffs and dependencies
