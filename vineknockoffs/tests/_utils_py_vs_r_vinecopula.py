@@ -28,7 +28,7 @@ def py_copula_funs_eval(data, cop_obj, fun_type):
 
 r_copula_funs_eval = robjects.r('''
         library(VineCopula)
-        copula_funs_eval <- function(u, v, family, par, type) {
+        function(u, v, family, par, type) {
 
           if (type == 'cdf'){
             res = BiCopCDF(u, v, family, par)

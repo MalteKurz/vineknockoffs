@@ -12,39 +12,39 @@ if not r_kde1d_available:
 
 
 r_kde1d_fit = robjects.r('''
-        kde_fit <- function(x) {
+        function(x) {
           return(kde1d::kde1d(x))
         }
         ''')
 
 r_kde1d_discrete_fit = robjects.r('''
-        kde_fit <- function(x, levels) {
+        function(x, levels) {
           x <- ordered(x, levels=levels)
           return(kde1d::kde1d(x))
         }
         ''')
 
 r_kde1d_cdf_eval = robjects.r('''
-        cdf_eval <- function(kde_fit, x) {
+        function(kde_fit, x) {
           return(kde1d::pkde1d(x, kde_fit))
         }
         ''')
 
 r_kde1d_invcdf_eval = robjects.r('''
-        invcdf_eval <- function(kde_fit, x) {
+        function(kde_fit, x) {
           return(kde1d::qkde1d(x, kde_fit))
         }
         ''')
 
 r_kde1d_discrete_invcdf_eval = robjects.r('''
-        invcdf_eval <- function(kde_fit, x) {
+        function(kde_fit, x) {
           res <- kde1d::qkde1d(x, kde_fit)
           return(as.numeric(levels(res)[res]))
         }
         ''')
 
 r_kde1d_pdf_eval = robjects.r('''
-        pdf_eval <- function(kde_fit, x) {
+        function(kde_fit, x) {
           return(kde1d::dkde1d(x, kde_fit))
         }
         ''')
