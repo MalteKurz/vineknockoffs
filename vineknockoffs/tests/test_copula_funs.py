@@ -187,7 +187,7 @@ def test_hfun_d_par_numdiff(copula):
                                 kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                 centered=True)
 
-    assert np.allclose(res_num,
+    assert np.allclose(res_num.flatten(),
                        res,
                        rtol=1e-4, atol=1e-3)
 
@@ -212,7 +212,7 @@ def test_vfun_d_par_numdiff(copula):
                                 kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                 centered=True)
 
-    assert np.allclose(res_num,
+    assert np.allclose(res_num.flatten(),
                        res,
                        rtol=1e-4, atol=1e-3)
 
@@ -237,7 +237,7 @@ def test_cdf_d_par_numdiff(copula):
                                 kwargs={'u': data[:, 0], 'v': data[:, 1]},
                                 centered=True)
 
-    assert np.allclose(res_num,
+    assert np.allclose(res_num.flatten(),
                        res,
                        rtol=1e-4, atol=1e-3)
 
@@ -280,7 +280,7 @@ def test_invhfun_numdiff(copula):
                                       inv_hfun_for_numdiff_d_par,
                                       epsilon=1e-6,
                                       kwargs={'u': data[:, 0], 'v': data[:, 1]},
-                                      centered=True)
+                                      centered=True).flatten()
 
     assert np.allclose(res_num,
                        res,
@@ -325,7 +325,7 @@ def test_invvfun_numdiff(copula):
                                       inv_vfun_for_numdiff_d_par,
                                       epsilon=1e-6,
                                       kwargs={'u': data[:, 0], 'v': data[:, 1]},
-                                      centered=True)
+                                      centered=True).flatten()
 
     assert np.allclose(res_num,
                        res,
