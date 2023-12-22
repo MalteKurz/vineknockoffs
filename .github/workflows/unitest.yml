@@ -23,7 +23,6 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: 'ubuntu-20.04', python-version: '3.6', rpy2: 'true'}
           - {os: 'ubuntu-20.04', python-version: '3.7', rpy2: 'true'}
           - {os: 'ubuntu-latest', python-version: '3.8', rpy2: 'true'}
           - {os: 'ubuntu-latest', python-version: '3.8', rpy2: 'false'}
