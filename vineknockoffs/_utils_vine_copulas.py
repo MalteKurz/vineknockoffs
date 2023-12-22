@@ -10,7 +10,7 @@ else:
     _has_rpy2 = True
 
 if _has_rpy2:
-    _has_r_tsp = robjects.r('require("TSP", quietly=TRUE)')[0]
+    _has_r_tsp = robjects.r('library("TSP", quietly=TRUE, logical.return=TRUE)')[0]
     r_solve_tsp = robjects.r('''
             solve_tsp <- function(one_m_tau_mat) {
                 hamilton = TSP::insert_dummy(TSP::TSP(one_m_tau_mat), label = "cut")

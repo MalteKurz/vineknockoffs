@@ -6,7 +6,7 @@ except ImportError:
 from rpy2 import robjects
 import rpy2.robjects.numpy2ri
 rpy2.robjects.numpy2ri.activate()
-r_kde1d_available = robjects.r('require("kde1d", quietly=TRUE)')[0]
+r_kde1d_available = robjects.r('library("kde1d", quietly=TRUE, logical.return=TRUE)')[0]
 if not r_kde1d_available:
     raise ImportError('To estimate the margins with kde1d the python package rpy2 and the R package kde1d are required.')
 
