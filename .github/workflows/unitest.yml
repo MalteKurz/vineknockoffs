@@ -63,7 +63,7 @@ jobs:
         matrix.config.rpy2 == 'true' &&
         matrix.config.os == 'windows-latest'
       run: |
-        pip install rpy2==3.5.13
+        pip install rpy2==3.5.12
     - name: Test with pytest
       if: |
         matrix.config.os != 'ubuntu-latest' ||
