@@ -10,9 +10,9 @@ else:
     _has_rpy2 = True
 
 if _has_rpy2:
-    _has_r_tsp = robjects.r('require("TSP", quietly=TRUE)')[0]
+    _has_r_tsp = robjects.r('library("TSP", quietly=TRUE, logical.return=TRUE)')[0]
     r_solve_tsp = robjects.r('''
-            solve_tsp <- function(one_m_tau_mat) {
+            function(one_m_tau_mat) {
                 hamilton = TSP::insert_dummy(TSP::TSP(one_m_tau_mat), label = "cut")
                 sol = TSP::solve_TSP(hamilton, method = "repetitive_nn")
                 order = TSP::cut_tour(sol, "cut")
@@ -53,7 +53,7 @@ def d_vine_structure_select(u, tsp_method='r_tsp'):
         if not (_has_rpy2 and _has_r_tsp):
             raise ImportError('To determine the D-vine structure with method r_tsp the python package rpy2 and the R '
                               'package TSP are required.')
-        permutation = r_solve_tsp(tau_mat)-1
+        permutation = np.array(r_solve_tsp(tau_mat))-1
     else:
         assert tsp_method == 'py_tsp'
         permutation, _ = solve_tsp_dynamic_programming(tau_mat)

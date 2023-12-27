@@ -28,6 +28,7 @@ setup(
         'cvxopt',
         'python_tsp'
     ],
+    python_requires=">=3.7",
     extras_require={
         'KDE1D': ['rpy2'],
         'SYMPY': ['sympy'],

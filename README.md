@@ -2,7 +2,7 @@
 
 [![Unit tests](https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml/badge.svg)](https://github.com/MalteKurz/vineknockoffs/actions/workflows/unitest.yml)
 [![codecov](https://codecov.io/gh/MalteKurz/vineknockoffs/branch/main/graph/badge.svg?token=E3O3ZOLLBE)](https://codecov.io/gh/MalteKurz/vineknockoffs)
-[![Python version](https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue)](https://www.python.org/)
+[![Python version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue)](https://www.python.org/)
 <!--- [![PyPI version](https://badge.fury.io/py/vineknockoffs.svg)](https://badge.fury.io/py/vineknockoffs) --->
 
 
